@@ -1,4 +1,4 @@
-📊 Finanzas Familiares (Arg 🇦🇷) - Gabi & Sole
+📊 Finanzas Familiares (Arg 🇦🇷) - Familia
 
 Una aplicación web moderna, rápida y "serverless" diseñada para gestionar, proyectar y controlar los gastos familiares en el contexto económico argentino.
 Esta aplicación no requiere servidores complejos ni instalaciones locales; funciona enteramente en el navegador y utiliza Google Sheets como base de datos, lo que permite tener un control total de la información cruda en formato Excel mientras se usa una interfaz visual de primer nivel.
