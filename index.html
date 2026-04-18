@@ -1,496 +1,940 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finanzas Gabi & Sole</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Recharts y sus dependencias (Para los gráficos) -->
-    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-    <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.js"></script>
-    <!-- Babel (para compilar JSX en el navegador) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Finanzas · Sole</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Bricolage+Grotesque:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --accent: #7c6af7;
+      --accent2: #f97316;
+      --green: #22d3a0;
+      --red: #f43f5e;
+      --yellow: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Bricolage Grotesque', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .mono { font-family: 'DM Mono', monospace; }
+    .bg-noise {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.7s linear infinite; }
+
+    /* Slide up */
+    @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .slide-up { animation: slideUp 0.3s ease forwards; }
+
+    /* Progress bar */
+    .progress-track { background: var(--surface2); border-radius: 99px; overflow: hidden; height: 6px; }
+    .progress-bar { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Tab active */
+    .tab-active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+    /* Input/select */
+    input, select, textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 14px;
+      width: 100%;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+    input::placeholder { color: var(--muted); }
+    select option { background: var(--surface2); }
+
+    /* Button */
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 20px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      width: 100%;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    /* Glow effect for important numbers */
+    .glow-red { text-shadow: 0 0 20px rgba(244,63,94,0.4); }
+    .glow-green { text-shadow: 0 0 20px rgba(34,211,160,0.4); }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-200 antialiased font-sans">
-    <div id="root"></div>
+<body class="bg-noise">
+<div id="root"></div>
 
-    <script type="text/babel">
-        // ==========================================
-        // 🚨 PEGA AQUÍ TU URL DE GOOGLE APPS SCRIPT 🚨
-        // ==========================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIZRuTnZYZIqm1GNnZuQx8LQWDuR-N7ZFiSJrTOy6pKjHp8INY90k7dUDLv5SfMgLKAg/exec"; 
+<script type="text/babel">
+// ============================================================
+// CONFIG — pegá tu URL de Apps Script acá
+// ============================================================
+const EP = "PEGAR_URL_APPS_SCRIPT_AQUI";
+// ============================================================
 
-        const { useState, useEffect, useMemo } = React;
-        const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip: RechartsTooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } = window.Recharts;
+const { useState, useEffect, useMemo, useCallback } = React;
+const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } = window.Recharts;
 
-        const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
-        const TYPE_COLORS = { 'Fijo': '#8b5cf6', 'Variable': '#10b981' };
+// ---- Helpers ----
+const fmt = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(v || 0);
+const today = () => new Date().toISOString().split('T')[0];
 
-        const TARJETAS = {
-            Gabriel: ['VISA Patagonia'],
-            Soledad: ['VISA Patagonia', 'MC Patagonia', 'VISA BNA']
-        };
+const TARJETAS = ['VISA BNA', 'VISA PATAGONIA', 'MC PATAGONIA'];
+const CATEGORIAS_CUOTA = ['Hogar', 'Tecnología', 'Educación', 'Salud', 'Indumentaria', 'Auto', 'Supermercado', 'Otros'];
+const CATEGORIAS_FIJO = ['Servicios', 'Expensas', 'Educación', 'Transporte', 'Salud', 'Otros'];
+const MEDIOS_PAGO = ['Efectivo', 'Débito', 'VISA BNA', 'VISA PATAGONIA', 'MC PATAGONIA', 'Transferencia', 'Otros'];
 
-        const Icons = {
-            Dashboard: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>,
-            Plus: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>,
-            List: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>,
-            CheckCircle: () => <svg className="w-6 h-6 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path></svg>,
-            Circle: () => <svg className="w-6 h-6 text-slate-500 hover:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>,
-            Loading: () => <svg className="w-5 h-5 animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>,
-            Trash: () => <span className="text-xl">🗑️</span>,
-            Magic: () => <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clipRule="evenodd"></path></svg>
-        };
+// ---- API ----
+async function api(params, method = 'GET', body = null) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    let url = EP + '?' + new URLSearchParams(params).toString();
+    const opts = { method, signal: controller.signal, redirect: 'follow' };
+    if (method === 'POST' && body) {
+      opts.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+      opts.body = new URLSearchParams({ data: JSON.stringify(body) }).toString();
+    }
+    const res = await fetch(url, opts);
+    return await res.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
-        function App() {
-            const [activeTab, setActiveTab] = useState('dashboard');
-            const [entryMode, setEntryMode] = useState('simple');
-            const [filterStatus, setFilterStatus] = useState('Todos');
-            const [expenses, setExpenses] = useState([]);
-            const [isLoading, setIsLoading] = useState(false);
+// ---- Icons ----
+const Ic = {
+  Dashboard: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" strokeWidth="2"/><rect x="14" y="3" width="7" height="7" rx="1" strokeWidth="2"/><rect x="3" y="14" width="7" height="7" rx="1" strokeWidth="2"/><rect x="14" y="14" width="7" height="7" rx="1" strokeWidth="2"/></svg>,
+  Card: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" strokeWidth="2"/><line x1="2" y1="10" x2="22" y2="10" strokeWidth="2"/></svg>,
+  Loan: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
+  Fixed: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>,
+  Plus: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M12 4v16m8-8H4"/></svg>,
+  Check: () => <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2.5" d="M5 13l4 4L19 7"/></svg>,
+  Trash: () => <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>,
+  Spark: () => <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z"/></svg>,
+  X: () => <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M18 6L6 18M6 6l12 12"/></svg>,
+  Info: () => <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path strokeWidth="2" d="M12 16v-4M12 8h.01"/></svg>,
+};
 
-            const [formData, setFormData] = useState({
-                date: new Date().toISOString().split('T')[0],
-                desc: '', amount: '', category: 'Hogar', type: 'Fijo', payer: 'Gabriel', split: 'Compartido', card: ''
-            });
+// ===========================================================
+// COMPONENT: Spinner
+// ===========================================================
+const Spinner = ({ size = 18 }) => (
+  <svg className="spinner" width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2"/>
+    <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+  </svg>
+);
 
-            const [cuotasData, setCuotasData] = useState({
-                startDate: new Date().toISOString().split('T')[0],
-                desc: '', totalAmount: '', totalCuotas: '6', category: 'Tarjetas', type: 'Fijo', payer: 'Soledad', split: 'Compartido', card: 'VISA Patagonia'
-            });
+// ===========================================================
+// COMPONENT: Progress Ring
+// ===========================================================
+const ProgressRing = ({ pagadas, totales, size = 56 }) => {
+  const pct = totales > 0 ? pagadas / totales : 0;
+  const r = (size - 8) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = circ * (1 - pct);
+  const color = pct >= 1 ? 'var(--green)' : pct >= 0.6 ? 'var(--yellow)' : 'var(--accent)';
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--surface2)" strokeWidth="4"/>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="4"
+          strokeDasharray={circ} strokeDashoffset={dash} strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.6s ease' }}/>
+      </svg>
+      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+        <span className="mono" style={{ fontSize: 11, fontWeight:500, color }}>{pagadas}/{totales}</span>
+      </div>
+    </div>
+  );
+};
 
-            const loadData = async () => {
-                if (!SCRIPT_URL || SCRIPT_URL === "PEGAR_TU_URL_AQUI") return;
-                setIsLoading(true);
-                try {
-                    const response = await fetch(SCRIPT_URL);
-                    const data = await response.json();
-                    setExpenses(data);
-                } catch (error) {
-                    console.error("Error cargando datos:", error);
-                }
-                setIsLoading(false);
-            };
+// ===========================================================
+// COMPONENT: CuotaCard
+// ===========================================================
+const CuotaCard = ({ item, onPagar, onDelete }) => {
+  const pendientes = item.cuotas_totales - item.cuotas_pagadas;
+  const montoPendiente = pendientes * item.monto_cuota;
+  const terminada = pendientes <= 0;
 
-            useEffect(() => { loadData(); }, []);
+  const cardColor = {
+    'VISA BNA': '#1d4ed8',
+    'VISA PATAGONIA': '#7c3aed',
+    'MC PATAGONIA': '#b45309',
+  }[item.tarjeta] || '#4b5563';
 
-            const sendActionToSheet = async (dataPayload) => {
-                if (!SCRIPT_URL || SCRIPT_URL === "PEGAR_TU_URL_AQUI" || SCRIPT_URL.includes("TU_CODIGO_AQUI")) {
-                    alert("Por favor, pega la URL de tu Google Apps Script en la variable SCRIPT_URL al principio del código.");
-                    return;
-                }
-                setIsLoading(true);
-                try {
-                    const formBody = new URLSearchParams();
-                    formBody.append("data", JSON.stringify(dataPayload));
-                    
-                    await fetch(SCRIPT_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: formBody.toString()
-                    });
-                    await loadData();
-                } catch (error) {
-                    console.error("Error guardando:", error);
-                    setIsLoading(false);
-                }
-            };
+  return (
+    <div className="card slide-up" style={{ borderColor: terminada ? 'var(--green)' : 'var(--border)', opacity: terminada ? 0.65 : 1, transition: 'all 0.3s' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text)' }}>{item.descripcion}</span>
+            {terminada && <span className="badge" style={{ background: 'rgba(34,211,160,0.15)', color: 'var(--green)' }}>✓ Pagada</span>}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+            <span className="badge" style={{ background: cardColor + '30', color: cardColor === '#1d4ed8' ? '#93c5fd' : cardColor === '#7c3aed' ? '#c4b5fd' : '#fcd34d', border: `1px solid ${cardColor}50` }}>
+              {item.tarjeta}
+            </span>
+            <span className="badge" style={{ background: 'var(--surface2)', color: 'var(--muted)' }}>{item.categoria}</span>
+          </div>
+          <div className="progress-track" style={{ marginBottom: 8 }}>
+            <div className="progress-bar" style={{ width: `${(item.cuotas_pagadas / item.cuotas_totales) * 100}%`, background: terminada ? 'var(--green)' : 'var(--accent)' }}/>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--muted)' }}>
+            <span className="mono">{fmt(item.monto_cuota)}/cuota</span>
+            {!terminada && <span style={{ color: 'var(--red)', fontWeight: 600 }} className="mono">Resta: {fmt(montoPendiente)}</span>}
+          </div>
+        </div>
+        <ProgressRing pagadas={parseInt(item.cuotas_pagadas)} totales={parseInt(item.cuotas_totales)} />
+      </div>
 
-            // 🌟 FUNCIÓN DE IMPORTACIÓN MÁGICA 🌟
-            const cargarDatosReales = async () => {
-                if (!SCRIPT_URL || SCRIPT_URL === "PEGAR_TU_URL_AQUI" || SCRIPT_URL.includes("TU_CODIGO_AQUI")) {
-                    alert("Primero tenés que pegar tu SCRIPT_URL en la variable al principio del código.");
-                    return;
-                }
-                if (!window.confirm("¿Estás seguro que querés cargar los datos de tus PDFs y Excels en tu planilla? Esto escribirá 5 nuevos gastos en tu Google Sheet.")) return;
+      {!terminada && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+          <button onClick={() => onPagar(item.id)} style={{
+            flex: 1, background: 'rgba(124,106,247,0.12)', border: '1px solid rgba(124,106,247,0.3)',
+            color: 'var(--accent)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer',
+            fontSize: 13, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+          }}>
+            <Ic.Check /> Pagar cuota {parseInt(item.cuotas_pagadas)+1}
+          </button>
+          <button onClick={() => onDelete(item.id, 'CUOTAS_ACTIVAS')} style={{
+            background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)',
+            color: 'var(--red)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer'
+          }}><Ic.Trash /></button>
+        </div>
+      )}
+    </div>
+  );
+};
 
-                setIsLoading(true);
-                
-                // Datos exactos extraídos de tus archivos
-                const datosReales = [
-                    { action: "add", id: "p4_" + Date.now(), date: "2026-05-05", desc: "Préstamo Personal Nro:11624217 - Cuota 4/6", amount: 178565.81, category: "Préstamos", type: "Fijo", payer: "Soledad", split: "Personal", card: "-" },
-                    { action: "add", id: "p5_" + Date.now(), date: "2026-06-05", desc: "Préstamo Personal Nro:11624217 - Cuota 5/6", amount: 177317.45, category: "Préstamos", type: "Fijo", payer: "Soledad", split: "Personal", card: "-" },
-                    { action: "add", id: "p6_" + Date.now(), date: "2026-07-05", desc: "Préstamo Personal Nro:11624217 - Cuota 6/6", amount: 174208.86, category: "Préstamos", type: "Fijo", payer: "Soledad", split: "Personal", card: "-" },
-                    { action: "add", id: "mc_" + Date.now(), date: "2026-04-01", desc: "Resumen Mastercard Patagonia (Cierre 19 Mar)", amount: 354995.68, category: "Tarjetas", type: "Variable", payer: "Soledad", split: "Compartido", card: "MC Patagonia" },
-                    { action: "add", id: "vi_" + Date.now(), date: "2026-04-01", desc: "Resumen VISA Patagonia (Cierre 19 Mar)", amount: 185876.44, category: "Tarjetas", type: "Variable", payer: "Soledad", split: "Compartido", card: "VISA Patagonia" }
-                ];
+// ===========================================================
+// COMPONENT: PrestamoCard
+// ===========================================================
+const PrestamoCard = ({ item, onPagar, onDelete }) => {
+  const pendientes = item.cuotas_totales - item.cuotas_pagadas;
+  const terminado = pendientes <= 0;
+  const tipoColor = item.tipo === 'Adelanto' ? 'var(--yellow)' : 'var(--accent2)';
 
-                for (const item of datosReales) {
-                    try {
-                        const formBody = new URLSearchParams();
-                        formBody.append("data", JSON.stringify(item));
-                        await fetch(SCRIPT_URL, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                            body: formBody.toString()
-                        });
-                    } catch (e) {
-                        console.error("Error al inyectar dato:", e);
-                    }
-                }
+  return (
+    <div className="card slide-up" style={{ borderColor: terminado ? 'var(--green)' : 'var(--border)', opacity: terminado ? 0.65 : 1 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, fontSize: 15 }}>{item.descripcion}</span>
+            {terminado && <span className="badge" style={{ background: 'rgba(34,211,160,0.15)', color: 'var(--green)' }}>✓ Cancelado</span>}
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <span className="badge" style={{ background: 'rgba(249,115,22,0.12)', color: tipoColor, border: `1px solid ${tipoColor}40` }}>{item.tipo}</span>
+          </div>
+          {item.notas && <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>{item.notas}</p>}
+          <div className="progress-track" style={{ marginBottom: 8 }}>
+            <div className="progress-bar" style={{ width: `${(item.cuotas_pagadas / item.cuotas_totales) * 100}%`, background: terminado ? 'var(--green)' : 'var(--accent2)' }}/>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--muted)' }}>
+            <span className="mono">{fmt(item.monto_cuota)}/cuota</span>
+            {!terminado && <span style={{ color: 'var(--red)', fontWeight: 600 }} className="mono">Resta: {fmt(pendientes * item.monto_cuota)}</span>}
+          </div>
+        </div>
+        <ProgressRing pagadas={parseInt(item.cuotas_pagadas)} totales={parseInt(item.cuotas_totales)} />
+      </div>
 
-                await loadData();
-                setIsLoading(false);
-                alert("¡Datos importados con éxito! Andá a la pestaña 'Lista' para verlos.");
-            };
+      {!terminado && (
+        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+          <button onClick={() => onPagar(item.id)} style={{
+            flex: 1, background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)',
+            color: 'var(--accent2)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer',
+            fontSize: 13, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
+          }}>
+            <Ic.Check /> Pagar cuota {parseInt(item.cuotas_pagadas)+1}
+          </button>
+          <button onClick={() => onDelete(item.id, 'PRESTAMOS')} style={{
+            background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)',
+            color: 'var(--red)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer'
+          }}><Ic.Trash /></button>
+        </div>
+      )}
+    </div>
+  );
+};
 
-            const handleSimpleSubmit = async (e) => {
-                e.preventDefault();
-                const newExpense = {
-                    action: "add",
-                    id: Date.now().toString(),
-                    date: formData.date,
-                    desc: formData.desc,
-                    amount: parseFloat(formData.amount),
-                    category: formData.category,
-                    type: formData.type,
-                    payer: formData.payer,
-                    split: formData.split,
-                    card: formData.card
-                };
-                await sendActionToSheet(newExpense);
-                setFormData({ ...formData, desc: '', amount: '' });
-                setActiveTab('list');
-                setFilterStatus('Pendientes');
-            };
+// ===========================================================
+// COMPONENT: Consejos Financieros
+// ===========================================================
+const CONSEJOS = [
+  {
+    icon: '🎯',
+    titulo: 'Priorizá pagar préstamos antes que cuotas sin interés',
+    detalle: 'Los adelantos y préstamos personales tienen tasas de 90–130% TNA. Pagar el mínimo de tarjeta y volcar el resto al préstamo te ahorra miles.',
+    urgencia: 'alta'
+  },
+  {
+    icon: '🔄',
+    titulo: 'Evitá renovar préstamos mientras tenés cuotas activas',
+    detalle: 'Acumular préstamos encima de cuotas de tarjeta es el ciclo que más hace crecer la deuda. Intentá cerrar uno antes de abrir el siguiente.',
+    urgencia: 'alta'
+  },
+  {
+    icon: '💡',
+    titulo: 'Usá una sola tarjeta por tipo de gasto',
+    detalle: 'Concentrar supermercado en VISA BNA y servicios en MC Patagonia te permite ver el total real de cada categoría en el resumen.',
+    urgencia: 'media'
+  },
+  {
+    icon: '📅',
+    titulo: 'Comprá después del cierre para ganar más tiempo',
+    detalle: 'Una compra hecha 1 día después del cierre te da casi 50 días hasta el vencimiento. Esto es clave en meses de gasto alto.',
+    urgencia: 'media'
+  },
+  {
+    icon: '🚨',
+    titulo: 'No financiés el total de la tarjeta',
+    detalle: 'La TNA de financiación Patagonia está al 86–101%. Financiar $100.000 te cuesta ~$15.000 extra en un mes. Pagá el total siempre que puedas.',
+    urgencia: 'alta'
+  },
+  {
+    icon: '📦',
+    titulo: 'Revisá cuotas de ítems que ya no usás',
+    detalle: 'Suscripciones, regalos en cuotas, compras de impulso: si no recordás para qué fue, es candidato a renegociar o cancelar.',
+    urgencia: 'baja'
+  },
+  {
+    icon: '💰',
+    titulo: 'Armá un "fondo de urgencias mínimo"',
+    detalle: 'Aunque sea $50.000 intocables. Reduce la frecuencia de tener que pedir adelantos para gastos imprevistos.',
+    urgencia: 'media'
+  },
+];
 
-            const handleCuotasSubmit = async (e) => {
-                e.preventDefault();
-                let currentDate = new Date(cuotasData.startDate);
-                const total = parseInt(cuotasData.totalCuotas);
-                const amountPerCuota = parseFloat(cuotasData.totalAmount) / total;
+const ConsejosPanel = () => {
+  const urgColors = { alta: 'var(--red)', media: 'var(--yellow)', baja: 'var(--green)' };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {CONSEJOS.map((c, i) => (
+        <div key={i} className="card slide-up" style={{ borderLeft: `3px solid ${urgColors[c.urgencia]}`, animationDelay: `${i*0.05}s` }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 22, flexShrink: 0 }}>{c.icon}</span>
+            <div>
+              <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{c.titulo}</p>
+              <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{c.detalle}</p>
+              <span className="badge" style={{ marginTop: 8, background: urgColors[c.urgencia] + '20', color: urgColors[c.urgencia] }}>
+                {c.urgencia === 'alta' ? '⚠ urgente' : c.urgencia === 'media' ? '→ importante' : '✦ sugerencia'}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
-                setIsLoading(true);
-                for (let i = 1; i <= total; i++) {
-                    const dateString = currentDate.toISOString().split('T')[0];
-                    const cuotaExp = {
-                        action: "add",
-                        id: Date.now().toString() + i,
-                        date: dateString,
-                        desc: `${cuotasData.desc} (Cuota ${i}/${total})`,
-                        amount: parseFloat(amountPerCuota.toFixed(2)),
-                        category: cuotasData.category,
-                        type: cuotasData.type,
-                        payer: cuotasData.payer,
-                        split: cuotasData.split,
-                        card: cuotasData.card
-                    };
-                    
-                    const formBody = new URLSearchParams();
-                    formBody.append("data", JSON.stringify(cuotaExp));
-                    await fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: formBody.toString() });
-                    
-                    currentDate.setMonth(currentDate.getMonth() + 1);
-                }
-                await loadData();
-                setCuotasData({ ...cuotasData, desc: '', totalAmount: '' });
-                setActiveTab('list');
-                setFilterStatus('Pendientes');
-            };
+// ===========================================================
+// COMPONENT: Modal genérico
+// ===========================================================
+const Modal = ({ title, onClose, children }) => (
+  <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:50, display:'flex', alignItems:'flex-end', justifyContent:'center', padding: '0 0 0 0' }}
+    onClick={(e) => { if(e.target === e.currentTarget) onClose(); }}>
+    <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'20px 20px 0 0', width:'100%', maxWidth:540, padding:24, maxHeight:'90vh', overflowY:'auto' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+        <h3 style={{ fontWeight:700, fontSize:17 }}>{title}</h3>
+        <button onClick={onClose} style={{ background:'var(--surface2)', border:'none', color:'var(--muted)', borderRadius:8, padding:'6px 10px', cursor:'pointer' }}><Ic.X/></button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
 
-            const toggleStatus = (id) => sendActionToSheet({ action: "updateStatus", id: id });
-            const deleteExpense = (id) => { if(confirm("¿Seguro que querés eliminar este gasto permanentemente?")) sendActionToSheet({ action: "delete", id: id }); };
+// ===========================================================
+// COMPONENT: FormCuota
+// ===========================================================
+const FormCuota = ({ onSubmit, loading }) => {
+  const [f, setF] = useState({
+    descripcion: '', tarjeta: 'VISA BNA', monto_cuota: '',
+    cuotas_totales: '12', cuotas_pagadas: '0',
+    fecha_primera_cuota: today(), categoria: 'Hogar'
+  });
+  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addCuota', ...f, monto_cuota: parseFloat(f.monto_cuota), cuotas_totales: parseInt(f.cuotas_totales), cuotas_pagadas: parseInt(f.cuotas_pagadas) }); };
+  const change = (k, v) => setF(p => ({...p, [k]: v}));
 
-            const formatCurrency = (val) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
+  const totalRestante = (parseInt(f.cuotas_totales) - parseInt(f.cuotas_pagadas)) * parseFloat(f.monto_cuota || 0);
 
-            const dashboardStats = useMemo(() => {
-                let pending = 0, paid = 0;
-                let categoryTotals = {};
-                let typeTotals = { 'Fijo': 0, 'Variable': 0 };
-                let projectionMap = {};
+  return (
+    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <input required placeholder="Descripción (ej: Heladera, Notebook...)" value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <select value={f.tarjeta} onChange={e=>change('tarjeta',e.target.value)}>
+          {TARJETAS.map(t=><option key={t}>{t}</option>)}
+        </select>
+        <select value={f.categoria} onChange={e=>change('categoria',e.target.value)}>
+          {CATEGORIAS_CUOTA.map(c=><option key={c}>{c}</option>)}
+        </select>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Monto por cuota $</label>
+          <input required type="number" step="0.01" placeholder="45000" value={f.monto_cuota} onChange={e=>change('monto_cuota',e.target.value)}/>
+        </div>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas totales</label>
+          <select value={f.cuotas_totales} onChange={e=>change('cuotas_totales',e.target.value)}>
+            {[2,3,4,6,9,12,18,24,36].map(n=><option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas ya pagadas</label>
+          <input type="number" min="0" value={f.cuotas_pagadas} onChange={e=>change('cuotas_pagadas',e.target.value)}/>
+        </div>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Fecha 1ª cuota</label>
+          <input type="date" value={f.fecha_primera_cuota} onChange={e=>change('fecha_primera_cuota',e.target.value)}/>
+        </div>
+      </div>
+      {f.monto_cuota && (
+        <div style={{ background:'rgba(124,106,247,0.1)', border:'1px solid rgba(124,106,247,0.2)', borderRadius:10, padding:'10px 14px', display:'flex', justifyContent:'space-between' }}>
+          <span style={{ fontSize:13, color:'var(--muted)' }}>Total a pagar:</span>
+          <span className="mono" style={{ fontWeight:700, color:'var(--accent)' }}>{fmt(totalRestante)}</span>
+        </div>
+      )}
+      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Guardar cuota'}</button>
+    </form>
+  );
+};
 
-                expenses.forEach(exp => {
-                    const amt = parseFloat(exp.amount || 0);
-                    
-                    if (exp.status === 'Pendiente') {
-                        pending += amt;
-                        if (exp.date) {
-                            const [y, m] = exp.date.split('-');
-                            const monthYear = `${y}-${m}`;
-                            projectionMap[monthYear] = (projectionMap[monthYear] || 0) + amt;
-                        }
-                    }
-                    if (exp.status === 'Pagado') paid += amt;
+// ===========================================================
+// COMPONENT: FormPrestamo
+// ===========================================================
+const FormPrestamo = ({ onSubmit, loading }) => {
+  const [f, setF] = useState({
+    descripcion: '', tipo: 'Préstamo Personal', monto_cuota: '',
+    cuotas_totales: '6', cuotas_pagadas: '0',
+    fecha_primera_cuota: today(), notas: ''
+  });
+  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addPrestamo', ...f, monto_cuota: parseFloat(f.monto_cuota), cuotas_totales: parseInt(f.cuotas_totales), cuotas_pagadas: parseInt(f.cuotas_pagadas) }); };
+  const change = (k, v) => setF(p => ({...p, [k]: v}));
 
-                    if (categoryTotals[exp.category]) categoryTotals[exp.category] += amt;
-                    else categoryTotals[exp.category] = amt;
+  return (
+    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <input required placeholder="Descripción (ej: Préstamo BNA nro 1234)" value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
+      <select value={f.tipo} onChange={e=>change('tipo',e.target.value)}>
+        <option>Préstamo Personal</option>
+        <option>Adelanto de Sueldo</option>
+        <option>Préstamo Familiar</option>
+        <option>Otros</option>
+      </select>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuota mensual $</label>
+          <input required type="number" step="0.01" placeholder="184912" value={f.monto_cuota} onChange={e=>change('monto_cuota',e.target.value)}/>
+        </div>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas totales</label>
+          <select value={f.cuotas_totales} onChange={e=>change('cuotas_totales',e.target.value)}>
+            {[1,2,3,4,6,9,12,18,24,36,48,60].map(n=><option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas ya pagadas</label>
+          <input type="number" min="0" value={f.cuotas_pagadas} onChange={e=>change('cuotas_pagadas',e.target.value)}/>
+        </div>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Fecha 1ª cuota</label>
+          <input type="date" value={f.fecha_primera_cuota} onChange={e=>change('fecha_primera_cuota',e.target.value)}/>
+        </div>
+      </div>
+      <textarea rows="2" placeholder="Notas (opcional)..." value={f.notas} onChange={e=>change('notas',e.target.value)} style={{ resize:'none' }}/>
+      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Guardar préstamo'}</button>
+    </form>
+  );
+};
 
-                    if (exp.type && typeTotals[exp.type] !== undefined) typeTotals[exp.type] += amt;
-                });
+// ===========================================================
+// COMPONENT: FormGastoFijo
+// ===========================================================
+const FormGastoFijo = ({ onSubmit, loading }) => {
+  const [f, setF] = useState({ descripcion: '', categoria: 'Servicios', monto: '', dia_vencimiento: '10' });
+  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addGastoFijo', ...f, monto: parseFloat(f.monto), dia_vencimiento: parseInt(f.dia_vencimiento) }); };
+  const change = (k, v) => setF(p => ({...p, [k]: v}));
+  return (
+    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <input required placeholder="Descripción (ej: EDENOR, Expensas...)" value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <select value={f.categoria} onChange={e=>change('categoria',e.target.value)}>
+          {CATEGORIAS_FIJO.map(c=><option key={c}>{c}</option>)}
+        </select>
+        <div>
+          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Día de vencimiento</label>
+          <input type="number" min="1" max="31" placeholder="10" value={f.dia_vencimiento} onChange={e=>change('dia_vencimiento',e.target.value)}/>
+        </div>
+      </div>
+      <input type="number" step="0.01" placeholder="Monto estimado $" value={f.monto} onChange={e=>change('monto',e.target.value)}/>
+      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Guardar gasto fijo'}</button>
+    </form>
+  );
+};
 
-                const categoryData = Object.keys(categoryTotals).map(key => ({ name: key, value: categoryTotals[key] }));
-                const typeData = Object.keys(typeTotals).map(key => ({ name: key, value: typeTotals[key] }));
-                
-                const projectionData = Object.keys(projectionMap).sort().map(key => {
-                    const [year, month] = key.split('-');
-                    const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                    return { name: `${monthNames[parseInt(month) - 1]} ${year.substring(2)}`, amount: projectionMap[key] };
-                });
+// ===========================================================
+// COMPONENT: FormGastoMes
+// ===========================================================
+const FormGastoMes = ({ onSubmit, loading }) => {
+  const [f, setF] = useState({ fecha: today(), descripcion: '', categoria: 'Otros', monto: '', medio_pago: 'Efectivo', notas: '' });
+  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addGastoMes', ...f, monto: parseFloat(f.monto) }); };
+  const change = (k, v) => setF(p => ({...p, [k]: v}));
+  return (
+    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <input type="date" value={f.fecha} onChange={e=>change('fecha',e.target.value)}/>
+        <input required type="number" step="0.01" placeholder="Monto $" value={f.monto} onChange={e=>change('monto',e.target.value)}/>
+      </div>
+      <input required placeholder="Descripción..." value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <select value={f.categoria} onChange={e=>change('categoria',e.target.value)}>
+          {[...CATEGORIAS_CUOTA, ...CATEGORIAS_FIJO, 'Comidas', 'Transporte', 'Entretenimiento'].filter((v,i,a)=>a.indexOf(v)===i).map(c=><option key={c}>{c}</option>)}
+        </select>
+        <select value={f.medio_pago} onChange={e=>change('medio_pago',e.target.value)}>
+          {MEDIOS_PAGO.map(m=><option key={m}>{m}</option>)}
+        </select>
+      </div>
+      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Registrar gasto'}</button>
+    </form>
+  );
+};
 
-                return { pending, paid, categoryData, typeData, projectionData };
-            }, [expenses]);
+// ===========================================================
+// COMPONENT: Dashboard
+// ===========================================================
+const Dashboard = ({ cuotas, prestamos, gastosFijos }) => {
+  const totalCuotasPendiente = useMemo(() => cuotas.filter(c=>c.activa==="SI").reduce((s,c)=>{
+    const pend = parseInt(c.cuotas_totales) - parseInt(c.cuotas_pagadas);
+    return s + pend * parseFloat(c.monto_cuota);
+  },0), [cuotas]);
 
-            const CustomTooltip = ({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                    return (
-                        <div className="bg-slate-800 border border-slate-700 p-3 rounded-lg shadow-xl text-slate-200 text-sm">
-                            <p className="font-semibold mb-1">{label || payload[0].name}</p>
-                            <p className="text-indigo-400 font-bold">{formatCurrency(payload[0].value)}</p>
-                        </div>
-                    );
-                }
-                return null;
-            };
+  const totalPrestamosPendiente = useMemo(() => prestamos.filter(p=>p.activo==="SI").reduce((s,p)=>{
+    const pend = parseInt(p.cuotas_totales) - parseInt(p.cuotas_pagadas);
+    return s + pend * parseFloat(p.monto_cuota);
+  },0), [prestamos]);
 
-            const filteredExpenses = expenses
-                .filter(exp => filterStatus === 'Todos' ? true : exp.status === filterStatus)
-                .sort((a,b) => new Date(a.date) - new Date(b.date));
+  const cuotasMesActual = useMemo(() => {
+    const now = new Date();
+    return cuotas.filter(c => c.activa === "SI").reduce((s, c) => {
+      const pagadas = parseInt(c.cuotas_pagadas);
+      const totales = parseInt(c.cuotas_totales);
+      if (pagadas < totales) return s + parseFloat(c.monto_cuota);
+      return s;
+    }, 0);
+  }, [cuotas]);
 
-            return (
-                <div className="pb-20">
-                    {/* Header */}
-                    <header className="bg-slate-950 border-b border-slate-800 p-4 sticky top-0 z-20">
-                        <div className="max-w-4xl mx-auto flex justify-between items-center">
-                            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2 text-indigo-400">
-                                📊 Finanzas Gabi & Sole
-                            </h1>
-                            <div className="flex items-center gap-3">
-                                {isLoading && <Icons.Loading />}
-                                <div className="text-xs font-medium bg-slate-800 text-slate-400 px-3 py-1.5 rounded-full border border-slate-700">Arg 🇦🇷</div>
-                            </div>
-                        </div>
-                    </header>
+  const prestamoMesActual = useMemo(() => prestamos.filter(p=>p.activo==="SI").reduce((s,p)=>{
+    const pagadas = parseInt(p.cuotas_pagadas), totales = parseInt(p.cuotas_totales);
+    if (pagadas < totales) return s + parseFloat(p.monto_cuota);
+    return s;
+  },0), [prestamos]);
 
-                    {/* Nav */}
-                    <nav className="bg-slate-900 border-b border-slate-800 sticky top-[68px] z-10 backdrop-blur-md bg-opacity-90">
-                        <div className="max-w-4xl mx-auto flex">
-                            <button onClick={() => setActiveTab('dashboard')} className={`flex-1 py-4 flex justify-center items-center gap-2 border-b-2 transition-all ${activeTab === 'dashboard' ? 'border-indigo-500 text-indigo-400 font-semibold' : 'border-transparent text-slate-500'}`}>
-                                <Icons.Dashboard /> Dash
-                            </button>
-                            <button onClick={() => setActiveTab('add')} className={`flex-1 py-4 flex justify-center items-center gap-2 border-b-2 transition-all ${activeTab === 'add' ? 'border-indigo-500 text-indigo-400 font-semibold' : 'border-transparent text-slate-500'}`}>
-                                <Icons.Plus /> Cargar
-                            </button>
-                            <button onClick={() => setActiveTab('list')} className={`flex-1 py-4 flex justify-center items-center gap-2 border-b-2 transition-all ${activeTab === 'list' ? 'border-indigo-500 text-indigo-400 font-semibold' : 'border-transparent text-slate-500'}`}>
-                                <Icons.List /> Lista
-                            </button>
-                        </div>
-                    </nav>
+  const totalFijos = useMemo(() => gastosFijos.filter(g=>g.activo==="SI").reduce((s,g)=>s+parseFloat(g.monto||0),0), [gastosFijos]);
 
-                    <main className="max-w-4xl mx-auto p-4 py-8">
-                        
-                        {/* DASHBOARD */}
-                        {activeTab === 'dashboard' && (
-                            <div className="space-y-6 animate-in fade-in">
-                                
-                                {/* BOTÓN DE IMPORTACIÓN MÁGICA (Aparece si hay pocos gastos) */}
-                                {expenses.length < 6 && (
-                                    <div className="bg-indigo-900/40 border border-indigo-500/50 p-6 rounded-2xl flex flex-col items-center text-center shadow-lg">
-                                        <h3 className="text-xl font-bold text-indigo-300 mb-2 flex items-center gap-2">
-                                            <Icons.Magic /> Importación de tus Archivos
-                                        </h3>
-                                        <p className="text-slate-300 mb-4 text-sm">Detectamos que tu base está limpia. ¿Querés que la App inyecte en el Google Sheet las 3 cuotas pendientes del Préstamo de Soledad y los saldos de la VISA y Mastercard de Abril automáticamente?</p>
-                                        <button onClick={cargarDatosReales} disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-6 rounded-xl transition-all flex items-center gap-2 shadow-md">
-                                            {isLoading ? <Icons.Loading /> : <Icons.Plus />} Inyectar Datos Reales en el Sheet
-                                        </button>
-                                    </div>
-                                )}
-                                
-                                {/* Tarjetas Resumen */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 flex flex-col justify-center items-center">
-                                        <p className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Deuda Pendiente</p>
-                                        <h2 className="text-4xl font-bold text-rose-400">{formatCurrency(dashboardStats.pending)}</h2>
-                                    </div>
-                                    <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 flex flex-col justify-center items-center">
-                                        <p className="text-slate-400 text-sm font-semibold uppercase tracking-wider mb-2">Total Pagado</p>
-                                        <h2 className="text-4xl font-bold text-emerald-400">{formatCurrency(dashboardStats.paid)}</h2>
-                                    </div>
-                                </div>
+  // Proyección próximos 6 meses de cuotas
+  const proyeccion = useMemo(() => {
+    const meses = [];
+    const hoy = new Date();
+    for (let m = 0; m < 6; m++) {
+      const d = new Date(hoy.getFullYear(), hoy.getMonth() + m, 1);
+      let total = 0;
+      cuotas.forEach(c => {
+        if (c.activa !== "SI") return;
+        const p = parseInt(c.cuotas_pagadas), t = parseInt(c.cuotas_totales);
+        const cuotasRestantes = t - p;
+        if (cuotasRestantes > m) total += parseFloat(c.monto_cuota);
+      });
+      prestamos.forEach(p => {
+        if (p.activo !== "SI") return;
+        const pg = parseInt(p.cuotas_pagadas), tt = parseInt(p.cuotas_totales);
+        if (tt - pg > m) total += parseFloat(p.monto_cuota);
+      });
+      const mNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      meses.push({ name: mNames[d.getMonth()], total });
+    }
+    return meses;
+  }, [cuotas, prestamos]);
 
-                                {/* Gráficos */}
-                                {expenses.length > 0 && (
-                                    <>
-                                        <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
-                                            <h3 className="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2">
-                                                📈 Proyección de Vencimientos
-                                            </h3>
-                                            <div className="h-72 w-full">
-                                                <ResponsiveContainer>
-                                                    <BarChart data={dashboardStats.projectionData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                                                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                                        <XAxis dataKey="name" stroke="#94a3b8" tick={{fill: '#94a3b8', fontSize: 12}} axisLine={false} tickLine={false} />
-                                                        <YAxis stroke="#94a3b8" tickFormatter={(val) => `$${val/1000}k`} tick={{fill: '#94a3b8', fontSize: 12}} axisLine={false} tickLine={false} width={60} />
-                                                        <RechartsTooltip content={<CustomTooltip />} cursor={{fill: '#334155', opacity: 0.4}} />
-                                                        <Bar dataKey="amount" fill="#6366f1" radius={[4, 4, 0, 0]}>
-                                                            {dashboardStats.projectionData.map((entry, index) => (
-                                                                <Cell key={`cell-${index}`} fill={index === 0 ? '#ec4899' : '#6366f1'} />
-                                                            ))}
-                                                        </Bar>
-                                                    </BarChart>
-                                                </ResponsiveContainer>
-                                            </div>
-                                        </div>
+  const StatCard = ({ label, value, color, sub }) => (
+    <div className="card" style={{ flex:1, minWidth: 140 }}>
+      <p style={{ fontSize:11, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>{label}</p>
+      <p className="mono glow-red" style={{ fontSize:22, fontWeight:700, color }}>{fmt(value)}</p>
+      {sub && <p style={{ fontSize:11, color:'var(--muted)', marginTop:4 }}>{sub}</p>}
+    </div>
+  );
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
-                                                <h3 className="text-sm font-bold text-slate-300 mb-4 uppercase tracking-wider text-center">Por Categorías</h3>
-                                                <div className="h-64 w-full">
-                                                    <ResponsiveContainer>
-                                                        <PieChart>
-                                                            <Pie data={dashboardStats.categoryData} innerRadius={55} outerRadius={80} paddingAngle={5} dataKey="value" stroke="none">
-                                                                {dashboardStats.categoryData.map((entry, index) => (
-                                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                                ))}
-                                                            </Pie>
-                                                            <RechartsTooltip content={<CustomTooltip />} />
-                                                        </PieChart>
-                                                    </ResponsiveContainer>
-                                                </div>
-                                            </div>
-                                            <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50">
-                                                <h3 className="text-sm font-bold text-slate-300 mb-4 uppercase tracking-wider text-center">Fijos vs Variables</h3>
-                                                <div className="h-64 w-full">
-                                                    <ResponsiveContainer>
-                                                        <PieChart>
-                                                            <Pie data={dashboardStats.typeData} innerRadius={0} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
-                                                                {dashboardStats.typeData.map((entry, index) => (
-                                                                    <Cell key={`cell-${index}`} fill={TYPE_COLORS[entry.name] || '#94a3b8'} />
-                                                                ))}
-                                                            </Pie>
-                                                            <RechartsTooltip content={<CustomTooltip />} />
-                                                            <Legend verticalAlign="bottom" height={36} wrapperStyle={{color: '#cbd5e1', fontSize: '14px'}}/>
-                                                        </PieChart>
-                                                    </ResponsiveContainer>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+      {/* Stats */}
+      <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+        <StatCard label="Deuda cuotas" value={totalCuotasPendiente} color="var(--accent)" sub="total pendiente"/>
+        <StatCard label="Préstamos" value={totalPrestamosPendiente} color="var(--accent2)" sub="total pendiente"/>
+      </div>
+      <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
+        <StatCard label="Este mes · Cuotas" value={cuotasMesActual} color="var(--text)" sub="aprox."/>
+        <StatCard label="Este mes · Préstamos" value={prestamoMesActual} color="var(--text)" sub="aprox."/>
+      </div>
 
-                        {/* CARGAR GASTO */}
-                        {activeTab === 'add' && (
-                            <div className="max-w-xl mx-auto bg-slate-800/80 p-6 rounded-2xl border border-slate-700 shadow-xl">
-                                <div className="flex bg-slate-900 rounded-xl p-1 mb-6">
-                                    <button onClick={() => setEntryMode('simple')} className={`flex-1 py-2 rounded-lg font-bold ${entryMode === 'simple' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}>Gasto Simple</button>
-                                    <button onClick={() => setEntryMode('cuotas')} className={`flex-1 py-2 rounded-lg font-bold ${entryMode === 'cuotas' ? 'bg-indigo-600 text-white' : 'text-slate-400'}`}>Plan Cuotas</button>
-                                </div>
+      {/* Gastos fijos */}
+      {totalFijos > 0 && (
+        <div className="card" style={{ borderColor:'rgba(251,191,36,0.3)' }}>
+          <p style={{ fontSize:11, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Gastos fijos mensuales</p>
+          <p className="mono" style={{ fontSize:22, fontWeight:700, color:'var(--yellow)' }}>{fmt(totalFijos)}</p>
+          <p style={{ fontSize:12, color:'var(--muted)', marginTop:4 }}>Estimado mensual recurrente</p>
+        </div>
+      )}
 
-                                {entryMode === 'simple' ? (
-                                    <form onSubmit={handleSimpleSubmit} className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <input type="date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200" required />
-                                            <input type="number" step="0.01" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} placeholder="Monto $" className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200" required />
-                                        </div>
-                                        <input type="text" value={formData.desc} onChange={e => setFormData({...formData, desc: e.target.value})} placeholder="Descripción..." className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200" required />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                <option>Hogar</option><option>Supermercado</option><option>Auto</option><option>Tarjetas</option><option>Préstamos</option><option>Otros</option>
-                                            </select>
-                                            <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                <option>Fijo</option><option>Variable</option>
-                                            </select>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                             <select value={formData.payer} onChange={e => setFormData({...formData, payer: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                <option>Gabriel</option><option>Soledad</option>
-                                            </select>
-                                            <select value={formData.split} onChange={e => setFormData({...formData, split: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                <option>Compartido</option><option>Personal</option>
-                                            </select>
-                                        </div>
-                                        <button type="submit" disabled={isLoading} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl mt-4">Guardar Gasto</button>
-                                    </form>
-                                ) : (
-                                    <form onSubmit={handleCuotasSubmit} className="space-y-4">
-                                        <input type="text" value={cuotasData.desc} onChange={e => setCuotasData({...cuotasData, desc: e.target.value})} placeholder="Descripción de la compra..." className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200" required />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <input type="number" step="0.01" value={cuotasData.totalAmount} onChange={e => setCuotasData({...cuotasData, totalAmount: e.target.value})} placeholder="Monto TOTAL $" className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200" required />
-                                            <select value={cuotasData.totalCuotas} onChange={e => setCuotasData({...cuotasData, totalCuotas: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                {[2,3,6,9,12,18,24].map(n => <option key={n} value={n}>{n} Cuotas</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <select value={cuotasData.category} onChange={e => setCuotasData({...cuotasData, category: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                <option>Hogar</option><option>Supermercado</option><option>Auto</option><option>Tarjetas</option><option>Préstamos</option><option>Otros</option>
-                                            </select>
-                                            <select value={cuotasData.type} onChange={e => setCuotasData({...cuotasData, type: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                <option>Fijo</option><option>Variable</option>
-                                            </select>
-                                        </div>
-                                        {cuotasData.totalAmount && (
-                                            <div className="text-emerald-400 font-bold bg-emerald-900/20 p-3 rounded-lg text-center">
-                                                Quedarán cuotas de: {formatCurrency(cuotasData.totalAmount / cuotasData.totalCuotas)}
-                                            </div>
-                                        )}
-                                        <div className="grid grid-cols-2 gap-4">
-                                             <select value={cuotasData.payer} onChange={e => setCuotasData({...cuotasData, payer: e.target.value, card: TARJETAS[e.target.value][0]})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                <option value="Gabriel">Gabriel</option><option value="Soledad">Soledad</option>
-                                            </select>
-                                             <select value={cuotasData.card} onChange={e => setCuotasData({...cuotasData, card: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200">
-                                                {TARJETAS[cuotasData.payer].map(c => <option key={c} value={c}>{c}</option>)}
-                                            </select>
-                                        </div>
-                                        <input type="date" value={cuotasData.startDate} onChange={e => setCuotasData({...cuotasData, startDate: e.target.value})} className="w-full p-3 bg-slate-900/50 border border-slate-600 rounded-xl text-slate-200" required />
-                                        <button type="submit" disabled={isLoading} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl mt-4">Generar Cuotas</button>
-                                    </form>
-                                )}
-                            </div>
-                        )}
+      {/* Total comprometido mes */}
+      <div className="card" style={{ background:'rgba(244,63,94,0.06)', borderColor:'rgba(244,63,94,0.25)' }}>
+        <p style={{ fontSize:11, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Compromisos este mes</p>
+        <p className="mono" style={{ fontSize:28, fontWeight:800, color:'var(--red)' }}>{fmt(cuotasMesActual + prestamoMesActual + totalFijos)}</p>
+        <p style={{ fontSize:12, color:'var(--muted)', marginTop:4 }}>Cuotas + préstamos + gastos fijos</p>
+      </div>
 
-                        {/* LISTA */}
-                        {activeTab === 'list' && (
-                            <div className="bg-slate-800/80 rounded-2xl border border-slate-700 overflow-hidden">
-                                <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
-                                    <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="bg-slate-800 text-slate-200 p-2 rounded-lg border border-slate-600 outline-none">
-                                        <option value="Todos">Todos</option>
-                                        <option value="Pendiente">Solo Pendientes</option>
-                                        <option value="Pagado">Solo Pagados</option>
-                                    </select>
-                                </div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-sm">
-                                        <tbody>
-                                            {filteredExpenses.map((exp) => (
-                                                <tr key={exp.id} className={`border-b border-slate-700/50 ${exp.status === 'Pagado' ? 'opacity-50' : ''}`}>
-                                                    <td className="p-4">
-                                                        <button onClick={() => toggleStatus(exp.id)}>
-                                                            {exp.status === 'Pagado' ? <Icons.CheckCircle /> : <Icons.Circle />}
-                                                        </button>
-                                                    </td>
-                                                    <td className="p-4 whitespace-nowrap text-slate-300">{new Date(exp.date).toLocaleDateString('es-AR', {day:'2-digit', month:'short'})}</td>
-                                                    <td className="p-4 w-full">
-                                                        <div className="font-bold text-slate-200">{exp.desc}</div>
-                                                        <div className="text-xs text-slate-400 mt-1">{exp.payer} {exp.card !== '-' ? `• ${exp.card}` : ''}</div>
-                                                    </td>
-                                                    <td className={`p-4 font-bold text-right ${exp.status === 'Pagado' ? 'line-through' : 'text-indigo-300'}`}>
-                                                        {formatCurrency(exp.amount)}
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <button onClick={() => deleteExpense(exp.id)} className="text-slate-600 hover:text-rose-500"><Icons.Trash /></button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                            {filteredExpenses.length === 0 && (
-                                                <tr><td colSpan="5" className="p-8 text-center text-slate-500">No hay datos.</td></tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-                    </main>
+      {/* Proyección */}
+      {proyeccion.some(m=>m.total>0) && (
+        <div className="card">
+          <p style={{ fontWeight:700, marginBottom:16, fontSize:14 }}>📈 Proyección próximos 6 meses</p>
+          <div style={{ height:180 }}>
+            <ResponsiveContainer>
+              <BarChart data={proyeccion} margin={{top:0,right:0,left:-10,bottom:0}}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false}/>
+                <XAxis dataKey="name" stroke="var(--muted)" tick={{fill:'var(--muted)',fontSize:11}} axisLine={false} tickLine={false}/>
+                <YAxis stroke="var(--muted)" tickFormatter={v=>`$${(v/1000).toFixed(0)}k`} tick={{fill:'var(--muted)',fontSize:10}} axisLine={false} tickLine={false}/>
+                <Tooltip formatter={v=>[fmt(v),'Total']} contentStyle={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,color:'var(--text)',fontSize:12}}/>
+                <Bar dataKey="total" radius={[4,4,0,0]}>
+                  {proyeccion.map((_, i) => <Cell key={i} fill={i===0 ? 'var(--accent)' : 'rgba(124,106,247,0.4)'}/>)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* Aviso si sin URL */}
+      {EP === "PEGAR_URL_APPS_SCRIPT_AQUI" && (
+        <div className="card" style={{ borderColor:'rgba(251,191,36,0.4)', background:'rgba(251,191,36,0.06)' }}>
+          <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+            <Ic.Info/>
+            <div>
+              <p style={{ fontWeight:700, fontSize:13, color:'var(--yellow)' }}>Configuración pendiente</p>
+              <p style={{ fontSize:12, color:'var(--muted)', marginTop:4, lineHeight:1.5 }}>
+                Editá el <code style={{background:'var(--surface2)',padding:'2px 6px',borderRadius:4,fontSize:11}}>const EP</code> al principio del archivo con la URL de tu Apps Script para sincronizar con Google Sheets.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ===========================================================
+// APP PRINCIPAL
+// ===========================================================
+function App() {
+  const [tab, setTab] = useState('dashboard');
+  const [cuotas, setCuotas] = useState([]);
+  const [prestamos, setPrestamos] = useState([]);
+  const [gastosFijos, setGastosFijos] = useState([]);
+  const [gastosMes, setGastosMes] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [modal, setModal] = useState(null); // 'cuota'|'prestamo'|'fijo'|'gasto'
+  const [error, setError] = useState(null);
+
+  const load = useCallback(async () => {
+    if (EP === "PEGAR_URL_APPS_SCRIPT_AQUI") return;
+    setLoading(true);
+    setError(null);
+    try {
+      const [c, p, f, g] = await Promise.all([
+        api({ action: 'getCuotas' }),
+        api({ action: 'getPrestamos' }),
+        api({ action: 'getGastosFijos' }),
+        api({ action: 'getGastosMes' }),
+      ]);
+      if (Array.isArray(c)) setCuotas(c);
+      if (Array.isArray(p)) setPrestamos(p);
+      if (Array.isArray(f)) setGastosFijos(f);
+      if (Array.isArray(g)) setGastosMes(g);
+    } catch(e) {
+      setError('No se pudo conectar con el servidor. Revisá la URL del script.');
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleSave = async (body) => {
+    setSaving(true);
+    try {
+      await api({}, 'POST', body);
+      await load();
+      setModal(null);
+    } catch(e) {
+      alert('Error al guardar. Revisá la conexión.');
+    }
+    setSaving(false);
+  };
+
+  const handlePagarCuota = async (id) => {
+    setSaving(true);
+    try { await api({ action: 'pagarCuota', id }); await load(); } catch(e) {}
+    setSaving(false);
+  };
+
+  const handlePagarPrestamo = async (id) => {
+    setSaving(true);
+    try { await api({ action: 'pagarPrestamo', id }); await load(); } catch(e) {}
+    setSaving(false);
+  };
+
+  const handleDelete = async (id, sheet) => {
+    if (!confirm('¿Eliminár este registro?')) return;
+    setSaving(true);
+    try { await api({ action: 'deleteItem', id, sheet }); await load(); } catch(e) {}
+    setSaving(false);
+  };
+
+  const cuotasActivas = cuotas.filter(c => c.activa === "SI" && parseInt(c.cuotas_pagadas) < parseInt(c.cuotas_totales));
+  const cuotasTerminadas = cuotas.filter(c => c.activa !== "SI" || parseInt(c.cuotas_pagadas) >= parseInt(c.cuotas_totales));
+  const prestamosActivos = prestamos.filter(p => p.activo === "SI" && parseInt(p.cuotas_pagadas) < parseInt(p.cuotas_totales));
+
+  // ---- Nav tabs ----
+  const TABS = [
+    { id: 'dashboard', label: 'Resumen', Icon: Ic.Dashboard },
+    { id: 'cuotas', label: 'Cuotas', Icon: Ic.Card },
+    { id: 'prestamos', label: 'Préstamos', Icon: Ic.Loan },
+    { id: 'fijos', label: 'Fijos', Icon: Ic.Fixed },
+    { id: 'consejos', label: 'Consejos', Icon: Ic.Spark },
+  ];
+
+  const modalConfig = {
+    cuota: { title: '+ Nueva cuota', Form: FormCuota },
+    prestamo: { title: '+ Nuevo préstamo', Form: FormPrestamo },
+    fijo: { title: '+ Gasto fijo', Form: FormGastoFijo },
+    gasto: { title: '+ Gasto del mes', Form: FormGastoMes },
+  };
+
+  return (
+    <div style={{ minHeight:'100vh', paddingBottom:80 }}>
+      {/* Header */}
+      <header style={{ background:'var(--surface)', borderBottom:'1px solid var(--border)', padding:'14px 16px', position:'sticky', top:0, zIndex:30 }}>
+        <div style={{ maxWidth:640, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div>
+            <h1 style={{ fontWeight:800, fontSize:18, letterSpacing:'-0.02em' }}>
+              <span style={{ color:'var(--accent)' }}>Finanzas</span>
+              <span style={{ color:'var(--muted)', fontWeight:300, marginLeft:6, fontSize:15 }}>· Sole</span>
+            </h1>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            {(loading || saving) && <Spinner size={16}/>}
+            <button onClick={load} style={{ background:'var(--surface2)', border:'1px solid var(--border)', color:'var(--muted)', borderRadius:8, padding:'5px 10px', cursor:'pointer', fontSize:12, fontFamily:'inherit' }}>↺ Sync</button>
+          </div>
+        </div>
+      </header>
+
+      {/* Error */}
+      {error && (
+        <div style={{ background:'rgba(244,63,94,0.1)', border:'1px solid rgba(244,63,94,0.3)', borderRadius:10, margin:'12px 16px', padding:'10px 14px', fontSize:13, color:'var(--red)' }}>
+          {error}
+        </div>
+      )}
+
+      {/* Content */}
+      <main style={{ maxWidth:640, margin:'0 auto', padding:'16px 16px' }}>
+
+        {tab === 'dashboard' && <Dashboard cuotas={cuotas} prestamos={prestamos} gastosFijos={gastosFijos}/>}
+
+        {tab === 'cuotas' && (
+          <div>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <h2 style={{ fontWeight:700, fontSize:16 }}>Cuotas activas <span className="badge" style={{ background:'rgba(124,106,247,0.15)', color:'var(--accent)', marginLeft:6 }}>{cuotasActivas.length}</span></h2>
+              <button onClick={()=>setModal('cuota')} style={{ background:'var(--accent)', border:'none', color:'white', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}><Ic.Plus/> Nueva</button>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {cuotasActivas.length === 0 && <p style={{ color:'var(--muted)', fontSize:14, textAlign:'center', padding:32 }}>No hay cuotas activas</p>}
+              {cuotasActivas.map(c => <CuotaCard key={c.id} item={c} onPagar={handlePagarCuota} onDelete={handleDelete}/>)}
+            </div>
+            {cuotasTerminadas.length > 0 && (
+              <div style={{ marginTop:24 }}>
+                <p style={{ fontSize:12, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>Pagadas / finalizadas</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                  {cuotasTerminadas.map(c => <CuotaCard key={c.id} item={c} onPagar={handlePagarCuota} onDelete={handleDelete}/>)}
                 </div>
-            );
-        }
+              </div>
+            )}
+          </div>
+        )}
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+        {tab === 'prestamos' && (
+          <div>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <h2 style={{ fontWeight:700, fontSize:16 }}>Préstamos <span className="badge" style={{ background:'rgba(249,115,22,0.15)', color:'var(--accent2)', marginLeft:6 }}>{prestamosActivos.length}</span></h2>
+              <button onClick={()=>setModal('prestamo')} style={{ background:'var(--accent2)', border:'none', color:'white', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}><Ic.Plus/> Nuevo</button>
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+              {prestamos.length === 0 && <p style={{ color:'var(--muted)', fontSize:14, textAlign:'center', padding:32 }}>Sin préstamos registrados</p>}
+              {prestamos.map(p => <PrestamoCard key={p.id} item={p} onPagar={handlePagarPrestamo} onDelete={handleDelete}/>)}
+            </div>
+          </div>
+        )}
+
+        {tab === 'fijos' && (
+          <div>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+              <h2 style={{ fontWeight:700, fontSize:16 }}>Gastos fijos</h2>
+              <button onClick={()=>setModal('fijo')} style={{ background:'rgba(251,191,36,0.15)', border:'1px solid rgba(251,191,36,0.3)', color:'var(--yellow)', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}><Ic.Plus/> Nuevo</button>
+            </div>
+            {gastosFijos.filter(g=>g.activo==="SI").length === 0 && <p style={{ color:'var(--muted)', fontSize:14, textAlign:'center', padding:32 }}>Sin gastos fijos registrados</p>}
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {gastosFijos.filter(g=>g.activo==="SI").map(g=>(
+                <div key={g.id} className="card" style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <div>
+                    <p style={{ fontWeight:600, fontSize:14 }}>{g.descripcion}</p>
+                    <div style={{ display:'flex', gap:6, marginTop:4 }}>
+                      <span className="badge" style={{ background:'var(--surface2)', color:'var(--muted)' }}>{g.categoria}</span>
+                      {g.dia_vencimiento && <span className="badge" style={{ background:'rgba(251,191,36,0.1)', color:'var(--yellow)' }}>vence día {g.dia_vencimiento}</span>}
+                    </div>
+                  </div>
+                  <div style={{ textAlign:'right' }}>
+                    <p className="mono" style={{ fontWeight:700, color:'var(--yellow)' }}>{fmt(g.monto)}</p>
+                    <button onClick={()=>handleDelete(g.id,'GASTOS_FIJOS')} style={{ background:'none', border:'none', color:'var(--muted)', cursor:'pointer', marginTop:4, padding:0 }}><Ic.Trash/></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Gastos del mes */}
+            <div style={{ marginTop:24 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+                <p style={{ fontSize:13, fontWeight:700 }}>Registro del mes</p>
+                <button onClick={()=>setModal('gasto')} style={{ background:'var(--surface2)', border:'1px solid var(--border)', color:'var(--muted)', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontFamily:'inherit', display:'flex', alignItems:'center', gap:4 }}><Ic.Plus/>Gasto</button>
+              </div>
+              {gastosMes.length === 0 && <p style={{ color:'var(--muted)', fontSize:13, textAlign:'center', padding:20 }}>Sin gastos registrados este mes</p>}
+              <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                {gastosMes.slice().reverse().slice(0,20).map(g=>(
+                  <div key={g.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', background:'var(--surface)', borderRadius:10, border:'1px solid var(--border)' }}>
+                    <div>
+                      <p style={{ fontSize:13, fontWeight:600 }}>{g.descripcion}</p>
+                      <p style={{ fontSize:11, color:'var(--muted)' }}>{g.fecha} · {g.medio_pago}</p>
+                    </div>
+                    <div style={{ textAlign:'right', display:'flex', alignItems:'center', gap:10 }}>
+                      <span className="mono" style={{ fontWeight:700, fontSize:13 }}>{fmt(g.monto)}</span>
+                      <button onClick={()=>handleDelete(g.id,'GASTOS_MES')} style={{ background:'none', border:'none', color:'var(--muted)', cursor:'pointer', padding:0 }}><Ic.Trash/></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === 'consejos' && (
+          <div>
+            <div style={{ marginBottom:16 }}>
+              <h2 style={{ fontWeight:700, fontSize:16, marginBottom:4 }}>💡 Consejos financieros</h2>
+              <p style={{ fontSize:13, color:'var(--muted)' }}>Basados en tu situación actual: cuotas activas, préstamos y uso de tarjetas.</p>
+            </div>
+            <ConsejosPanel/>
+          </div>
+        )}
+      </main>
+
+      {/* Bottom Nav */}
+      <nav style={{ position:'fixed', bottom:0, left:0, right:0, background:'var(--surface)', borderTop:'1px solid var(--border)', display:'flex', zIndex:30, paddingBottom:'env(safe-area-inset-bottom)' }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{
+            flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+            gap:3, padding:'10px 0', background:'none', border:'none', cursor:'pointer',
+            color: tab===t.id ? 'var(--accent)' : 'var(--muted)',
+            borderTop: tab===t.id ? '2px solid var(--accent)' : '2px solid transparent',
+            transition:'color 0.2s',
+            fontFamily:'inherit'
+          }}>
+            <t.Icon/>
+            <span style={{ fontSize:10, fontWeight: tab===t.id ? 700 : 400 }}>{t.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {/* Modals */}
+      {modal && (() => {
+        const cfg = modalConfig[modal];
+        if (!cfg) return null;
+        return (
+          <Modal title={cfg.title} onClose={()=>setModal(null)}>
+            <cfg.Form onSubmit={handleSave} loading={saving}/>
+          </Modal>
+        );
+      })()}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App/>);
+</script>
 </body>
 </html>
