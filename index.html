@@ -79,8 +79,8 @@
             useEffect(() => { loadData(); }, []);
 
             const sendActionToSheet = async (dataPayload) => {
-                if (SCRIPT_URL === "PEGAR_TU_URL_AQUI") {
-                    alert("Por favor, pega la URL de tu Google Apps Script en el código (Línea 20).");
+                if (!SCRIPT_URL || SCRIPT_URL === "PEGAR_TU_URL_AQUI" || SCRIPT_URL.includes("TU_CODIGO_AQUI")) {
+                    alert("Por favor, pega la URL de tu Google Apps Script en la variable SCRIPT_URL al principio del código.");
                     return;
                 }
                 setIsLoading(true);
@@ -102,8 +102,8 @@
 
             // 🌟 FUNCIÓN DE IMPORTACIÓN MÁGICA 🌟
             const cargarDatosReales = async () => {
-                if (SCRIPT_URL === "PEGAR_TU_URL_AQUI") {
-                    alert("Primero tenés que pegar tu SCRIPT_URL en la línea 20 del código.");
+                if (!SCRIPT_URL || SCRIPT_URL === "PEGAR_TU_URL_AQUI" || SCRIPT_URL.includes("TU_CODIGO_AQUI")) {
+                    alert("Primero tenés que pegar tu SCRIPT_URL en la variable al principio del código.");
                     return;
                 }
                 if (!window.confirm("¿Estás seguro que querés cargar los datos de tus PDFs y Excels en tu planilla? Esto escribirá 5 nuevos gastos en tu Google Sheet.")) return;
