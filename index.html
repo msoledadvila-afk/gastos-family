@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Finanzas · Familia</title>
+  <title>Gastos con Amor 💜</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Bricolage+Grotesque:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-  <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     :root {
@@ -25,910 +24,889 @@
       --green: #22d3a0;
       --red: #f43f5e;
       --yellow: #fbbf24;
+      --sole: #c084fc;
+      --gabi: #38bdf8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Bricolage Grotesque', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    body { background: var(--bg); color: var(--text); font-family: 'Bricolage Grotesque', sans-serif; min-height: 100vh; overflow-x: hidden; }
     .mono { font-family: 'DM Mono', monospace; }
-    .bg-noise {
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    }
-
-    /* Spinner */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner { animation: spin 0.7s linear infinite; }
-
-    /* Slide up */
-    @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-    .slide-up { animation: slideUp 0.3s ease forwards; }
-
-    /* Progress bar */
-    .progress-track { background: var(--surface2); border-radius: 99px; overflow: hidden; height: 6px; }
-    .progress-bar { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: var(--surface); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-    /* Tab active */
-    .tab-active { color: var(--accent); border-bottom: 2px solid var(--accent); }
-
-    /* Input/select */
-    input, select, textarea {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 10px 14px;
-      width: 100%;
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--accent);
-    }
+    @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .slide-up { animation: slideUp 0.25s ease forwards; }
+    .progress-track { background: var(--surface2); border-radius: 99px; overflow: hidden; height: 5px; }
+    .progress-bar { height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    input, select, textarea { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 10px 14px; width: 100%; font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
     input::placeholder { color: var(--muted); }
     select option { background: var(--surface2); }
-
-    /* Button */
-    .btn-primary {
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 11px 20px;
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s;
-      width: 100%;
-    }
+    .btn-primary { background: var(--accent); color: white; border: none; border-radius: 10px; padding: 11px 20px; font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.2s; width: 100%; }
     .btn-primary:hover { opacity: 0.88; }
-    .btn-primary:active { transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 99px;
-      font-size: 11px;
-      font-weight: 600;
-      font-family: 'DM Mono', monospace;
-    }
-
-    /* Card */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    /* Glow effect for important numbers */
-    .glow-red { text-shadow: 0 0 20px rgba(244,63,94,0.4); }
-    .glow-green { text-shadow: 0 0 20px rgba(34,211,160,0.4); }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .check-btn { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+    .check-btn.checked { background: var(--green); border-color: var(--green); }
   </style>
 </head>
-<body class="bg-noise">
+<body>
 <div id="root"></div>
-
 <script type="text/babel">
-// ============================================================
-// CONFIG — pegá tu URL de Apps Script acá
-// ============================================================
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
 const EP = "https://script.google.com/macros/s/AKfycbwIZRuTnZYZIqm1GNnZuQx8LQWDuR-N7ZFiSJrTOy6pKjHp8INY90k7dUDLv5SfMgLKAg/exec";
-// ============================================================
 
-const { useState, useEffect, useMemo, useCallback } = React;
-const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } = window.Recharts;
+// ─────────────────────────────────────────────
+// CIERRES — cuarto jueves de cada mes
+// ─────────────────────────────────────────────
+const CIERRES = [
+  new Date(2026,3,23), new Date(2026,4,28), new Date(2026,5,25),
+  new Date(2026,6,23), new Date(2026,7,27), new Date(2026,8,24),
+  new Date(2026,9,22), new Date(2026,10,26), new Date(2026,11,24),
+  new Date(2027,0,28), new Date(2027,1,25), new Date(2027,2,25),
+];
+const MESES_L = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
-// ---- Helpers ----
-const fmt = (v) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(v || 0);
-const today = () => new Date().toISOString().split('T')[0];
-
-const TARJETAS = ['VISA BNA', 'VISA PATAGONIA', 'MC PATAGONIA'];
-const CATEGORIAS_CUOTA = ['Hogar', 'Tecnología', 'Educación', 'Salud', 'Indumentaria', 'Auto', 'Supermercado', 'Otros'];
-const CATEGORIAS_FIJO = ['Servicios', 'Expensas', 'Educación', 'Transporte', 'Salud', 'Otros'];
-const MEDIOS_PAGO = ['Efectivo', 'Débito', 'VISA BNA', 'VISA PATAGONIA', 'MC PATAGONIA', 'Transferencia', 'Otros'];
-
-// ---- API ----
-async function api(params, method = 'GET', body = null) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
-  try {
-    let url = EP + '?' + new URLSearchParams(params).toString();
-    const opts = { method, signal: controller.signal, redirect: 'follow' };
-    if (method === 'POST' && body) {
-      opts.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-      opts.body = new URLSearchParams({ data: JSON.stringify(body) }).toString();
-    }
-    const res = await fetch(url, opts);
-    return await res.json();
-  } finally {
-    clearTimeout(timeout);
+function periodoDecierre(fecha) {
+  const d = fecha instanceof Date ? fecha : new Date(fecha);
+  for (let i = 0; i < CIERRES.length; i++) {
+    if (d <= CIERRES[i]) return { label: MESES_C[CIERRES[i].getMonth()]+' '+CIERRES[i].getFullYear(), cierre: CIERRES[i], idx: i };
   }
+  const last = CIERRES[CIERRES.length-1];
+  return { label:'Mar 2027+', cierre:last, idx:CIERRES.length-1 };
+}
+function proximoCierreCuota(item) {
+  const [y,m,d] = String(item.fecha_primera_cuota).split('-').map(Number);
+  return periodoDecierre(new Date(y, m-1+parseInt(item.cuotas_pagadas), d));
+}
+function cierreActual() {
+  const hoy = new Date();
+  for (let i = 0; i < CIERRES.length; i++) {
+    if (hoy <= CIERRES[i]) return { label:MESES_C[CIERRES[i].getMonth()]+' '+CIERRES[i].getFullYear(), cierre:CIERRES[i], idx:i };
+  }
+  return periodoDecierre(CIERRES[CIERRES.length-1]);
+}
+function mesActual() {
+  const hoy = new Date();
+  return MESES_L[hoy.getMonth()] + ' ' + hoy.getFullYear();
+}
+function alertaCierre(fechaStr) {
+  const fecha = new Date(fechaStr+'T12:00:00');
+  const { cierre } = cierreActual();
+  const diff = (cierre - fecha) / 86400000;
+  if (diff >= 0 && diff <= 3) return `⚠ Cierra en ${Math.round(diff)}d — entra en ${periodoDecierre(fecha).label}`;
+  if (diff < 0 && diff >= -1) return `⚠ Pasó el cierre — entra en período siguiente`;
+  return null;
 }
 
-// ---- Icons ----
-const Ic = {
-  Dashboard: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" strokeWidth="2"/><rect x="14" y="3" width="7" height="7" rx="1" strokeWidth="2"/><rect x="3" y="14" width="7" height="7" rx="1" strokeWidth="2"/><rect x="14" y="14" width="7" height="7" rx="1" strokeWidth="2"/></svg>,
-  Card: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" strokeWidth="2"/><line x1="2" y1="10" x2="22" y2="10" strokeWidth="2"/></svg>,
-  Loan: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
-  Fixed: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>,
-  Plus: () => <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M12 4v16m8-8H4"/></svg>,
-  Check: () => <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2.5" d="M5 13l4 4L19 7"/></svg>,
-  Trash: () => <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>,
-  Spark: () => <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z"/></svg>,
-  X: () => <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M18 6L6 18M6 6l12 12"/></svg>,
-  Info: () => <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path strokeWidth="2" d="M12 16v-4M12 8h.01"/></svg>,
+// ─────────────────────────────────────────────
+// DATOS REALES (fallback / seed)
+// ─────────────────────────────────────────────
+const DATOS_REALES = {
+  cuotas: [
+    // VISA BNA — Sole
+    { id:"C001", descripcion:"Fravega", tarjeta:"VISA BNA", titular:"Soledad", monto_cuota:66666.58, cuotas_totales:12, cuotas_pagadas:9, fecha_primera_cuota:"2025-07-10", categoria:"Hogar", activa:"SI" },
+    { id:"C002", descripcion:"BGH BNA Marketplace", tarjeta:"VISA BNA", titular:"Soledad", monto_cuota:19922.16, cuotas_totales:18, cuotas_pagadas:3, fecha_primera_cuota:"2025-12-10", categoria:"Tecnología", activa:"SI" },
+    { id:"C003", descripcion:"Pinturerías Rex", tarjeta:"VISA BNA", titular:"Soledad", monto_cuota:13206.10, cuotas_totales:6, cuotas_pagadas:2, fecha_primera_cuota:"2026-01-10", categoria:"Hogar", activa:"SI" },
+    { id:"C004", descripcion:"PSA (Seguro)", tarjeta:"VISA BNA", titular:"Soledad", monto_cuota:59916.66, cuotas_totales:12, cuotas_pagadas:2, fecha_primera_cuota:"2026-01-10", categoria:"Auto", activa:"SI" },
+    { id:"C005", descripcion:"Tate Express", tarjeta:"VISA BNA", titular:"Soledad", monto_cuota:25070.00, cuotas_totales:6, cuotas_pagadas:1, fecha_primera_cuota:"2026-02-10", categoria:"Otros", activa:"SI" },
+    { id:"C006", descripcion:"Tate", tarjeta:"VISA BNA", titular:"Soledad", monto_cuota:32720.00, cuotas_totales:6, cuotas_pagadas:1, fecha_primera_cuota:"2026-02-10", categoria:"Otros", activa:"SI" },
+    { id:"C007", descripcion:"Perfumerías Pigmen", tarjeta:"VISA BNA", titular:"Soledad", monto_cuota:28569.18, cuotas_totales:3, cuotas_pagadas:0, fecha_primera_cuota:"2026-03-10", categoria:"Otros", activa:"SI" },
+    // MC PATAGONIA — Sole
+    { id:"C008", descripcion:"Webcar (1)", tarjeta:"MC PATAGONIA", titular:"Soledad", monto_cuota:9813.33, cuotas_totales:12, cuotas_pagadas:5, fecha_primera_cuota:"2025-10-01", categoria:"Auto", activa:"SI" },
+    { id:"C009", descripcion:"Webcar (2)", tarjeta:"MC PATAGONIA", titular:"Soledad", monto_cuota:5050.83, cuotas_totales:12, cuotas_pagadas:5, fecha_primera_cuota:"2025-10-01", categoria:"Auto", activa:"SI" },
+    { id:"C010", descripcion:"Greenlife", tarjeta:"MC PATAGONIA", titular:"Soledad", monto_cuota:11666.33, cuotas_totales:6, cuotas_pagadas:2, fecha_primera_cuota:"2025-12-01", categoria:"Salud", activa:"SI" },
+    { id:"C011", descripcion:"Rebman SA", tarjeta:"MC PATAGONIA", titular:"Soledad", monto_cuota:33333.33, cuotas_totales:3, cuotas_pagadas:1, fecha_primera_cuota:"2026-02-01", categoria:"Hogar", activa:"SI" },
+    // VISA PATAGONIA — Sole
+    { id:"C012", descripcion:"Educación IT", tarjeta:"VISA PATAGONIA", titular:"Soledad", monto_cuota:75734.66, cuotas_totales:12, cuotas_pagadas:3, fecha_primera_cuota:"2025-12-01", categoria:"Educación", activa:"SI" },
+    { id:"C013", descripcion:"Easy Constituyentes", tarjeta:"VISA PATAGONIA", titular:"Soledad", monto_cuota:35668.68, cuotas_totales:3, cuotas_pagadas:2, fecha_primera_cuota:"2025-12-01", categoria:"Hogar", activa:"SI" },
+    { id:"C014", descripcion:"Colorín Pint Norte", tarjeta:"VISA PATAGONIA", titular:"Soledad", monto_cuota:20315.26, cuotas_totales:3, cuotas_pagadas:1, fecha_primera_cuota:"2026-01-01", categoria:"Hogar", activa:"SI" },
+    // VISA PATAGONIA — Gabriel (resumen marzo 2026)
+    { id:"C015", descripcion:"Rentas Córdoba", tarjeta:"VISA PATAGONIA", titular:"Gabriel", monto_cuota:70299.20, cuotas_totales:3, cuotas_pagadas:2, fecha_primera_cuota:"2026-02-01", categoria:"Otros", activa:"SI" },
+    { id:"C016", descripcion:"Cipriano Cocin", tarjeta:"VISA PATAGONIA", titular:"Gabriel", monto_cuota:31153.16, cuotas_totales:6, cuotas_pagadas:2, fecha_primera_cuota:"2026-02-01", categoria:"Hogar", activa:"SI" },
+    { id:"C017", descripcion:"Mercado Libre", tarjeta:"VISA PATAGONIA", titular:"Gabriel", monto_cuota:43496.00, cuotas_totales:6, cuotas_pagadas:2, fecha_primera_cuota:"2026-02-01", categoria:"Otros", activa:"SI" },
+    { id:"C018", descripcion:"Waldsa", tarjeta:"VISA PATAGONIA", titular:"Gabriel", monto_cuota:32583.90, cuotas_totales:6, cuotas_pagadas:2, fecha_primera_cuota:"2026-02-01", categoria:"Hogar", activa:"SI" },
+  ],
+  prestamos: [
+    { id:"P001", descripcion:"Préstamo Personal BNA Nro.11624217", tipo:"Préstamo Personal",
+      monto_cuota:178565.81, cuotas_totales:6, cuotas_pagadas:3,
+      fecha_primera_cuota:"2026-02-05", activo:"SI",
+      notas:"c4=$178.565 | c5=$177.317 | c6=$174.208" }
+  ],
+  gastosFijos: [
+    { id:"F001", descripcion:"EDENOR", categoria:"Servicios", titular:"Compartido", monto:14000, dia_vencimiento:12, activo:"SI", pagado:"NO" },
+    { id:"F002", descripcion:"Naturgy", categoria:"Servicios", titular:"Compartido", monto:15000, dia_vencimiento:29, activo:"SI", pagado:"NO" },
+    { id:"F003", descripcion:"ABL VL", categoria:"Servicios", titular:"Compartido", monto:10460, dia_vencimiento:12, activo:"SI", pagado:"NO" },
+    { id:"F004", descripcion:"ARBA", categoria:"Servicios", titular:"Compartido", monto:6138, dia_vencimiento:16, activo:"SI", pagado:"NO" },
+    { id:"F005", descripcion:"AYSA", categoria:"Servicios", titular:"Compartido", monto:16000, dia_vencimiento:9, activo:"SI", pagado:"NO" },
+    { id:"F006", descripcion:"Expensas", categoria:"Expensas", titular:"Compartido", monto:53548, dia_vencimiento:9, activo:"SI", pagado:"NO" },
+    { id:"F007", descripcion:"Recarga Personal", categoria:"Otros", titular:"Soledad", monto:8000, dia_vencimiento:0, activo:"SI", pagado:"NO" },
+    { id:"F008", descripcion:"Colegio", categoria:"Educación", titular:"Compartido", monto:196545, dia_vencimiento:10, activo:"SI", pagado:"NO" },
+    { id:"F009", descripcion:"Peajes", categoria:"Transporte", titular:"Compartido", monto:19035, dia_vencimiento:0, activo:"SI", pagado:"NO" },
+    { id:"F010", descripcion:"Gym / Inglés", categoria:"Salud", titular:"Soledad", monto:52650, dia_vencimiento:0, activo:"SI", pagado:"NO" },
+  ]
 };
 
-// ===========================================================
-// COMPONENT: Spinner
-// ===========================================================
-const Spinner = ({ size = 18 }) => (
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+const { useState, useEffect, useMemo, useCallback } = React;
+const fmt = v => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(v||0);
+const today = () => new Date().toISOString().split('T')[0];
+const TARJETAS = ['VISA BNA','VISA PATAGONIA','MC PATAGONIA'];
+const CATS_CUOTA = ['Hogar','Tecnología','Educación','Salud','Indumentaria','Auto','Supermercado','Otros'];
+const CATS_FIJO = ['Servicios','Expensas','Educación','Transporte','Salud','Otros'];
+const CARD_COLOR = { 'VISA BNA':'#1d4ed8', 'VISA PATAGONIA':'#7c3aed', 'MC PATAGONIA':'#b45309' };
+const CARD_TEXT  = { 'VISA BNA':'#93c5fd', 'VISA PATAGONIA':'#c4b5fd', 'MC PATAGONIA':'#fcd34d' };
+
+async function api(params, method='GET', body=null) {
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), 15000);
+  try {
+    const url = EP+'?'+new URLSearchParams(params).toString();
+    const opts = { method, signal:ctrl.signal, redirect:'follow' };
+    if (method==='POST'&&body) { opts.headers={'Content-Type':'application/x-www-form-urlencoded'}; opts.body=new URLSearchParams({data:JSON.stringify(body)}).toString(); }
+    const res = await fetch(url, opts);
+    return await res.json();
+  } finally { clearTimeout(t); }
+}
+
+// ─────────────────────────────────────────────
+// Spinner
+// ─────────────────────────────────────────────
+const Spinner = ({size=18}) => (
   <svg className="spinner" width={size} height={size} viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.2"/>
     <path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
   </svg>
 );
 
-// ===========================================================
-// COMPONENT: Progress Ring
-// ===========================================================
-const ProgressRing = ({ pagadas, totales, size = 56 }) => {
-  const pct = totales > 0 ? pagadas / totales : 0;
-  const r = (size - 8) / 2;
-  const circ = 2 * Math.PI * r;
-  const dash = circ * (1 - pct);
-  const color = pct >= 1 ? 'var(--green)' : pct >= 0.6 ? 'var(--yellow)' : 'var(--accent)';
+// ─────────────────────────────────────────────
+// Progress Ring
+// ─────────────────────────────────────────────
+const Ring = ({pagadas,totales,size=52}) => {
+  const pct = totales>0?pagadas/totales:0;
+  const r=(size-8)/2, circ=2*Math.PI*r, dash=circ*(1-pct);
+  const color=pct>=1?'var(--green)':pct>=0.6?'var(--yellow)':'var(--accent)';
   return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
-      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+    <div style={{position:'relative',width:size,height:size,flexShrink:0}}>
+      <svg width={size} height={size} style={{transform:'rotate(-90deg)'}}>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--surface2)" strokeWidth="4"/>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="4"
           strokeDasharray={circ} strokeDashoffset={dash} strokeLinecap="round"
-          style={{ transition: 'stroke-dashoffset 0.6s ease' }}/>
+          style={{transition:'stroke-dashoffset 0.5s ease'}}/>
       </svg>
-      <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-        <span className="mono" style={{ fontSize: 11, fontWeight:500, color }}>{pagadas}/{totales}</span>
+      <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <span className="mono" style={{fontSize:10,fontWeight:500,color}}>{pagadas}/{totales}</span>
       </div>
     </div>
   );
 };
 
-// ===========================================================
-// COMPONENT: CuotaCard
-// ===========================================================
-const CuotaCard = ({ item, onPagar, onDelete }) => {
-  const pendientes = item.cuotas_totales - item.cuotas_pagadas;
-  const montoPendiente = pendientes * item.monto_cuota;
-  const terminada = pendientes <= 0;
-
-  const cardColor = {
-    'VISA BNA': '#1d4ed8',
-    'VISA PATAGONIA': '#7c3aed',
-    'MC PATAGONIA': '#b45309',
-  }[item.tarjeta] || '#4b5563';
-
-  return (
-    <div className="card slide-up" style={{ borderColor: terminada ? 'var(--green)' : 'var(--border)', opacity: terminada ? 0.65 : 1, transition: 'all 0.3s' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text)' }}>{item.descripcion}</span>
-            {terminada && <span className="badge" style={{ background: 'rgba(34,211,160,0.15)', color: 'var(--green)' }}>✓ Pagada</span>}
-          </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-            <span className="badge" style={{ background: cardColor + '30', color: cardColor === '#1d4ed8' ? '#93c5fd' : cardColor === '#7c3aed' ? '#c4b5fd' : '#fcd34d', border: `1px solid ${cardColor}50` }}>
-              {item.tarjeta}
-            </span>
-            <span className="badge" style={{ background: 'var(--surface2)', color: 'var(--muted)' }}>{item.categoria}</span>
-          </div>
-          <div className="progress-track" style={{ marginBottom: 8 }}>
-            <div className="progress-bar" style={{ width: `${(item.cuotas_pagadas / item.cuotas_totales) * 100}%`, background: terminada ? 'var(--green)' : 'var(--accent)' }}/>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--muted)' }}>
-            <span className="mono">{fmt(item.monto_cuota)}/cuota</span>
-            {!terminada && <span style={{ color: 'var(--red)', fontWeight: 600 }} className="mono">Resta: {fmt(montoPendiente)}</span>}
-          </div>
-        </div>
-        <ProgressRing pagadas={parseInt(item.cuotas_pagadas)} totales={parseInt(item.cuotas_totales)} />
-      </div>
-
-      {!terminada && (
-        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-          <button onClick={() => onPagar(item.id)} style={{
-            flex: 1, background: 'rgba(124,106,247,0.12)', border: '1px solid rgba(124,106,247,0.3)',
-            color: 'var(--accent)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer',
-            fontSize: 13, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-          }}>
-            <Ic.Check /> Pagar cuota {parseInt(item.cuotas_pagadas)+1}
-          </button>
-          <button onClick={() => onDelete(item.id, 'CUOTAS_ACTIVAS')} style={{
-            background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)',
-            color: 'var(--red)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer'
-          }}><Ic.Trash /></button>
-        </div>
-      )}
-    </div>
-  );
+// ─────────────────────────────────────────────
+// Icons
+// ─────────────────────────────────────────────
+const Ic = {
+  Home: ()=><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline strokeWidth="2" points="9,22 9,12 15,12 15,22"/></svg>,
+  Card: ()=><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" strokeWidth="2"/><line x1="2" y1="10" x2="22" y2="10" strokeWidth="2"/></svg>,
+  Loan: ()=><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
+  Fixed: ()=><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>,
+  Var: ()=><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>,
+  Plus: ()=><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2.5" d="M12 4v16m8-8H4"/></svg>,
+  Check: ()=><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="3" d="M5 13l4 4L19 7"/></svg>,
+  Trash: ()=><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>,
+  X: ()=><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" d="M18 6L6 18M6 6l12 12"/></svg>,
+  Info: ()=><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2"/><path strokeWidth="2" d="M12 16v-4M12 8h.01"/></svg>,
 };
 
-// ===========================================================
-// COMPONENT: PrestamoCard
-// ===========================================================
-const PrestamoCard = ({ item, onPagar, onDelete }) => {
-  const pendientes = item.cuotas_totales - item.cuotas_pagadas;
-  const terminado = pendientes <= 0;
-  const tipoColor = item.tipo === 'Adelanto' ? 'var(--yellow)' : 'var(--accent2)';
-
-  return (
-    <div className="card slide-up" style={{ borderColor: terminado ? 'var(--green)' : 'var(--border)', opacity: terminado ? 0.65 : 1 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontWeight: 700, fontSize: 15 }}>{item.descripcion}</span>
-            {terminado && <span className="badge" style={{ background: 'rgba(34,211,160,0.15)', color: 'var(--green)' }}>✓ Cancelado</span>}
-          </div>
-          <div style={{ marginBottom: 10 }}>
-            <span className="badge" style={{ background: 'rgba(249,115,22,0.12)', color: tipoColor, border: `1px solid ${tipoColor}40` }}>{item.tipo}</span>
-          </div>
-          {item.notas && <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>{item.notas}</p>}
-          <div className="progress-track" style={{ marginBottom: 8 }}>
-            <div className="progress-bar" style={{ width: `${(item.cuotas_pagadas / item.cuotas_totales) * 100}%`, background: terminado ? 'var(--green)' : 'var(--accent2)' }}/>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--muted)' }}>
-            <span className="mono">{fmt(item.monto_cuota)}/cuota</span>
-            {!terminado && <span style={{ color: 'var(--red)', fontWeight: 600 }} className="mono">Resta: {fmt(pendientes * item.monto_cuota)}</span>}
-          </div>
-        </div>
-        <ProgressRing pagadas={parseInt(item.cuotas_pagadas)} totales={parseInt(item.cuotas_totales)} />
-      </div>
-
-      {!terminado && (
-        <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-          <button onClick={() => onPagar(item.id)} style={{
-            flex: 1, background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)',
-            color: 'var(--accent2)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer',
-            fontSize: 13, fontWeight: 600, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
-          }}>
-            <Ic.Check /> Pagar cuota {parseInt(item.cuotas_pagadas)+1}
-          </button>
-          <button onClick={() => onDelete(item.id, 'PRESTAMOS')} style={{
-            background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.2)',
-            color: 'var(--red)', borderRadius: 8, padding: '8px 12px', cursor: 'pointer'
-          }}><Ic.Trash /></button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ===========================================================
-// COMPONENT: Consejos Financieros
-// ===========================================================
-const CONSEJOS = [
-  {
-    icon: '🎯',
-    titulo: 'Priorizá pagar préstamos antes que cuotas sin interés',
-    detalle: 'Los adelantos y préstamos personales tienen tasas de 90–130% TNA. Pagar el mínimo de tarjeta y volcar el resto al préstamo te ahorra miles.',
-    urgencia: 'alta'
-  },
-  {
-    icon: '🔄',
-    titulo: 'Evitá renovar préstamos mientras tenés cuotas activas',
-    detalle: 'Acumular préstamos encima de cuotas de tarjeta es el ciclo que más hace crecer la deuda. Intentá cerrar uno antes de abrir el siguiente.',
-    urgencia: 'alta'
-  },
-  {
-    icon: '💡',
-    titulo: 'Usá una sola tarjeta por tipo de gasto',
-    detalle: 'Concentrar supermercado en VISA BNA y servicios en MC Patagonia te permite ver el total real de cada categoría en el resumen.',
-    urgencia: 'media'
-  },
-  {
-    icon: '📅',
-    titulo: 'Comprá después del cierre para ganar más tiempo',
-    detalle: 'Una compra hecha 1 día después del cierre te da casi 50 días hasta el vencimiento. Esto es clave en meses de gasto alto.',
-    urgencia: 'media'
-  },
-  {
-    icon: '🚨',
-    titulo: 'No financiés el total de la tarjeta',
-    detalle: 'La TNA de financiación Patagonia está al 86–101%. Financiar $100.000 te cuesta ~$15.000 extra en un mes. Pagá el total siempre que puedas.',
-    urgencia: 'alta'
-  },
-  {
-    icon: '📦',
-    titulo: 'Revisá cuotas de ítems que ya no usás',
-    detalle: 'Suscripciones, regalos en cuotas, compras de impulso: si no recordás para qué fue, es candidato a renegociar o cancelar.',
-    urgencia: 'baja'
-  },
-  {
-    icon: '💰',
-    titulo: 'Armá un "fondo de urgencias mínimo"',
-    detalle: 'Aunque sea $50.000 intocables. Reduce la frecuencia de tener que pedir adelantos para gastos imprevistos.',
-    urgencia: 'media'
-  },
-];
-
-const ConsejosPanel = () => {
-  const urgColors = { alta: 'var(--red)', media: 'var(--yellow)', baja: 'var(--green)' };
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {CONSEJOS.map((c, i) => (
-        <div key={i} className="card slide-up" style={{ borderLeft: `3px solid ${urgColors[c.urgencia]}`, animationDelay: `${i*0.05}s` }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: 22, flexShrink: 0 }}>{c.icon}</span>
-            <div>
-              <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{c.titulo}</p>
-              <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{c.detalle}</p>
-              <span className="badge" style={{ marginTop: 8, background: urgColors[c.urgencia] + '20', color: urgColors[c.urgencia] }}>
-                {c.urgencia === 'alta' ? '⚠ urgente' : c.urgencia === 'media' ? '→ importante' : '✦ sugerencia'}
-              </span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// ===========================================================
-// COMPONENT: Modal genérico
-// ===========================================================
-const Modal = ({ title, onClose, children }) => (
-  <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:50, display:'flex', alignItems:'flex-end', justifyContent:'center', padding: '0 0 0 0' }}
-    onClick={(e) => { if(e.target === e.currentTarget) onClose(); }}>
-    <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:'20px 20px 0 0', width:'100%', maxWidth:540, padding:24, maxHeight:'90vh', overflowY:'auto' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
-        <h3 style={{ fontWeight:700, fontSize:17 }}>{title}</h3>
-        <button onClick={onClose} style={{ background:'var(--surface2)', border:'none', color:'var(--muted)', borderRadius:8, padding:'6px 10px', cursor:'pointer' }}><Ic.X/></button>
+// ─────────────────────────────────────────────
+// Modal
+// ─────────────────────────────────────────────
+const Modal = ({title,onClose,children}) => (
+  <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',zIndex:50,display:'flex',alignItems:'flex-end',justifyContent:'center'}}
+    onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div style={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:'18px 18px 0 0',width:'100%',maxWidth:540,padding:22,maxHeight:'90vh',overflowY:'auto'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+        <h3 style={{fontWeight:700,fontSize:16}}>{title}</h3>
+        <button onClick={onClose} style={{background:'var(--surface2)',border:'none',color:'var(--muted)',borderRadius:8,padding:'5px 9px',cursor:'pointer'}}><Ic.X/></button>
       </div>
       {children}
     </div>
   </div>
 );
 
-// ===========================================================
-// COMPONENT: FormCuota
-// ===========================================================
-const FormCuota = ({ onSubmit, loading }) => {
-  const [f, setF] = useState({
-    descripcion: '', tarjeta: 'VISA BNA', monto_cuota: '',
-    cuotas_totales: '12', cuotas_pagadas: '0',
-    fecha_primera_cuota: today(), categoria: 'Hogar'
-  });
-  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addCuota', ...f, monto_cuota: parseFloat(f.monto_cuota), cuotas_totales: parseInt(f.cuotas_totales), cuotas_pagadas: parseInt(f.cuotas_pagadas) }); };
-  const change = (k, v) => setF(p => ({...p, [k]: v}));
-
-  const totalRestante = (parseInt(f.cuotas_totales) - parseInt(f.cuotas_pagadas)) * parseFloat(f.monto_cuota || 0);
+// ─────────────────────────────────────────────
+// CuotaCard
+// ─────────────────────────────────────────────
+const CuotaCard = ({item,onPagar,onDelete}) => {
+  const pendientes = parseInt(item.cuotas_totales)-parseInt(item.cuotas_pagadas);
+  const terminada = pendientes<=0;
+  const proxCierre = terminada?null:proximoCierreCuota(item);
+  const actual = cierreActual();
+  const esteResumen = proxCierre&&proxCierre.idx===actual.idx;
+  const proxResumen = proxCierre&&proxCierre.idx===actual.idx+1;
+  const cc=CARD_COLOR[item.tarjeta]||'#4b5563', ct=CARD_TEXT[item.tarjeta]||'#cbd5e1';
 
   return (
-    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
-      <input required placeholder="Descripción (ej: Heladera, Notebook...)" value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <select value={f.tarjeta} onChange={e=>change('tarjeta',e.target.value)}>
-          {TARJETAS.map(t=><option key={t}>{t}</option>)}
-        </select>
-        <select value={f.categoria} onChange={e=>change('categoria',e.target.value)}>
-          {CATEGORIAS_CUOTA.map(c=><option key={c}>{c}</option>)}
-        </select>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Monto por cuota $</label>
-          <input required type="number" step="0.01" placeholder="45000" value={f.monto_cuota} onChange={e=>change('monto_cuota',e.target.value)}/>
-        </div>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas totales</label>
-          <select value={f.cuotas_totales} onChange={e=>change('cuotas_totales',e.target.value)}>
-            {[2,3,4,6,9,12,18,24,36].map(n=><option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas ya pagadas</label>
-          <input type="number" min="0" value={f.cuotas_pagadas} onChange={e=>change('cuotas_pagadas',e.target.value)}/>
-        </div>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Fecha 1ª cuota</label>
-          <input type="date" value={f.fecha_primera_cuota} onChange={e=>change('fecha_primera_cuota',e.target.value)}/>
-        </div>
-      </div>
-      {f.monto_cuota && (
-        <div style={{ background:'rgba(124,106,247,0.1)', border:'1px solid rgba(124,106,247,0.2)', borderRadius:10, padding:'10px 14px', display:'flex', justifyContent:'space-between' }}>
-          <span style={{ fontSize:13, color:'var(--muted)' }}>Total a pagar:</span>
-          <span className="mono" style={{ fontWeight:700, color:'var(--accent)' }}>{fmt(totalRestante)}</span>
-        </div>
-      )}
-      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Guardar cuota'}</button>
-    </form>
-  );
-};
-
-// ===========================================================
-// COMPONENT: FormPrestamo
-// ===========================================================
-const FormPrestamo = ({ onSubmit, loading }) => {
-  const [f, setF] = useState({
-    descripcion: '', tipo: 'Préstamo Personal', monto_cuota: '',
-    cuotas_totales: '6', cuotas_pagadas: '0',
-    fecha_primera_cuota: today(), notas: ''
-  });
-  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addPrestamo', ...f, monto_cuota: parseFloat(f.monto_cuota), cuotas_totales: parseInt(f.cuotas_totales), cuotas_pagadas: parseInt(f.cuotas_pagadas) }); };
-  const change = (k, v) => setF(p => ({...p, [k]: v}));
-
-  return (
-    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
-      <input required placeholder="Descripción (ej: Préstamo BNA nro 1234)" value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
-      <select value={f.tipo} onChange={e=>change('tipo',e.target.value)}>
-        <option>Préstamo Personal</option>
-        <option>Adelanto de Sueldo</option>
-        <option>Préstamo Familiar</option>
-        <option>Otros</option>
-      </select>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuota mensual $</label>
-          <input required type="number" step="0.01" placeholder="184912" value={f.monto_cuota} onChange={e=>change('monto_cuota',e.target.value)}/>
-        </div>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas totales</label>
-          <select value={f.cuotas_totales} onChange={e=>change('cuotas_totales',e.target.value)}>
-            {[1,2,3,4,6,9,12,18,24,36,48,60].map(n=><option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Cuotas ya pagadas</label>
-          <input type="number" min="0" value={f.cuotas_pagadas} onChange={e=>change('cuotas_pagadas',e.target.value)}/>
-        </div>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Fecha 1ª cuota</label>
-          <input type="date" value={f.fecha_primera_cuota} onChange={e=>change('fecha_primera_cuota',e.target.value)}/>
-        </div>
-      </div>
-      <textarea rows="2" placeholder="Notas (opcional)..." value={f.notas} onChange={e=>change('notas',e.target.value)} style={{ resize:'none' }}/>
-      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Guardar préstamo'}</button>
-    </form>
-  );
-};
-
-// ===========================================================
-// COMPONENT: FormGastoFijo
-// ===========================================================
-const FormGastoFijo = ({ onSubmit, loading }) => {
-  const [f, setF] = useState({ descripcion: '', categoria: 'Servicios', monto: '', dia_vencimiento: '10' });
-  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addGastoFijo', ...f, monto: parseFloat(f.monto), dia_vencimiento: parseInt(f.dia_vencimiento) }); };
-  const change = (k, v) => setF(p => ({...p, [k]: v}));
-  return (
-    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
-      <input required placeholder="Descripción (ej: EDENOR, Expensas...)" value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <select value={f.categoria} onChange={e=>change('categoria',e.target.value)}>
-          {CATEGORIAS_FIJO.map(c=><option key={c}>{c}</option>)}
-        </select>
-        <div>
-          <label style={{ fontSize:11, color:'var(--muted)', display:'block', marginBottom:4 }}>Día de vencimiento</label>
-          <input type="number" min="1" max="31" placeholder="10" value={f.dia_vencimiento} onChange={e=>change('dia_vencimiento',e.target.value)}/>
-        </div>
-      </div>
-      <input type="number" step="0.01" placeholder="Monto estimado $" value={f.monto} onChange={e=>change('monto',e.target.value)}/>
-      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Guardar gasto fijo'}</button>
-    </form>
-  );
-};
-
-// ===========================================================
-// COMPONENT: FormGastoMes
-// ===========================================================
-const FormGastoMes = ({ onSubmit, loading }) => {
-  const [f, setF] = useState({ fecha: today(), descripcion: '', categoria: 'Otros', monto: '', medio_pago: 'Efectivo', notas: '' });
-  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ action: 'addGastoMes', ...f, monto: parseFloat(f.monto) }); };
-  const change = (k, v) => setF(p => ({...p, [k]: v}));
-  return (
-    <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:14 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <input type="date" value={f.fecha} onChange={e=>change('fecha',e.target.value)}/>
-        <input required type="number" step="0.01" placeholder="Monto $" value={f.monto} onChange={e=>change('monto',e.target.value)}/>
-      </div>
-      <input required placeholder="Descripción..." value={f.descripcion} onChange={e=>change('descripcion',e.target.value)}/>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        <select value={f.categoria} onChange={e=>change('categoria',e.target.value)}>
-          {[...CATEGORIAS_CUOTA, ...CATEGORIAS_FIJO, 'Comidas', 'Transporte', 'Entretenimiento'].filter((v,i,a)=>a.indexOf(v)===i).map(c=><option key={c}>{c}</option>)}
-        </select>
-        <select value={f.medio_pago} onChange={e=>change('medio_pago',e.target.value)}>
-          {MEDIOS_PAGO.map(m=><option key={m}>{m}</option>)}
-        </select>
-      </div>
-      <button type="submit" className="btn-primary" disabled={loading}>{loading ? <Spinner/> : 'Registrar gasto'}</button>
-    </form>
-  );
-};
-
-// ===========================================================
-// COMPONENT: Dashboard
-// ===========================================================
-const Dashboard = ({ cuotas, prestamos, gastosFijos }) => {
-  const totalCuotasPendiente = useMemo(() => cuotas.filter(c=>c.activa==="SI").reduce((s,c)=>{
-    const pend = parseInt(c.cuotas_totales) - parseInt(c.cuotas_pagadas);
-    return s + pend * parseFloat(c.monto_cuota);
-  },0), [cuotas]);
-
-  const totalPrestamosPendiente = useMemo(() => prestamos.filter(p=>p.activo==="SI").reduce((s,p)=>{
-    const pend = parseInt(p.cuotas_totales) - parseInt(p.cuotas_pagadas);
-    return s + pend * parseFloat(p.monto_cuota);
-  },0), [prestamos]);
-
-  const cuotasMesActual = useMemo(() => {
-    const now = new Date();
-    return cuotas.filter(c => c.activa === "SI").reduce((s, c) => {
-      const pagadas = parseInt(c.cuotas_pagadas);
-      const totales = parseInt(c.cuotas_totales);
-      if (pagadas < totales) return s + parseFloat(c.monto_cuota);
-      return s;
-    }, 0);
-  }, [cuotas]);
-
-  const prestamoMesActual = useMemo(() => prestamos.filter(p=>p.activo==="SI").reduce((s,p)=>{
-    const pagadas = parseInt(p.cuotas_pagadas), totales = parseInt(p.cuotas_totales);
-    if (pagadas < totales) return s + parseFloat(p.monto_cuota);
-    return s;
-  },0), [prestamos]);
-
-  const totalFijos = useMemo(() => gastosFijos.filter(g=>g.activo==="SI").reduce((s,g)=>s+parseFloat(g.monto||0),0), [gastosFijos]);
-
-  // Proyección próximos 6 meses de cuotas
-  const proyeccion = useMemo(() => {
-    const meses = [];
-    const hoy = new Date();
-    for (let m = 0; m < 6; m++) {
-      const d = new Date(hoy.getFullYear(), hoy.getMonth() + m, 1);
-      let total = 0;
-      cuotas.forEach(c => {
-        if (c.activa !== "SI") return;
-        const p = parseInt(c.cuotas_pagadas), t = parseInt(c.cuotas_totales);
-        const cuotasRestantes = t - p;
-        if (cuotasRestantes > m) total += parseFloat(c.monto_cuota);
-      });
-      prestamos.forEach(p => {
-        if (p.activo !== "SI") return;
-        const pg = parseInt(p.cuotas_pagadas), tt = parseInt(p.cuotas_totales);
-        if (tt - pg > m) total += parseFloat(p.monto_cuota);
-      });
-      const mNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-      meses.push({ name: mNames[d.getMonth()], total });
-    }
-    return meses;
-  }, [cuotas, prestamos]);
-
-  const StatCard = ({ label, value, color, sub }) => (
-    <div className="card" style={{ flex:1, minWidth: 140 }}>
-      <p style={{ fontSize:11, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>{label}</p>
-      <p className="mono glow-red" style={{ fontSize:22, fontWeight:700, color }}>{fmt(value)}</p>
-      {sub && <p style={{ fontSize:11, color:'var(--muted)', marginTop:4 }}>{sub}</p>}
-    </div>
-  );
-
-  return (
-    <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
-      {/* Stats */}
-      <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
-        <StatCard label="Deuda cuotas" value={totalCuotasPendiente} color="var(--accent)" sub="total pendiente"/>
-        <StatCard label="Préstamos" value={totalPrestamosPendiente} color="var(--accent2)" sub="total pendiente"/>
-      </div>
-      <div style={{ display:'flex', gap:12, flexWrap:'wrap' }}>
-        <StatCard label="Este mes · Cuotas" value={cuotasMesActual} color="var(--text)" sub="aprox."/>
-        <StatCard label="Este mes · Préstamos" value={prestamoMesActual} color="var(--text)" sub="aprox."/>
-      </div>
-
-      {/* Gastos fijos */}
-      {totalFijos > 0 && (
-        <div className="card" style={{ borderColor:'rgba(251,191,36,0.3)' }}>
-          <p style={{ fontSize:11, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Gastos fijos mensuales</p>
-          <p className="mono" style={{ fontSize:22, fontWeight:700, color:'var(--yellow)' }}>{fmt(totalFijos)}</p>
-          <p style={{ fontSize:12, color:'var(--muted)', marginTop:4 }}>Estimado mensual recurrente</p>
-        </div>
-      )}
-
-      {/* Total comprometido mes */}
-      <div className="card" style={{ background:'rgba(244,63,94,0.06)', borderColor:'rgba(244,63,94,0.25)' }}>
-        <p style={{ fontSize:11, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>Compromisos este mes</p>
-        <p className="mono" style={{ fontSize:28, fontWeight:800, color:'var(--red)' }}>{fmt(cuotasMesActual + prestamoMesActual + totalFijos)}</p>
-        <p style={{ fontSize:12, color:'var(--muted)', marginTop:4 }}>Cuotas + préstamos + gastos fijos</p>
-      </div>
-
-      {/* Proyección */}
-      {proyeccion.some(m=>m.total>0) && (
-        <div className="card">
-          <p style={{ fontWeight:700, marginBottom:16, fontSize:14 }}>📈 Proyección próximos 6 meses</p>
-          <div style={{ height:180 }}>
-            <ResponsiveContainer>
-              <BarChart data={proyeccion} margin={{top:0,right:0,left:-10,bottom:0}}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--surface2)" vertical={false}/>
-                <XAxis dataKey="name" stroke="var(--muted)" tick={{fill:'var(--muted)',fontSize:11}} axisLine={false} tickLine={false}/>
-                <YAxis stroke="var(--muted)" tickFormatter={v=>`$${(v/1000).toFixed(0)}k`} tick={{fill:'var(--muted)',fontSize:10}} axisLine={false} tickLine={false}/>
-                <Tooltip formatter={v=>[fmt(v),'Total']} contentStyle={{background:'var(--surface)',border:'1px solid var(--border)',borderRadius:8,color:'var(--text)',fontSize:12}}/>
-                <Bar dataKey="total" radius={[4,4,0,0]}>
-                  {proyeccion.map((_, i) => <Cell key={i} fill={i===0 ? 'var(--accent)' : 'rgba(124,106,247,0.4)'}/>)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+    <div className="card slide-up" style={{borderColor:terminada?'var(--green)':esteResumen?'rgba(251,191,36,0.45)':'var(--border)',opacity:terminada?0.6:1}}>
+      <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5,flexWrap:'wrap'}}>
+            <span style={{fontWeight:700,fontSize:14}}>{item.descripcion}</span>
+            {terminada&&<span className="badge" style={{background:'rgba(34,211,160,0.15)',color:'var(--green)'}}>✓ Pagada</span>}
+            {esteResumen&&<span className="badge" style={{background:'rgba(251,191,36,0.15)',color:'var(--yellow)'}}>↻ {proxCierre.label}</span>}
+            {proxResumen&&<span className="badge" style={{background:'rgba(124,106,247,0.1)',color:'var(--accent)'}}>→ {proxCierre.label}</span>}
+            {!terminada&&!esteResumen&&!proxResumen&&<span className="badge" style={{background:'var(--surface2)',color:'var(--muted)'}}>{proxCierre.label}</span>}
+          </div>
+          <div style={{display:'flex',gap:5,flexWrap:'wrap',marginBottom:8}}>
+            <span className="badge" style={{background:cc+'25',color:ct,border:`1px solid ${cc}40`}}>{item.tarjeta}</span>
+            <span className="badge" style={{background:'var(--surface2)',color:'var(--muted)'}}>{item.categoria}</span>
+            {item.titular==='Gabriel'&&<span className="badge" style={{background:'rgba(56,189,248,0.12)',color:'var(--gabi)'}}>Gabi</span>}
+            {item.titular==='Soledad'&&<span className="badge" style={{background:'rgba(192,132,252,0.12)',color:'var(--sole)'}}>Sole</span>}
+          </div>
+          <div className="progress-track" style={{marginBottom:6}}>
+            <div className="progress-bar" style={{width:`${(parseInt(item.cuotas_pagadas)/parseInt(item.cuotas_totales))*100}%`,background:terminada?'var(--green)':esteResumen?'var(--yellow)':'var(--accent)'}}/>
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--muted)'}}>
+            <span className="mono">{fmt(item.monto_cuota)}/cuota</span>
+            {!terminada&&<span style={{color:'var(--red)',fontWeight:600}} className="mono">Resta: {fmt(pendientes*parseFloat(item.monto_cuota))}</span>}
           </div>
         </div>
+        <Ring pagadas={parseInt(item.cuotas_pagadas)} totales={parseInt(item.cuotas_totales)}/>
+      </div>
+      {!terminada&&(
+        <div style={{display:'flex',gap:8,marginTop:12}}>
+          <button onClick={()=>onPagar(item.id)} style={{flex:1,background:'rgba(124,106,247,0.1)',border:'1px solid rgba(124,106,247,0.25)',color:'var(--accent)',borderRadius:8,padding:'7px 10px',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'inherit',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>
+            <Ic.Check/> Pagar cuota {parseInt(item.cuotas_pagadas)+1}
+          </button>
+          <button onClick={()=>onDelete(item.id,'CUOTAS_ACTIVAS')} style={{background:'rgba(244,63,94,0.08)',border:'1px solid rgba(244,63,94,0.2)',color:'var(--red)',borderRadius:8,padding:'7px 10px',cursor:'pointer'}}><Ic.Trash/></button>
+        </div>
       )}
+    </div>
+  );
+};
 
-      {/* Aviso si sin URL */}
-      {EP === "https://script.google.com/macros/s/AKfycbwIZRuTnZYZIqm1GNnZuQx8LQWDuR-N7ZFiSJrTOy6pKjHp8INY90k7dUDLv5SfMgLKAg/exec" && (
-        <div className="card" style={{ borderColor:'rgba(251,191,36,0.4)', background:'rgba(251,191,36,0.06)' }}>
-          <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
-            <Ic.Info/>
+// ─────────────────────────────────────────────
+// PrestamoCard
+// ─────────────────────────────────────────────
+const PrestamoCard = ({item,onPagar,onDelete}) => {
+  const pendientes = parseInt(item.cuotas_totales)-parseInt(item.cuotas_pagadas);
+  const terminado = pendientes<=0;
+  return (
+    <div className="card slide-up" style={{borderColor:terminado?'var(--green)':'var(--border)',opacity:terminado?0.6:1}}>
+      <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+        <div style={{flex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:5,flexWrap:'wrap'}}>
+            <span style={{fontWeight:700,fontSize:14}}>{item.descripcion}</span>
+            {terminado&&<span className="badge" style={{background:'rgba(34,211,160,0.15)',color:'var(--green)'}}>✓ Cancelado</span>}
+          </div>
+          <span className="badge" style={{background:'rgba(249,115,22,0.1)',color:'var(--accent2)',marginBottom:8,display:'inline-flex'}}>{item.tipo}</span>
+          {item.notas&&<p style={{fontSize:11,color:'var(--muted)',marginBottom:8}}>{item.notas}</p>}
+          <div className="progress-track" style={{marginBottom:6}}>
+            <div className="progress-bar" style={{width:`${(parseInt(item.cuotas_pagadas)/parseInt(item.cuotas_totales))*100}%`,background:terminado?'var(--green)':'var(--accent2)'}}/>
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--muted)'}}>
+            <span className="mono">{fmt(item.monto_cuota)}/cuota</span>
+            {!terminado&&<span style={{color:'var(--red)',fontWeight:600}} className="mono">Resta: {fmt(pendientes*parseFloat(item.monto_cuota))}</span>}
+          </div>
+        </div>
+        <Ring pagadas={parseInt(item.cuotas_pagadas)} totales={parseInt(item.cuotas_totales)}/>
+      </div>
+      {!terminado&&(
+        <div style={{display:'flex',gap:8,marginTop:12}}>
+          <button onClick={()=>onPagar(item.id)} style={{flex:1,background:'rgba(249,115,22,0.1)',border:'1px solid rgba(249,115,22,0.25)',color:'var(--accent2)',borderRadius:8,padding:'7px 10px',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'inherit',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>
+            <Ic.Check/> Pagar cuota {parseInt(item.cuotas_pagadas)+1}
+          </button>
+          <button onClick={()=>onDelete(item.id,'PRESTAMOS')} style={{background:'rgba(244,63,94,0.08)',border:'1px solid rgba(244,63,94,0.2)',color:'var(--red)',borderRadius:8,padding:'7px 10px',cursor:'pointer'}}><Ic.Trash/></button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Formularios
+// ─────────────────────────────────────────────
+const FormCuota = ({onSubmit,loading}) => {
+  const [f,setF]=useState({descripcion:'',tarjeta:'VISA BNA',titular:'Soledad',monto_cuota:'',cuotas_totales:'12',cuotas_pagadas:'0',fecha_primera_cuota:today(),categoria:'Hogar'});
+  const ch=(k,v)=>setF(p=>({...p,[k]:v}));
+  const restante=(parseInt(f.cuotas_totales)-parseInt(f.cuotas_pagadas||0))*parseFloat(f.monto_cuota||0);
+  return (
+    <form onSubmit={e=>{e.preventDefault();onSubmit({action:'addCuota',...f,monto_cuota:parseFloat(f.monto_cuota),cuotas_totales:parseInt(f.cuotas_totales),cuotas_pagadas:parseInt(f.cuotas_pagadas)});}} style={{display:'flex',flexDirection:'column',gap:12}}>
+      <input required placeholder="Descripción (ej: Heladera, Notebook...)" value={f.descripcion} onChange={e=>ch('descripcion',e.target.value)}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <select value={f.tarjeta} onChange={e=>ch('tarjeta',e.target.value)}>{TARJETAS.map(t=><option key={t}>{t}</option>)}</select>
+        <select value={f.titular} onChange={e=>ch('titular',e.target.value)}><option>Soledad</option><option>Gabriel</option></select>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <select value={f.categoria} onChange={e=>ch('categoria',e.target.value)}>{CATS_CUOTA.map(c=><option key={c}>{c}</option>)}</select>
+        <input required type="number" step="0.01" placeholder="Monto por cuota $" value={f.monto_cuota} onChange={e=>ch('monto_cuota',e.target.value)}/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Cuotas totales</label>
+          <select value={f.cuotas_totales} onChange={e=>ch('cuotas_totales',e.target.value)}>{[2,3,4,6,9,12,18,24,36].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
+        <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Ya pagadas</label>
+          <input type="number" min="0" value={f.cuotas_pagadas} onChange={e=>ch('cuotas_pagadas',e.target.value)}/></div>
+      </div>
+      <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Fecha 1ª cuota</label>
+        <input type="date" value={f.fecha_primera_cuota} onChange={e=>ch('fecha_primera_cuota',e.target.value)}/></div>
+      {f.monto_cuota&&<div style={{background:'rgba(124,106,247,0.08)',border:'1px solid rgba(124,106,247,0.2)',borderRadius:8,padding:'8px 12px',display:'flex',justifyContent:'space-between',fontSize:12}}>
+        <span style={{color:'var(--muted)'}}>Total a pagar:</span>
+        <span className="mono" style={{fontWeight:700,color:'var(--accent)'}}>{fmt(restante)}</span>
+      </div>}
+      <button type="submit" className="btn-primary" disabled={loading}>{loading?<Spinner/>:'Guardar cuota'}</button>
+    </form>
+  );
+};
+
+const FormPrestamo = ({onSubmit,loading}) => {
+  const [f,setF]=useState({descripcion:'',tipo:'Préstamo Personal',monto_cuota:'',cuotas_totales:'6',cuotas_pagadas:'0',fecha_primera_cuota:today(),notas:''});
+  const ch=(k,v)=>setF(p=>({...p,[k]:v}));
+  return (
+    <form onSubmit={e=>{e.preventDefault();onSubmit({action:'addPrestamo',...f,monto_cuota:parseFloat(f.monto_cuota),cuotas_totales:parseInt(f.cuotas_totales),cuotas_pagadas:parseInt(f.cuotas_pagadas)});}} style={{display:'flex',flexDirection:'column',gap:12}}>
+      <input required placeholder="Descripción" value={f.descripcion} onChange={e=>ch('descripcion',e.target.value)}/>
+      <select value={f.tipo} onChange={e=>ch('tipo',e.target.value)}><option>Préstamo Personal</option><option>Adelanto de Sueldo</option><option>Préstamo Familiar</option><option>Otros</option></select>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <input required type="number" step="0.01" placeholder="Cuota mensual $" value={f.monto_cuota} onChange={e=>ch('monto_cuota',e.target.value)}/>
+        <select value={f.cuotas_totales} onChange={e=>ch('cuotas_totales',e.target.value)}>{[1,2,3,4,6,9,12,18,24,36,48,60].map(n=><option key={n} value={n}>{n}</option>)}</select>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Ya pagadas</label><input type="number" min="0" value={f.cuotas_pagadas} onChange={e=>ch('cuotas_pagadas',e.target.value)}/></div>
+        <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Fecha 1ª cuota</label><input type="date" value={f.fecha_primera_cuota} onChange={e=>ch('fecha_primera_cuota',e.target.value)}/></div>
+      </div>
+      <textarea rows="2" placeholder="Notas..." value={f.notas} onChange={e=>ch('notas',e.target.value)} style={{resize:'none'}}/>
+      <button type="submit" className="btn-primary" disabled={loading}>{loading?<Spinner/>:'Guardar préstamo'}</button>
+    </form>
+  );
+};
+
+const FormGastoFijo = ({onSubmit,loading}) => {
+  const [f,setF]=useState({descripcion:'',categoria:'Servicios',titular:'Compartido',monto:'',dia_vencimiento:'10'});
+  const ch=(k,v)=>setF(p=>({...p,[k]:v}));
+  return (
+    <form onSubmit={e=>{e.preventDefault();onSubmit({action:'addGastoFijo',...f,monto:parseFloat(f.monto),dia_vencimiento:parseInt(f.dia_vencimiento)});}} style={{display:'flex',flexDirection:'column',gap:12}}>
+      <input required placeholder="Descripción" value={f.descripcion} onChange={e=>ch('descripcion',e.target.value)}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <select value={f.categoria} onChange={e=>ch('categoria',e.target.value)}>{CATS_FIJO.map(c=><option key={c}>{c}</option>)}</select>
+        <select value={f.titular} onChange={e=>ch('titular',e.target.value)}><option>Compartido</option><option>Soledad</option><option>Gabriel</option></select>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <input type="number" step="0.01" placeholder="Monto estimado $" value={f.monto} onChange={e=>ch('monto',e.target.value)}/>
+        <div><label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Día de vencimiento</label><input type="number" min="1" max="31" placeholder="10" value={f.dia_vencimiento} onChange={e=>ch('dia_vencimiento',e.target.value)}/></div>
+      </div>
+      <button type="submit" className="btn-primary" disabled={loading}>{loading?<Spinner/>:'Guardar gasto fijo'}</button>
+    </form>
+  );
+};
+
+const MEDIOS_TARJETA = ['VISA BNA','VISA PATAGONIA','MC PATAGONIA','VISA PATAGONIA (Gabi)'];
+const TODOS_MEDIOS = ['Efectivo','Débito','Transferencia','VISA BNA','VISA PATAGONIA','MC PATAGONIA','VISA PATAGONIA (Gabi)','Otros'];
+
+const FormGastoVar = ({onSubmit,loading}) => {
+  const [f,setF]=useState({fecha:today(),descripcion:'',categoria:'Otros',monto:'',titular:'Soledad',medio_pago:'Efectivo',cuotas:'1'});
+  const ch=(k,v)=>setF(p=>({...p,[k]:v}));
+  const esTarjeta = MEDIOS_TARJETA.includes(f.medio_pago);
+  const nCuotas = parseInt(f.cuotas)||1;
+  const montoTotal = parseFloat(f.monto)||0;
+  const montoCuota = esTarjeta && nCuotas>1 && montoTotal>0 ? montoTotal/nCuotas : null;
+
+  const infoCierre=useMemo(()=>{
+    if(!f.fecha)return null;
+    const p=periodoDecierre(new Date(f.fecha+'T12:00:00'));
+    const a=alertaCierre(f.fecha);
+    return{p,a};
+  },[f.fecha]);
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    if(esTarjeta && nCuotas>1) {
+      // Guardar como cuota activa
+      onSubmit({
+        action:'addCuota',
+        descripcion:f.descripcion,
+        tarjeta: f.medio_pago==='VISA PATAGONIA (Gabi)'?'VISA PATAGONIA':f.medio_pago,
+        titular: f.medio_pago==='VISA PATAGONIA (Gabi)'?'Gabriel':f.titular,
+        monto_cuota: montoTotal/nCuotas,
+        cuotas_totales: nCuotas,
+        cuotas_pagadas: 0,
+        fecha_primera_cuota: f.fecha,
+        categoria: f.categoria,
+      });
+    } else {
+      // Guardar como gasto variable normal
+      onSubmit({action:'addGastoMes', fecha:f.fecha, descripcion:f.descripcion, categoria:f.categoria,
+        monto:montoTotal, titular: f.medio_pago==='VISA PATAGONIA (Gabi)'?'Gabriel':f.titular,
+        medio_pago:f.medio_pago, notas:''});
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:12}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <input type="date" value={f.fecha} onChange={e=>ch('fecha',e.target.value)}/>
+        <input required type="number" step="0.01" placeholder="Monto total $" value={f.monto} onChange={e=>ch('monto',e.target.value)}/>
+      </div>
+      {infoCierre&&<div style={{background:infoCierre.a?'rgba(251,191,36,0.1)':'rgba(124,106,247,0.07)',border:`1px solid ${infoCierre.a?'rgba(251,191,36,0.3)':'rgba(124,106,247,0.15)'}`,borderRadius:8,padding:'7px 11px',fontSize:11,color:infoCierre.a?'var(--yellow)':'var(--muted)'}}>
+        {infoCierre.a||`→ Entra en resumen ${infoCierre.p.label}`}
+      </div>}
+      <input required placeholder="Descripción..." value={f.descripcion} onChange={e=>ch('descripcion',e.target.value)}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+        <select value={f.categoria} onChange={e=>ch('categoria',e.target.value)}>
+          {[...CATS_CUOTA,...CATS_FIJO,'Comidas','Entretenimiento'].filter((v,i,a)=>a.indexOf(v)===i).map(c=><option key={c}>{c}</option>)}
+        </select>
+        <select value={f.titular} onChange={e=>ch('titular',e.target.value)}>
+          <option>Soledad</option><option>Gabriel</option><option>Compartido</option>
+        </select>
+      </div>
+      <div>
+        <label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Medio de pago</label>
+        <select value={f.medio_pago} onChange={e=>ch('medio_pago',e.target.value)}>
+          {TODOS_MEDIOS.map(m=><option key={m}>{m}</option>)}
+        </select>
+      </div>
+      {esTarjeta&&(
+        <div>
+          <label style={{fontSize:11,color:'var(--muted)',display:'block',marginBottom:3}}>Cantidad de cuotas</label>
+          <select value={f.cuotas} onChange={e=>ch('cuotas',e.target.value)}>
+            {[1,2,3,4,6,9,12,18,24].map(n=><option key={n} value={n}>{n===1?'1 pago':n+' cuotas'}</option>)}
+          </select>
+        </div>
+      )}
+      {montoCuota&&(
+        <div style={{background:'rgba(124,106,247,0.08)',border:'1px solid rgba(124,106,247,0.2)',borderRadius:8,padding:'9px 13px',display:'flex',justifyContent:'space-between',fontSize:12}}>
+          <span style={{color:'var(--muted)'}}>{nCuotas} cuotas de:</span>
+          <span className="mono" style={{fontWeight:700,color:'var(--accent)'}}>{fmt(montoCuota)}</span>
+        </div>
+      )}
+      {esTarjeta&&nCuotas>1&&(
+        <p style={{fontSize:11,color:'var(--accent)',background:'rgba(124,106,247,0.06)',padding:'6px 10px',borderRadius:7}}>
+          💳 Se guardará como cuota activa en la solapa Cuotas, distribuida por cierre de tarjeta
+        </p>
+      )}
+      <button type="submit" className="btn-primary" disabled={loading}>{loading?<Spinner/>:'Registrar'}</button>
+    </form>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Tab Gastos Fijos
+// ─────────────────────────────────────────────
+const TabFijos = ({gastosFijos,onTogglePago,onDelete,onAdd,loading,saving}) => {
+  const pendientes = gastosFijos.filter(g=>g.activo==='SI'&&(g.pagado==='NO'||!g.pagado));
+  const pagados = gastosFijos.filter(g=>g.activo==='SI'&&g.pagado==='SI');
+  const titColors = {Compartido:'var(--muted)',Soledad:'var(--sole)',Gabriel:'var(--gabi)'};
+
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+        <h2 style={{fontWeight:700,fontSize:15}}>Gastos fijos <span className="badge" style={{background:'rgba(251,191,36,0.15)',color:'var(--yellow)',marginLeft:6}}>{pendientes.length} pendientes</span></h2>
+        <button onClick={onAdd} style={{background:'rgba(251,191,36,0.12)',border:'1px solid rgba(251,191,36,0.3)',color:'var(--yellow)',borderRadius:9,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:700,fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}><Ic.Plus/>Nuevo</button>
+      </div>
+      <div style={{display:'flex',flexDirection:'column',gap:8}}>
+        {gastosFijos.filter(g=>g.activo==='SI').map(g=>{
+          const pagado = g.pagado==='SI';
+          return (
+            <div key={g.id} className="card" style={{display:'flex',alignItems:'center',gap:12,opacity:pagado?0.55:1,transition:'opacity 0.3s',borderColor:pagado?'var(--green)':'var(--border)'}}>
+              <button className={`check-btn${pagado?' checked':''}`} onClick={()=>onTogglePago(g.id,pagado)}>
+                {pagado&&<Ic.Check/>}
+              </button>
+              <div style={{flex:1}}>
+                <p style={{fontWeight:600,fontSize:13,textDecoration:pagado?'line-through':'none'}}>{g.descripcion}</p>
+                <div style={{display:'flex',gap:5,marginTop:3,flexWrap:'wrap'}}>
+                  <span className="badge" style={{background:'var(--surface2)',color:'var(--muted)'}}>{g.categoria}</span>
+                  {g.dia_vencimiento>0&&<span className="badge" style={{background:'rgba(251,191,36,0.1)',color:'var(--yellow)'}}>vence día {g.dia_vencimiento}</span>}
+                  <span className="badge" style={{background:'var(--surface2)',color:titColors[g.titular]||'var(--muted)'}}>{g.titular}</span>
+                </div>
+              </div>
+              <div style={{textAlign:'right',flexShrink:0}}>
+                <p className="mono" style={{fontWeight:700,fontSize:13,color:pagado?'var(--green)':'var(--yellow)'}}>{fmt(g.monto)}</p>
+                <button onClick={()=>onDelete(g.id,'GASTOS_FIJOS')} style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',padding:'2px 0',marginTop:2}}><Ic.Trash/></button>
+              </div>
+            </div>
+          );
+        })}
+        {gastosFijos.filter(g=>g.activo==='SI').length===0&&<p style={{color:'var(--muted)',fontSize:13,textAlign:'center',padding:28}}>Sin gastos fijos registrados</p>}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Tab Gastos Variables
+// ─────────────────────────────────────────────
+const TabVariables = ({gastosMes,onDelete,onAdd}) => {
+  const [filtroTitular,setFiltroTitular]=useState('Todos');
+  const filtrados = gastosMes.filter(g=>filtroTitular==='Todos'||g.titular===filtroTitular);
+  const titColors = {Soledad:'var(--sole)',Gabriel:'var(--gabi)',Compartido:'var(--muted)'};
+
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+        <h2 style={{fontWeight:700,fontSize:15}}>Gastos variables</h2>
+        <button onClick={onAdd} style={{background:'var(--surface2)',border:'1px solid var(--border)',color:'var(--muted)',borderRadius:9,padding:'6px 12px',cursor:'pointer',fontSize:12,fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}><Ic.Plus/>Registrar</button>
+      </div>
+      <div style={{display:'flex',gap:7,marginBottom:14,flexWrap:'wrap'}}>
+        {['Todos','Soledad','Gabriel','Compartido'].map(t=>(
+          <button key={t} onClick={()=>setFiltroTitular(t)} style={{padding:'4px 12px',borderRadius:99,fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',background:filtroTitular===t?'var(--accent)':'var(--surface2)',color:filtroTitular===t?'white':'var(--muted)',border:`1px solid ${filtroTitular===t?'var(--accent)':'var(--border)'}`}}>{t}</button>
+        ))}
+      </div>
+      {filtrados.length===0&&<p style={{color:'var(--muted)',fontSize:13,textAlign:'center',padding:28}}>Sin gastos registrados</p>}
+      <div style={{display:'flex',flexDirection:'column',gap:7}}>
+        {filtrados.slice().reverse().map(g=>(
+          <div key={g.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 14px',background:'var(--surface)',borderRadius:10,border:'1px solid var(--border)'}}>
             <div>
-              <p style={{ fontWeight:700, fontSize:13, color:'var(--yellow)' }}>Configuración pendiente</p>
-              <p style={{ fontSize:12, color:'var(--muted)', marginTop:4, lineHeight:1.5 }}>
-                Editá el <code style={{background:'var(--surface2)',padding:'2px 6px',borderRadius:4,fontSize:11}}>const EP</code> al principio del archivo con la URL de tu Apps Script para sincronizar con Google Sheets.
-              </p>
+              <p style={{fontSize:13,fontWeight:600}}>{g.descripcion}</p>
+              <div style={{display:'flex',gap:5,marginTop:3}}>
+                <span style={{fontSize:11,color:'var(--muted)'}}>{g.fecha}</span>
+                <span className="badge" style={{background:'var(--surface2)',color:'var(--muted)'}}>{g.medio_pago}</span>
+                <span className="badge" style={{background:'var(--surface2)',color:titColors[g.titular]||'var(--muted)'}}>{g.titular}</span>
+              </div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+              <span className="mono" style={{fontWeight:700,fontSize:13}}>{fmt(g.monto)}</span>
+              <button onClick={()=>onDelete&&onDelete(g.id,'GASTOS_MES')} style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',padding:0}}><Ic.Trash/></button>
             </div>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Dashboard
+// ─────────────────────────────────────────────
+const Dashboard = ({cuotas,prestamos,gastosFijos,gastosMes,ingresos,onSetIngreso}) => {
+  const actual = cierreActual();
+  const siguienteIdx = actual.idx+1;
+  const siguienteLabel = CIERRES[siguienteIdx]?MESES_C[CIERRES[siguienteIdx].getMonth()]+' '+CIERRES[siguienteIdx].getFullYear():'—';
+
+  // Cuotas por cierre actual, separadas por titular
+  const cuotasActualSole = useMemo(()=>cuotas.filter(c=>c.activa==='SI'&&c.titular==='Soledad'&&parseInt(c.cuotas_pagadas)<parseInt(c.cuotas_totales)&&proximoCierreCuota(c).idx===actual.idx).reduce((s,c)=>s+parseFloat(c.monto_cuota),0),[cuotas,actual]);
+  const cuotasActualGabi = useMemo(()=>cuotas.filter(c=>c.activa==='SI'&&c.titular==='Gabriel'&&parseInt(c.cuotas_pagadas)<parseInt(c.cuotas_totales)&&proximoCierreCuota(c).idx===actual.idx).reduce((s,c)=>s+parseFloat(c.monto_cuota),0),[cuotas,actual]);
+
+  // Fijos pendientes (no pagados este mes)
+  const fijosPendientes = useMemo(()=>gastosFijos.filter(g=>g.activo==='SI'&&(g.pagado==='NO'||!g.pagado)),[gastosFijos]);
+  const totalFijos = useMemo(()=>gastosFijos.filter(g=>g.activo==='SI').reduce((s,g)=>s+parseFloat(g.monto||0),0),[gastosFijos]);
+
+  // Gastos variables del mes
+  const varSole = useMemo(()=>gastosMes.filter(g=>g.titular==='Soledad').reduce((s,g)=>s+parseFloat(g.monto||0),0),[gastosMes]);
+  const varGabi = useMemo(()=>gastosMes.filter(g=>g.titular==='Gabriel').reduce((s,g)=>s+parseFloat(g.monto||0),0),[gastosMes]);
+  const varComp = useMemo(()=>gastosMes.filter(g=>g.titular==='Compartido').reduce((s,g)=>s+parseFloat(g.monto||0),0),[gastosMes]);
+
+  // Préstamo
+  const prestamoMes = useMemo(()=>prestamos.filter(p=>p.activo==='SI'&&parseInt(p.cuotas_pagadas)<parseInt(p.cuotas_totales)).reduce((s,p)=>s+parseFloat(p.monto_cuota),0),[prestamos]);
+
+  // Total egresos
+  const egresosComp = cuotasActualSole+cuotasActualGabi+totalFijos+varSole+varGabi+varComp+prestamoMes;
+  const ingresosComp = (parseFloat(ingresos.sole)||0)+(parseFloat(ingresos.gabi)||0);
+  const balance = ingresosComp - egresosComp;
+
+  const Block = ({label,value,color,sub})=>(
+    <div style={{flex:1,minWidth:120,background:'var(--surface)',border:'1px solid var(--border)',borderRadius:12,padding:'12px 14px'}}>
+      <p style={{fontSize:10,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:4}}>{label}</p>
+      <p className="mono" style={{fontSize:20,fontWeight:700,color}}>{fmt(value)}</p>
+      {sub&&<p style={{fontSize:10,color:'var(--muted)',marginTop:3}}>{sub}</p>}
+    </div>
+  );
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:14}}>
+
+      {/* INGRESOS */}
+      <div className="card">
+        <p style={{fontWeight:700,fontSize:13,marginBottom:12,color:'var(--green)'}}>💰 Ingresos</p>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+          <div style={{flex:1,minWidth:120}}>
+            <label style={{fontSize:11,color:'var(--sole)',fontWeight:600,display:'block',marginBottom:4}}>Sole</label>
+            <input type="number" placeholder="$ ingresos" value={ingresos.sole} onChange={e=>onSetIngreso('sole',e.target.value)}
+              style={{background:'var(--surface2)',border:'1px solid rgba(192,132,252,0.3)',color:'var(--text)',borderRadius:8,padding:'8px 12px',width:'100%',fontFamily:'DM Mono',fontSize:14}}/>
+          </div>
+          <div style={{flex:1,minWidth:120}}>
+            <label style={{fontSize:11,color:'var(--gabi)',fontWeight:600,display:'block',marginBottom:4}}>Gabi</label>
+            <input type="number" placeholder="$ ingresos" value={ingresos.gabi} onChange={e=>onSetIngreso('gabi',e.target.value)}
+              style={{background:'var(--surface2)',border:'1px solid rgba(56,189,248,0.3)',color:'var(--text)',borderRadius:8,padding:'8px 12px',width:'100%',fontFamily:'DM Mono',fontSize:14}}/>
+          </div>
+        </div>
+        {ingresosComp>0&&<div style={{marginTop:10,display:'flex',justifyContent:'space-between',fontSize:12,color:'var(--muted)',borderTop:'1px solid var(--border)',paddingTop:10}}>
+          <span>Total compartido</span>
+          <span className="mono" style={{fontWeight:700,color:'var(--green)'}}>{fmt(ingresosComp)}</span>
+        </div>}
+      </div>
+
+      {/* CIERRE ACTUAL — Sole | Gabi */}
+      <div className="card" style={{borderColor:'rgba(251,191,36,0.35)',background:'rgba(251,191,36,0.04)'}}>
+        <p style={{fontSize:11,color:'var(--yellow)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:10}}>
+          Cierre {actual.label} · {actual.cierre.toLocaleDateString('es-AR',{day:'numeric',month:'short'})}
+        </p>
+        <div style={{display:'flex',gap:10}}>
+          <div style={{flex:1,background:'rgba(192,132,252,0.08)',border:'1px solid rgba(192,132,252,0.2)',borderRadius:10,padding:'10px 12px'}}>
+            <p style={{fontSize:10,color:'var(--sole)',fontWeight:600,marginBottom:4}}>SOLE</p>
+            <p className="mono" style={{fontSize:18,fontWeight:700,color:'var(--sole)'}}>{fmt(cuotasActualSole)}</p>
+          </div>
+          <div style={{flex:1,background:'rgba(56,189,248,0.08)',border:'1px solid rgba(56,189,248,0.2)',borderRadius:10,padding:'10px 12px'}}>
+            <p style={{fontSize:10,color:'var(--gabi)',fontWeight:600,marginBottom:4}}>GABI</p>
+            <p className="mono" style={{fontSize:18,fontWeight:700,color:'var(--gabi)'}}>{fmt(cuotasActualGabi)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* FIJOS */}
+      <div className="card">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+          <p style={{fontWeight:700,fontSize:13}}>📋 Fijos mensuales</p>
+          <span className="mono" style={{fontWeight:700,color:'var(--yellow)',fontSize:14}}>{fmt(totalFijos)}</span>
+        </div>
+        {fijosPendientes.length>0&&(
+          <div>
+            <p style={{fontSize:11,color:'var(--red)',fontWeight:600,marginBottom:7}}>⚠ Pendientes de pago:</p>
+            <div style={{display:'flex',flexDirection:'column',gap:5}}>
+              {fijosPendientes.map(g=>(
+                <div key={g.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 10px',background:'rgba(244,63,94,0.05)',border:'1px solid rgba(244,63,94,0.15)',borderRadius:8}}>
+                  <span style={{fontSize:12,fontWeight:600}}>{g.descripcion}</span>
+                  <span className="mono" style={{fontSize:12,color:'var(--red)'}}>{fmt(g.monto)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {fijosPendientes.length===0&&gastosFijos.filter(g=>g.activo==='SI').length>0&&<p style={{fontSize:12,color:'var(--green)'}}>✓ Todos los fijos del mes pagados</p>}
+      </div>
+
+      {/* GASTOS VARIABLES */}
+      <div className="card">
+        <p style={{fontWeight:700,fontSize:13,marginBottom:10}}>🧾 Gastos variables del mes</p>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+          <div style={{flex:1,minWidth:100,background:'rgba(192,132,252,0.07)',border:'1px solid rgba(192,132,252,0.15)',borderRadius:10,padding:'9px 11px'}}>
+            <p style={{fontSize:10,color:'var(--sole)',fontWeight:600,marginBottom:3}}>SOLE</p>
+            <p className="mono" style={{fontSize:16,fontWeight:700,color:'var(--sole)'}}>{fmt(varSole)}</p>
+          </div>
+          <div style={{flex:1,minWidth:100,background:'rgba(56,189,248,0.07)',border:'1px solid rgba(56,189,248,0.15)',borderRadius:10,padding:'9px 11px'}}>
+            <p style={{fontSize:10,color:'var(--gabi)',fontWeight:600,marginBottom:3}}>GABI</p>
+            <p className="mono" style={{fontSize:16,fontWeight:700,color:'var(--gabi)'}}>{fmt(varGabi)}</p>
+          </div>
+          {varComp>0&&<div style={{flex:1,minWidth:100,background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:10,padding:'9px 11px'}}>
+            <p style={{fontSize:10,color:'var(--muted)',fontWeight:600,marginBottom:3}}>COMPARTIDO</p>
+            <p className="mono" style={{fontSize:16,fontWeight:700}}>{fmt(varComp)}</p>
+          </div>}
+        </div>
+      </div>
+
+      {/* BALANCE */}
+      <div className="card" style={{borderColor:balance>=0?'rgba(34,211,160,0.4)':'rgba(244,63,94,0.4)',background:balance>=0?'rgba(34,211,160,0.05)':'rgba(244,63,94,0.05)'}}>
+        <p style={{fontSize:11,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Balance del mes</p>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:12,color:'var(--muted)',marginBottom:4}}>
+          <span>Ingresos compartidos</span>
+          <span className="mono" style={{color:'var(--green)'}}>{fmt(ingresosComp)}</span>
+        </div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',fontSize:12,color:'var(--muted)',marginBottom:10}}>
+          <span>Egresos estimados</span>
+          <span className="mono" style={{color:'var(--red)'}}>{fmt(egresosComp)}</span>
+        </div>
+        <div style={{borderTop:'1px solid var(--border)',paddingTop:10,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <span style={{fontWeight:700,fontSize:14}}>= Resultado</span>
+          <span className="mono" style={{fontSize:22,fontWeight:800,color:balance>=0?'var(--green)':'var(--red)'}}>{fmt(balance)}</span>
+        </div>
+        {ingresosComp===0&&<p style={{fontSize:11,color:'var(--muted)',marginTop:8}}>Ingresá los sueldos arriba para ver el balance real</p>}
+      </div>
+
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Tab Cuotas (componente propio para poder usar useState)
+// ─────────────────────────────────────────────
+const TabCuotas = ({cuotasActivas,cuotasTerminadas,onPagar,onDelete,onAdd}) => {
+  const [ft,setFt]=useState('Todos');
+  const titulares=[...new Set(cuotasActivas.map(c=>c.titular))].filter(Boolean);
+  const fil=ft==='Todos'?cuotasActivas:cuotasActivas.filter(c=>c.titular===ft);
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+        <h2 style={{fontWeight:700,fontSize:15}}>Cuotas activas <span className="badge" style={{background:'rgba(124,106,247,0.15)',color:'var(--accent)',marginLeft:6}}>{cuotasActivas.length}</span></h2>
+        <button onClick={onAdd} style={{background:'var(--accent)',border:'none',color:'white',borderRadius:9,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:700,fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}><Ic.Plus/>Nueva</button>
+      </div>
+      {titulares.length>1&&(
+        <div style={{display:'flex',gap:7,marginBottom:12,flexWrap:'wrap'}}>
+          {['Todos',...titulares].map(t=>(
+            <button key={t} onClick={()=>setFt(t)} style={{padding:'4px 12px',borderRadius:99,fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',background:ft===t?'var(--accent)':'var(--surface2)',color:ft===t?'white':'var(--muted)',border:`1px solid ${ft===t?'var(--accent)':'var(--border)'}`}}>{t}</button>
+          ))}
+        </div>
+      )}
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {fil.length===0&&<p style={{color:'var(--muted)',fontSize:13,textAlign:'center',padding:28}}>No hay cuotas activas</p>}
+        {fil.map(c=><CuotaCard key={c.id} item={c} onPagar={onPagar} onDelete={onDelete}/>)}
+      </div>
+      {cuotasTerminadas.length>0&&(
+        <div style={{marginTop:20}}>
+          <p style={{fontSize:11,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:8}}>Finalizadas</p>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {cuotasTerminadas.map(c=><CuotaCard key={c.id} item={c} onPagar={onPagar} onDelete={onDelete}/>)}
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-// ===========================================================
-// APP PRINCIPAL
-// ===========================================================
+// ─────────────────────────────────────────────
+// APP
+// ─────────────────────────────────────────────
 function App() {
-  const [tab, setTab] = useState('dashboard');
-  const [cuotas, setCuotas] = useState([]);
-  const [prestamos, setPrestamos] = useState([]);
-  const [gastosFijos, setGastosFijos] = useState([]);
-  const [gastosMes, setGastosMes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [modal, setModal] = useState(null); // 'cuota'|'prestamo'|'fijo'|'gasto'
-  const [error, setError] = useState(null);
+  const [tab,setTab]=useState('dashboard');
+  const [cuotas,setCuotas]=useState([]);
+  const [prestamos,setPrestamos]=useState([]);
+  const [gastosFijos,setGastosFijos]=useState([]);
+  const [gastosMes,setGastosMes]=useState([]);
+  const [ingresos,setIngresos]=useState({sole:'',gabi:''});
+  const [loading,setLoading]=useState(false);
+  const [saving,setSaving]=useState(false);
+  const [modal,setModal]=useState(null);
+  const [error,setError]=useState(null);
 
-  const load = useCallback(async () => {
-    if (EP === "PEGAR_URL_APPS_SCRIPT_AQUI") return;
-    setLoading(true);
-    setError(null);
+  const load = useCallback(async()=>{
+    setLoading(true); setError(null);
     try {
-      const [c, p, f, g] = await Promise.all([
-        api({ action: 'getCuotas' }),
-        api({ action: 'getPrestamos' }),
-        api({ action: 'getGastosFijos' }),
-        api({ action: 'getGastosMes' }),
+      const [c,p,f,g,cfg]=await Promise.all([
+        api({action:'getCuotas'}),api({action:'getPrestamos'}),
+        api({action:'getGastosFijos'}),api({action:'getGastosMes'}),
+        api({action:'getConfig'}),
       ]);
-      if (Array.isArray(c)) setCuotas(c);
-      if (Array.isArray(p)) setPrestamos(p);
-      if (Array.isArray(f)) setGastosFijos(f);
-      if (Array.isArray(g)) setGastosMes(g);
+      setCuotas(Array.isArray(c)&&c.length>0?c:DATOS_REALES.cuotas);
+      setPrestamos(Array.isArray(p)&&p.length>0?p:DATOS_REALES.prestamos);
+      setGastosFijos(Array.isArray(f)&&f.length>0?f:DATOS_REALES.gastosFijos);
+      if(Array.isArray(g))setGastosMes(g);
+      // Restaurar ingresos guardados
+      if(cfg&&typeof cfg==='object'&&!Array.isArray(cfg)){
+        setIngresos({
+          sole: cfg.ingreso_sole||'',
+          gabi: cfg.ingreso_gabi||''
+        });
+      }
     } catch(e) {
-      setError('No se pudo conectar con el servidor. Revisá la URL del script.');
+      setCuotas(DATOS_REALES.cuotas); setPrestamos(DATOS_REALES.prestamos); setGastosFijos(DATOS_REALES.gastosFijos);
+      setError('Sin conexión — mostrando datos locales');
     }
     setLoading(false);
-  }, []);
+  },[]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(()=>{load();},[load]);
 
-  const handleSave = async (body) => {
+  const save = async(body)=>{
     setSaving(true);
-    try {
-      await api({}, 'POST', body);
-      await load();
-      setModal(null);
-    } catch(e) {
-      alert('Error al guardar. Revisá la conexión.');
-    }
+    try{ await api({},'POST',body); await load(); setModal(null); }
+    catch(e){ alert('Error al guardar'); }
     setSaving(false);
   };
 
-  const handlePagarCuota = async (id) => {
-    setSaving(true);
-    try { await api({ action: 'pagarCuota', id }); await load(); } catch(e) {}
-    setSaving(false);
+  const handlePagarCuota = async id=>{ setSaving(true); try{await api({action:'pagarCuota',id});await load();}catch(e){} setSaving(false); };
+  const handlePagarPrestamo = async id=>{ setSaving(true); try{await api({action:'pagarPrestamo',id});await load();}catch(e){} setSaving(false); };
+  const handleDelete = async(id,sheet)=>{ if(!confirm('¿Eliminár este registro?'))return; setSaving(true); try{await api({action:'deleteItem',id,sheet});await load();}catch(e){} setSaving(false); };
+  const handleTogglePagoFijo = async(id, estabaPagado)=>{
+    // Optimistic update inmediato
+    setGastosFijos(prev=>prev.map(g=>g.id===id?{...g,pagado:estabaPagado?'NO':'SI'}:g));
+    // Persistir en Sheet
+    try { await api({action:'togglePagoFijo',id}); }
+    catch(e){ /* revertir si falla */ setGastosFijos(prev=>prev.map(g=>g.id===id?{...g,pagado:estabaPagado?'SI':'NO'}:g)); }
   };
 
-  const handlePagarPrestamo = async (id) => {
-    setSaving(true);
-    try { await api({ action: 'pagarPrestamo', id }); await load(); } catch(e) {}
-    setSaving(false);
+  // Guardar ingreso con debounce — espera 1.5s después del último cambio para no spamear el Sheet
+  const ingresoTimers = React.useRef({});
+  const handleSetIngreso = (key, value) => {
+    setIngresos(prev=>({...prev,[key]:value}));
+    clearTimeout(ingresoTimers.current[key]);
+    ingresoTimers.current[key] = setTimeout(async()=>{
+      try {
+        await api({},'POST',{action:'setConfig', clave:`ingreso_${key}`, valor:parseFloat(value)||0});
+      } catch(e){}
+    }, 1500);
   };
 
-  const handleDelete = async (id, sheet) => {
-    if (!confirm('¿Eliminár este registro?')) return;
-    setSaving(true);
-    try { await api({ action: 'deleteItem', id, sheet }); await load(); } catch(e) {}
-    setSaving(false);
-  };
+  const cuotasActivas = cuotas.filter(c=>c.activa==='SI'&&parseInt(c.cuotas_pagadas)<parseInt(c.cuotas_totales));
+  const cuotasTerminadas = cuotas.filter(c=>c.activa!=='SI'||parseInt(c.cuotas_pagadas)>=parseInt(c.cuotas_totales));
 
-  const cuotasActivas = cuotas.filter(c => c.activa === "SI" && parseInt(c.cuotas_pagadas) < parseInt(c.cuotas_totales));
-  const cuotasTerminadas = cuotas.filter(c => c.activa !== "SI" || parseInt(c.cuotas_pagadas) >= parseInt(c.cuotas_totales));
-  const prestamosActivos = prestamos.filter(p => p.activo === "SI" && parseInt(p.cuotas_pagadas) < parseInt(p.cuotas_totales));
-
-  // ---- Nav tabs ----
   const TABS = [
-    { id: 'dashboard', label: 'Resumen', Icon: Ic.Dashboard },
-    { id: 'cuotas', label: 'Cuotas', Icon: Ic.Card },
-    { id: 'prestamos', label: 'Préstamos', Icon: Ic.Loan },
-    { id: 'fijos', label: 'Fijos', Icon: Ic.Fixed },
-    { id: 'consejos', label: 'Consejos', Icon: Ic.Spark },
+    {id:'dashboard',label:'Inicio',Icon:Ic.Home},
+    {id:'cuotas',label:'Cuotas',Icon:Ic.Card},
+    {id:'prestamos',label:'Préstamos',Icon:Ic.Loan},
+    {id:'fijos',label:'Fijos',Icon:Ic.Fixed},
+    {id:'variables',label:'Variables',Icon:Ic.Var},
   ];
 
-  const modalConfig = {
-    cuota: { title: '+ Nueva cuota', Form: FormCuota },
-    prestamo: { title: '+ Nuevo préstamo', Form: FormPrestamo },
-    fijo: { title: '+ Gasto fijo', Form: FormGastoFijo },
-    gasto: { title: '+ Gasto del mes', Form: FormGastoMes },
+  const modalForms = {
+    cuota:{title:'+ Nueva cuota',Form:FormCuota},
+    prestamo:{title:'+ Nuevo préstamo',Form:FormPrestamo},
+    fijo:{title:'+ Gasto fijo',Form:FormGastoFijo},
+    variable:{title:'+ Gasto variable',Form:FormGastoVar},
   };
 
   return (
-    <div style={{ minHeight:'100vh', paddingBottom:80 }}>
+    <div style={{minHeight:'100vh',paddingBottom:76}}>
+
       {/* Header */}
-      <header style={{ background:'var(--surface)', borderBottom:'1px solid var(--border)', padding:'14px 16px', position:'sticky', top:0, zIndex:30 }}>
-        <div style={{ maxWidth:640, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <div>
-            <h1 style={{ fontWeight:800, fontSize:18, letterSpacing:'-0.02em' }}>
-              <span style={{ color:'var(--accent)' }}>Finanzas</span>
-              <span style={{ color:'var(--muted)', fontWeight:300, marginLeft:6, fontSize:15 }}>· Sole</span>
-            </h1>
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            {(loading || saving) && <Spinner size={16}/>}
-            <button onClick={load} style={{ background:'var(--surface2)', border:'1px solid var(--border)', color:'var(--muted)', borderRadius:8, padding:'5px 10px', cursor:'pointer', fontSize:12, fontFamily:'inherit' }}>↺ Sync</button>
+      <header style={{background:'var(--surface)',borderBottom:'1px solid var(--border)',padding:'12px 16px',position:'sticky',top:0,zIndex:30}}>
+        <div style={{maxWidth:600,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <h1 style={{fontWeight:800,fontSize:17,letterSpacing:'-0.01em'}}>
+            Gastos con Amor <span style={{fontSize:16}}>💜</span>
+          </h1>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            {(loading||saving)&&<Spinner size={15}/>}
+            <span style={{fontSize:12,color:'var(--muted)',background:'var(--surface2)',border:'1px solid var(--border)',borderRadius:7,padding:'4px 10px',fontWeight:600}}>{mesActual()}</span>
           </div>
         </div>
       </header>
 
-      {/* Error */}
-      {error && (
-        <div style={{ background:'rgba(244,63,94,0.1)', border:'1px solid rgba(244,63,94,0.3)', borderRadius:10, margin:'12px 16px', padding:'10px 14px', fontSize:13, color:'var(--red)' }}>
-          {error}
-        </div>
-      )}
+      {error&&<div style={{background:'rgba(244,63,94,0.1)',border:'1px solid rgba(244,63,94,0.25)',margin:'10px 16px',borderRadius:8,padding:'8px 12px',fontSize:12,color:'var(--red)'}}>{error}</div>}
 
-      {/* Content */}
-      <main style={{ maxWidth:640, margin:'0 auto', padding:'16px 16px' }}>
+      <main style={{maxWidth:600,margin:'0 auto',padding:'14px 14px'}}>
+        {tab==='dashboard'&&<Dashboard cuotas={cuotas} prestamos={prestamos} gastosFijos={gastosFijos} gastosMes={gastosMes} ingresos={ingresos} onSetIngreso={handleSetIngreso}/>}
 
-        {tab === 'dashboard' && <Dashboard cuotas={cuotas} prestamos={prestamos} gastosFijos={gastosFijos}/>}
-
-        {tab === 'cuotas' && (
-          <div>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <h2 style={{ fontWeight:700, fontSize:16 }}>Cuotas activas <span className="badge" style={{ background:'rgba(124,106,247,0.15)', color:'var(--accent)', marginLeft:6 }}>{cuotasActivas.length}</span></h2>
-              <button onClick={()=>setModal('cuota')} style={{ background:'var(--accent)', border:'none', color:'white', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}><Ic.Plus/> Nueva</button>
-            </div>
-            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-              {cuotasActivas.length === 0 && <p style={{ color:'var(--muted)', fontSize:14, textAlign:'center', padding:32 }}>No hay cuotas activas</p>}
-              {cuotasActivas.map(c => <CuotaCard key={c.id} item={c} onPagar={handlePagarCuota} onDelete={handleDelete}/>)}
-            </div>
-            {cuotasTerminadas.length > 0 && (
-              <div style={{ marginTop:24 }}>
-                <p style={{ fontSize:12, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>Pagadas / finalizadas</p>
-                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                  {cuotasTerminadas.map(c => <CuotaCard key={c.id} item={c} onPagar={handlePagarCuota} onDelete={handleDelete}/>)}
-                </div>
-              </div>
-            )}
-          </div>
+        {tab==='cuotas'&&(
+          <TabCuotas
+            cuotasActivas={cuotasActivas}
+            cuotasTerminadas={cuotasTerminadas}
+            onPagar={handlePagarCuota}
+            onDelete={handleDelete}
+            onAdd={()=>setModal('cuota')}
+          />
         )}
 
-        {tab === 'prestamos' && (
+        {tab==='prestamos'&&(
           <div>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <h2 style={{ fontWeight:700, fontSize:16 }}>Préstamos <span className="badge" style={{ background:'rgba(249,115,22,0.15)', color:'var(--accent2)', marginLeft:6 }}>{prestamosActivos.length}</span></h2>
-              <button onClick={()=>setModal('prestamo')} style={{ background:'var(--accent2)', border:'none', color:'white', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}><Ic.Plus/> Nuevo</button>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+              <h2 style={{fontWeight:700,fontSize:15}}>Préstamos</h2>
+              <button onClick={()=>setModal('prestamo')} style={{background:'var(--accent2)',border:'none',color:'white',borderRadius:9,padding:'6px 12px',cursor:'pointer',fontSize:12,fontWeight:700,fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}><Ic.Plus/>Nuevo</button>
             </div>
-            <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-              {prestamos.length === 0 && <p style={{ color:'var(--muted)', fontSize:14, textAlign:'center', padding:32 }}>Sin préstamos registrados</p>}
-              {prestamos.map(p => <PrestamoCard key={p.id} item={p} onPagar={handlePagarPrestamo} onDelete={handleDelete}/>)}
+            <div style={{display:'flex',flexDirection:'column',gap:10}}>
+              {prestamos.length===0&&<p style={{color:'var(--muted)',fontSize:13,textAlign:'center',padding:28}}>Sin préstamos</p>}
+              {prestamos.map(p=><PrestamoCard key={p.id} item={p} onPagar={handlePagarPrestamo} onDelete={handleDelete}/>)}
             </div>
           </div>
         )}
 
-        {tab === 'fijos' && (
-          <div>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <h2 style={{ fontWeight:700, fontSize:16 }}>Gastos fijos</h2>
-              <button onClick={()=>setModal('fijo')} style={{ background:'rgba(251,191,36,0.15)', border:'1px solid rgba(251,191,36,0.3)', color:'var(--yellow)', borderRadius:10, padding:'7px 14px', cursor:'pointer', fontSize:13, fontWeight:700, fontFamily:'inherit', display:'flex', alignItems:'center', gap:5 }}><Ic.Plus/> Nuevo</button>
-            </div>
-            {gastosFijos.filter(g=>g.activo==="SI").length === 0 && <p style={{ color:'var(--muted)', fontSize:14, textAlign:'center', padding:32 }}>Sin gastos fijos registrados</p>}
-            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-              {gastosFijos.filter(g=>g.activo==="SI").map(g=>(
-                <div key={g.id} className="card" style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                  <div>
-                    <p style={{ fontWeight:600, fontSize:14 }}>{g.descripcion}</p>
-                    <div style={{ display:'flex', gap:6, marginTop:4 }}>
-                      <span className="badge" style={{ background:'var(--surface2)', color:'var(--muted)' }}>{g.categoria}</span>
-                      {g.dia_vencimiento && <span className="badge" style={{ background:'rgba(251,191,36,0.1)', color:'var(--yellow)' }}>vence día {g.dia_vencimiento}</span>}
-                    </div>
-                  </div>
-                  <div style={{ textAlign:'right' }}>
-                    <p className="mono" style={{ fontWeight:700, color:'var(--yellow)' }}>{fmt(g.monto)}</p>
-                    <button onClick={()=>handleDelete(g.id,'GASTOS_FIJOS')} style={{ background:'none', border:'none', color:'var(--muted)', cursor:'pointer', marginTop:4, padding:0 }}><Ic.Trash/></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* Gastos del mes */}
-            <div style={{ marginTop:24 }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
-                <p style={{ fontSize:13, fontWeight:700 }}>Registro del mes</p>
-                <button onClick={()=>setModal('gasto')} style={{ background:'var(--surface2)', border:'1px solid var(--border)', color:'var(--muted)', borderRadius:8, padding:'5px 12px', cursor:'pointer', fontSize:12, fontFamily:'inherit', display:'flex', alignItems:'center', gap:4 }}><Ic.Plus/>Gasto</button>
-              </div>
-              {gastosMes.length === 0 && <p style={{ color:'var(--muted)', fontSize:13, textAlign:'center', padding:20 }}>Sin gastos registrados este mes</p>}
-              <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                {gastosMes.slice().reverse().slice(0,20).map(g=>(
-                  <div key={g.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', background:'var(--surface)', borderRadius:10, border:'1px solid var(--border)' }}>
-                    <div>
-                      <p style={{ fontSize:13, fontWeight:600 }}>{g.descripcion}</p>
-                      <p style={{ fontSize:11, color:'var(--muted)' }}>{g.fecha} · {g.medio_pago}</p>
-                    </div>
-                    <div style={{ textAlign:'right', display:'flex', alignItems:'center', gap:10 }}>
-                      <span className="mono" style={{ fontWeight:700, fontSize:13 }}>{fmt(g.monto)}</span>
-                      <button onClick={()=>handleDelete(g.id,'GASTOS_MES')} style={{ background:'none', border:'none', color:'var(--muted)', cursor:'pointer', padding:0 }}><Ic.Trash/></button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {tab==='fijos'&&<TabFijos gastosFijos={gastosFijos} onTogglePago={handleTogglePagoFijo} onDelete={handleDelete} onAdd={()=>setModal('fijo')} loading={loading} saving={saving}/>}
 
-        {tab === 'consejos' && (
-          <div>
-            <div style={{ marginBottom:16 }}>
-              <h2 style={{ fontWeight:700, fontSize:16, marginBottom:4 }}>💡 Consejos financieros</h2>
-              <p style={{ fontSize:13, color:'var(--muted)' }}>Basados en tu situación actual: cuotas activas, préstamos y uso de tarjetas.</p>
-            </div>
-            <ConsejosPanel/>
-          </div>
-        )}
+        {tab==='variables'&&<TabVariables gastosMes={gastosMes} onDelete={handleDelete} onAdd={()=>setModal('variable')}/>}
       </main>
 
       {/* Bottom Nav */}
-      <nav style={{ position:'fixed', bottom:0, left:0, right:0, background:'var(--surface)', borderTop:'1px solid var(--border)', display:'flex', zIndex:30, paddingBottom:'env(safe-area-inset-bottom)' }}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{
-            flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-            gap:3, padding:'10px 0', background:'none', border:'none', cursor:'pointer',
-            color: tab===t.id ? 'var(--accent)' : 'var(--muted)',
-            borderTop: tab===t.id ? '2px solid var(--accent)' : '2px solid transparent',
-            transition:'color 0.2s',
-            fontFamily:'inherit'
-          }}>
-            <t.Icon/>
-            <span style={{ fontSize:10, fontWeight: tab===t.id ? 700 : 400 }}>{t.label}</span>
+      <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'var(--surface)',borderTop:'1px solid var(--border)',display:'flex',zIndex:30}}>
+        {TABS.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,padding:'9px 0',background:'none',border:'none',cursor:'pointer',color:tab===t.id?'var(--accent)':'var(--muted)',borderTop:`2px solid ${tab===t.id?'var(--accent)':'transparent'}`,transition:'color 0.2s',fontFamily:'inherit'}}>
+            <t.Icon/><span style={{fontSize:9,fontWeight:tab===t.id?700:400}}>{t.label}</span>
           </button>
         ))}
       </nav>
 
       {/* Modals */}
-      {modal && (() => {
-        const cfg = modalConfig[modal];
-        if (!cfg) return null;
-        return (
-          <Modal title={cfg.title} onClose={()=>setModal(null)}>
-            <cfg.Form onSubmit={handleSave} loading={saving}/>
-          </Modal>
-        );
-      })()}
+      {modal==='cuota'&&<Modal title="+ Nueva cuota" onClose={()=>setModal(null)}><FormCuota onSubmit={save} loading={saving}/></Modal>}
+      {modal==='prestamo'&&<Modal title="+ Nuevo préstamo" onClose={()=>setModal(null)}><FormPrestamo onSubmit={save} loading={saving}/></Modal>}
+      {modal==='fijo'&&<Modal title="+ Gasto fijo" onClose={()=>setModal(null)}><FormGastoFijo onSubmit={save} loading={saving}/></Modal>}
+      {modal==='variable'&&<Modal title="+ Gasto variable" onClose={()=>setModal(null)}><FormGastoVar onSubmit={save} loading={saving}/></Modal>}
     </div>
   );
 }
