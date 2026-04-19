@@ -908,7 +908,7 @@ function renderFijos(fijos) {
     total += Number(f.monto) || 0;
     const tc = f.titular === "Soledad" ? "sole" : f.titular === "Gabriel" ? "gabi" : "comp";
     const paid = f.pagado === true || f.pagado === "TRUE" || f.pagado === true;
-    return `<div class="fijo-item" onclick="fijoClick('${f.id}','${f.descripcion}',${f.monto})">
+    return `<div class="fijo-item" data-id="${f.id}" data-desc="${(f.descripcion||'').replace(/"/g,'&quot;')}" data-monto="${f.monto}" onclick="fijoClick(this)">
       <div class="fijo-check ${paid ? 'paid' : ''}">${paid ? '✓' : ''}</div>
       <div class="fijo-info">
         <div class="fijo-name">${f.descripcion}</div>
@@ -928,8 +928,11 @@ function renderFijos(fijos) {
   document.getElementById("fijos-total").textContent = $(total);
 }
 
-function fijoClick(id, desc, monto) {
-  if (!monto || Number(monto) === 0) {
+function fijoClick(el) {
+  const id    = el.dataset.id;
+  const desc  = el.dataset.desc;
+  const monto = Number(el.dataset.monto) || 0;
+  if (!monto) {
     toast("Sin monto registrado — actualizá en el Sheet", "warn"); return;
   }
   modalFijoId = id;
