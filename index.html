@@ -625,20 +625,13 @@ async function api(params) {
 }
 
 async function apiPost(data) {
-  const ctrl = new AbortController();
-  const tid = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
-  try {
-    const res = await fetch(EP, {
-      method: "POST", redirect: "follow", signal: ctrl.signal,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    clearTimeout(tid);
-    return await res.json();
-  } catch(e) {
-    clearTimeout(tid);
-    throw e;
-  }
+  // Apps Script maneja mejor GET que POST — enviamos todo via GET con ?data=JSON
+  const { action, ...rest } = data;
+  const params = {
+    action,
+    data: encodeURIComponent(JSON.stringify(rest))
+  };
+  return api(params);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
