@@ -1,793 +1,1057 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-AR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Prode Oficina 2026 - Edición Celeste y Blanca</title>
-    
-    <!-- Tailwind CSS para los estilos -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel para traducir JSX en vivo -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#3d2e4f">
+<title>Gastos con Amor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: 'Manrope', -apple-system, system-ui, sans-serif;
+    background: #f5f0e8;
+    color: #1f1a2e;
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  input, select, textarea, button { font-family: inherit; font-size: inherit; }
+  button { cursor: pointer; border: none; background: none; }
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  :root {
+    --plum: #3d2e4f;
+    --plum-light: #6b4d87;
+    --rose: #d4859a;
+    --rose-soft: #f4d8e0;
+    --cream: #f5f0e8;
+    --paper: #faf5ee;
+    --ink: #1f1a2e;
+    --muted: #8a8598;
+    --line: #e5ddd0;
+    --gold: #c9974d;
+    --green: #5a8c6a;
+    --green-bg: #d9ebe0;
+    --yellow: #d4a748;
+    --yellow-bg: #fbf0d0;
+    --red: #b85959;
+    --red-bg: #f3dada;
+    --sole: #f4d8e0;
+    --gabi: #d8e4f0;
+    --comp: #e8dcef;
+  }
+
+  header {
+    background: var(--plum);
+    color: var(--cream);
+    padding: 1rem 1.25rem 0.75rem;
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 3px solid var(--gold);
+  }
+  .brand { display: flex; align-items: baseline; gap: 0.5rem; font-family: 'Fraunces', serif; }
+  .brand-heart { color: var(--rose); font-size: 1.5rem; line-height: 1; }
+  .brand-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; font-style: italic; }
+  .brand-sub { font-size: 0.7rem; opacity: 0.65; font-family: 'Manrope'; font-style: normal; letter-spacing: 0.15em; text-transform: uppercase; margin-left: auto; }
+
+  .month-selector {
+    display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem;
+    background: rgba(255,255,255,0.08); padding: 0.5rem 0.75rem; border-radius: 8px;
+  }
+  .month-selector label { font-size: 0.7rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.1em; }
+  .month-selector input {
+    background: transparent; border: none; color: var(--cream);
+    font-size: 1rem; font-weight: 600; flex: 1; outline: none;
+    font-family: 'Fraunces', serif;
+  }
+  .month-selector .pill {
+    background: var(--gold); color: var(--plum); padding: 0.15rem 0.6rem;
+    border-radius: 100px; font-size: 0.68rem; font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  nav.tabs {
+    display: flex; background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 104px; z-index: 99;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1; min-width: fit-content;
+    padding: 0.8rem 0.9rem;
+    font-size: 0.82rem; font-weight: 600;
+    color: var(--muted); white-space: nowrap;
+    position: relative; transition: color 0.2s;
+  }
+  .tab.active { color: var(--plum); }
+  .tab.active::after {
+    content: ''; position: absolute; bottom: 0; left: 15%; right: 15%;
+    height: 3px; background: var(--rose); border-radius: 3px 3px 0 0;
+  }
+
+  main { padding: 1rem 1rem 6rem; max-width: 900px; margin: 0 auto; }
+  .view { display: none; animation: fadeIn 0.3s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from {opacity: 0; transform: translateY(8px);} to {opacity: 1; transform: none;} }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 0.95rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--plum); margin: 1.25rem 0 0.6rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .section-title::before {
+    content: ''; display: block; width: 24px; height: 2px; background: var(--rose);
+  }
+
+  .cards-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
+  }
+  .card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 0.9rem;
+    position: relative; overflow: hidden;
+  }
+  .card.hero { grid-column: 1 / -1; padding: 1.2rem; background: linear-gradient(135deg, var(--plum), var(--plum-light)); color: var(--cream); }
+  .card .label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .card.hero .label { color: rgba(255,255,255,0.7); }
+  .card .value { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 700; margin-top: 0.25rem; line-height: 1.1; letter-spacing: -0.02em; }
+  .card.hero .value { font-size: 2.2rem; }
+  .card .sub { font-size: 0.72rem; color: var(--muted); margin-top: 0.35rem; }
+  .card.hero .sub { color: rgba(255,255,255,0.6); }
+  .card.titular-sole { background: var(--sole); border-color: #e8b8c8; }
+  .card.titular-gabi { background: var(--gabi); border-color: #b8c8e0; }
+  .card.titular-comp { background: var(--comp); border-color: #c8b8d8; }
+
+  /* Progress bar para pagado/pendiente */
+  .pay-card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+  .pay-card.total {
+    background: linear-gradient(135deg, var(--plum), var(--plum-light));
+    color: var(--cream);
+    border: none;
+  }
+  .pay-card .top {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 0.4rem;
+  }
+  .pay-card .label {
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .pay-card.total .label { color: rgba(255,255,255,0.7); }
+  .pay-card .amt-total {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .pay-card.total .amt-total { font-size: 1.5rem; }
+  .pay-bar {
+    position: relative; height: 8px;
+    background: var(--line); border-radius: 100px;
+    overflow: hidden; margin: 0.4rem 0 0.5rem;
+  }
+  .pay-card.total .pay-bar { background: rgba(255,255,255,0.2); }
+  .pay-bar-fill {
+    height: 100%; background: var(--green);
+    border-radius: 100px; transition: width 0.5s ease;
+  }
+  .pay-card.total .pay-bar-fill { background: var(--gold); }
+  .pay-split {
+    display: flex; justify-content: space-between;
+    font-size: 0.82rem;
+  }
+  .pay-split .item .k { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .pay-card.total .pay-split .item .k { color: rgba(255,255,255,0.6); }
+  .pay-split .item .v { font-family: 'Fraunces', serif; font-weight: 700; font-size: 0.95rem; display: block; }
+  .pay-split .item.pagado .v { color: var(--green); }
+  .pay-card.total .pay-split .item.pagado .v { color: #a5d9b0; }
+  .pay-split .item.pendiente .v { color: var(--red); }
+  .pay-card.total .pay-split .item.pendiente .v { color: #f5a8a8; }
+  .pay-split .item.pct .v { color: var(--plum); }
+  .pay-card.total .pay-split .item.pct .v { color: var(--cream); }
+
+  .balance-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem; border-radius: 10px;
+    background: var(--paper); border: 1px solid var(--line);
+    margin-top: 0.5rem;
+  }
+  .balance-row .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .balance-row .dot.verde { background: var(--green); }
+  .balance-row .dot.amarillo { background: var(--yellow); }
+  .balance-row .dot.rojo { background: var(--red); }
+  .balance-row .dot.sin { background: var(--muted); }
+  .balance-row .name { flex: 1; font-weight: 600; }
+  .balance-row .pct { font-weight: 700; font-family: 'Fraunces'; }
+  .balance-row.verde { background: var(--green-bg); border-color: var(--green); }
+  .balance-row.amarillo { background: var(--yellow-bg); border-color: var(--yellow); }
+  .balance-row.rojo { background: var(--red-bg); border-color: var(--red); }
+
+  .table-wrap {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden;
+  }
+  .table-row {
+    display: grid; grid-template-columns: 1fr auto;
+    padding: 0.75rem 0.85rem; border-bottom: 1px solid var(--line);
+    gap: 0.5rem; align-items: center;
+  }
+  .table-row:last-child { border-bottom: none; }
+  .table-row.clickable { cursor: pointer; transition: background 0.15s; }
+  .table-row.clickable:active { background: var(--rose-soft); }
+  .table-row .desc { font-weight: 600; font-size: 0.88rem; }
+  .table-row .meta { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .table-row .amt { font-family: 'Fraunces', serif; font-weight: 700; font-size: 0.98rem; text-align: right; }
+  .badge {
+    display: inline-block; padding: 0.1rem 0.45rem; border-radius: 100px;
+    font-size: 0.66rem; font-weight: 600; letter-spacing: 0.02em;
+    background: var(--line); color: var(--ink);
+  }
+  .badge.sole { background: var(--sole); }
+  .badge.gabi { background: var(--gabi); }
+  .badge.comp { background: var(--comp); }
+  .badge.pagado { background: var(--green-bg); color: var(--green); }
+  .badge.pendiente { background: var(--red-bg); color: var(--red); }
+
+  /* Formularios */
+  .form-tabs {
+    display: flex; gap: 0.4rem; margin-bottom: 1rem;
+    overflow-x: auto; scrollbar-width: none; padding-bottom: 0.25rem;
+  }
+  .form-tabs::-webkit-scrollbar { display: none; }
+  .form-tab {
+    padding: 0.55rem 1rem; border-radius: 100px;
+    background: var(--paper); border: 1px solid var(--line);
+    font-weight: 600; font-size: 0.85rem; color: var(--muted);
+    white-space: nowrap; transition: all 0.2s;
+  }
+  .form-tab.active { background: var(--plum); color: var(--cream); border-color: var(--plum); }
+  .form { display: none; }
+  .form.active { display: block; animation: fadeIn 0.25s; }
+  .field { margin-bottom: 0.85rem; }
+  .field label {
+    display: block; font-size: 0.72rem; font-weight: 600;
+    color: var(--plum); margin-bottom: 0.3rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 0.65rem 0.8rem;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 10px; color: var(--ink);
+    font-size: 0.95rem; transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--plum);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+  .btn {
+    width: 100%; padding: 0.85rem;
+    background: var(--plum); color: var(--cream);
+    border-radius: 12px; font-weight: 700; font-size: 0.95rem;
+    letter-spacing: 0.02em; transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn.secondary { background: var(--paper); color: var(--plum); border: 1px solid var(--line); }
+  .btn.danger { background: var(--red); color: white; }
+  .btn.success { background: var(--green); color: white; }
+  .btn-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+
+  .empty {
+    text-align: center; padding: 2.5rem 1rem;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.4; }
+  .loading { text-align: center; padding: 2rem; color: var(--muted); font-style: italic; }
+  .spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 2px solid var(--line); border-top-color: var(--plum);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 0.5rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #toast {
+    position: fixed; bottom: 1.5rem; left: 50%;
+    transform: translateX(-50%) translateY(150%);
+    background: var(--plum); color: var(--cream);
+    padding: 0.75rem 1.25rem; border-radius: 100px;
+    font-weight: 600; font-size: 0.9rem;
+    box-shadow: 0 8px 24px rgba(61,46,79,0.3);
+    transition: transform 0.3s ease;
+    z-index: 200; max-width: 90%;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.error { background: var(--red); }
+  #toast.success { background: var(--green); }
+
+  .setup-modal {
+    position: fixed; inset: 0; background: rgba(31,26,46,0.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 300; padding: 1rem;
+  }
+  .setup-box {
+    background: var(--paper); border-radius: 20px;
+    padding: 1.75rem; max-width: 400px; width: 100%;
+    border: 2px solid var(--plum);
+  }
+  .setup-box h2 { font-family: 'Fraunces', serif; color: var(--plum); margin-bottom: 0.5rem; }
+  .setup-box p { color: var(--muted); font-size: 0.85rem; margin-bottom: 1rem; }
+
+  .list-filter {
+    display: flex; gap: 0.4rem; margin-bottom: 0.75rem;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .list-filter::-webkit-scrollbar { display: none; }
+  .list-filter button {
+    padding: 0.4rem 0.85rem; border-radius: 100px;
+    background: var(--paper); border: 1px solid var(--line);
+    font-size: 0.78rem; font-weight: 600; color: var(--muted);
+    white-space: nowrap;
+  }
+  .list-filter button.active {
+    background: var(--rose); border-color: var(--rose); color: var(--plum);
+  }
+
+  .sheet-backdrop {
+    position: fixed; inset: 0; background: rgba(31,26,46,0.5);
+    z-index: 250; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+  .detail-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    border-radius: 24px 24px 0 0;
+    padding: 1.25rem 1.25rem 2rem;
+    max-height: 85vh; overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 260;
+  }
+  .detail-sheet.show { transform: translateY(0); }
+  .sheet-handle {
+    width: 40px; height: 4px; background: var(--line);
+    border-radius: 100px; margin: 0 auto 1rem;
+  }
+  .sheet-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem; font-weight: 700; color: var(--plum);
+    margin-bottom: 1rem;
+  }
+  .detail-row {
+    display: flex; justify-content: space-between;
+    padding: 0.55rem 0; border-bottom: 1px solid var(--line);
+    gap: 0.5rem;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .k { color: var(--muted); font-size: 0.82rem; }
+  .detail-row .v { font-weight: 600; font-size: 0.9rem; text-align: right; }
+
+  .proxi-item {
+    display: grid; grid-template-columns: 40px 1fr auto;
+    gap: 0.75rem; align-items: center;
+    padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--line);
+  }
+  .proxi-item:last-child { border-bottom: none; }
+  .proxi-item .day {
+    background: var(--plum); color: var(--cream);
+    font-family: 'Fraunces', serif; font-weight: 700;
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .proxi-item .info .d { font-weight: 600; font-size: 0.88rem; }
+  .proxi-item .info .m { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
+  .proxi-item .amt { font-family: 'Fraunces', serif; font-weight: 700; }
+
+  @media (min-width: 600px) {
+    main { padding: 1.5rem 2rem 6rem; }
+    .cards-grid { grid-template-columns: repeat(3, 1fr); }
+    .card.hero { grid-column: 1 / -1; }
+  }
+</style>
 </head>
-<body class="bg-sky-50 text-slate-800 antialiased selection:bg-sky-300 selection:text-sky-900">
-    
-    <div id="root"></div>
+<body>
 
-    <script type="text/babel">
-        // ==========================================
-        // CONFIGURACIÓN DE FIREBASE
-        // ==========================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyD-gYlH2Nzmv-26UI8QHEVNPU5fHjoVAZw",
-            authDomain: "prode2026-5082b.firebaseapp.com",
-            projectId: "prode2026-5082b",
-            storageBucket: "prode2026-5082b.firebasestorage.app",
-            messagingSenderId: "642143421766",
-            appId: "1:642143421766:web:28672abc1fe76d94759147"
-        };
+<header>
+  <div class="brand">
+    <span class="brand-heart">❤</span>
+    <span class="brand-title">Gastos con Amor</span>
+    <span class="brand-sub">v5</span>
+  </div>
+  <div class="month-selector">
+    <label>Mes</label>
+    <input type="text" id="mesInput" placeholder="MM/AAAA" maxlength="7">
+    <span class="pill" id="mesPill">ABR 26</span>
+  </div>
+</header>
 
-        const PRODE_APP_ID = 'prode-oficina-final';
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-view="tablero">Tablero</button>
+  <button class="tab" data-view="cargar">+ Cargar</button>
+  <button class="tab" data-view="fijos">Fijos</button>
+  <button class="tab" data-view="variables">Variables</button>
+  <button class="tab" data-view="cuotas">Cuotas</button>
+  <button class="tab" data-view="prestamos">Préstamos</button>
+  <button class="tab" data-view="config">⚙</button>
+</nav>
 
-        // Inicializamos Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+<main>
 
-        // --- ICONOS ---
-        const Trophy = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7c0 3.31 2.69 6 6 6s6-2.69 6-6V2Z"/></svg>;
-        const Calendar = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>;
-        const Info = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
-        const CheckCircle2 = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>;
-        const AlertCircle = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>;
-        const Play = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>;
-        const ChevronRight = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
-        const Cloud = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>;
-        const Globe = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
-        const Sun = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>;
-        const LogOutIcon = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
-        const Lock = ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+<!-- TABLERO -->
+<section class="view active" id="view-tablero">
+  <div id="tablero-content"><div class="loading"><span class="spinner"></span>Cargando datos…</div></div>
+</section>
 
-        const { useState, useEffect, useRef, useMemo } = React;
+<!-- CARGAR -->
+<section class="view" id="view-cargar">
+  <div class="section-title">Nuevo movimiento</div>
+  <div class="form-tabs" id="formTabs">
+    <button class="form-tab active" data-form="variable">💳 Variable</button>
+    <button class="form-tab" data-form="fijo">🏠 Fijo</button>
+    <button class="form-tab" data-form="cuota">💸 Cuota</button>
+    <button class="form-tab" data-form="prestamo">📋 Préstamo</button>
+  </div>
 
-        // --- DEFINICIÓN DE LOS 48 EQUIPOS Y 12 GRUPOS ---
-        const TOURNAMENT_GROUPS = {
-            'A': [{ name: 'México', flag: '🇲🇽' }, { name: 'Sudáfrica', flag: '🇿🇦' }, { name: 'Corea del Sur', flag: '🇰🇷' }, { name: 'Rep. Checa', flag: '🇨🇿' }],
-            'B': [{ name: 'Canadá', flag: '🇨🇦' }, { name: 'Bosnia y Herz.', flag: '🇧🇦' }, { name: 'Qatar', flag: '🇶🇦' }, { name: 'Suiza', flag: '🇨🇭' }],
-            'C': [{ name: 'Brasil', flag: '🇧🇷' }, { name: 'Marruecos', flag: '🇲🇦' }, { name: 'Haití', flag: '🇭🇹' }, { name: 'Escocia', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' }],
-            'D': [{ name: 'EE.UU.', flag: '🇺🇸' }, { name: 'Paraguay', flag: '🇵🇾' }, { name: 'Australia', flag: '🇦🇺' }, { name: 'Turquía', flag: '🇹🇷' }],
-            'E': [{ name: 'Alemania', flag: '🇩🇪' }, { name: 'Curazao', flag: '🇨🇼' }, { name: 'C. de Marfil', flag: '🇨🇮' }, { name: 'Ecuador', flag: '🇪🇨' }],
-            'F': [{ name: 'Países Bajos', flag: '🇳🇱' }, { name: 'Japón', flag: '🇯🇵' }, { name: 'Suecia', flag: '🇸🇪' }, { name: 'Túnez', flag: '🇹🇳' }],
-            'G': [{ name: 'Bélgica', flag: '🇧🇪' }, { name: 'Egipto', flag: '🇪🇬' }, { name: 'Irán', flag: '🇮🇷' }, { name: 'N. Zelanda', flag: '🇳🇿' }],
-            'H': [{ name: 'España', flag: '🇪🇸' }, { name: 'Cabo Verde', flag: '🇨🇻' }, { name: 'A. Saudita', flag: '🇸🇦' }, { name: 'Uruguay', flag: '🇺🇾' }],
-            'I': [{ name: 'Francia', flag: '🇫🇷' }, { name: 'Senegal', flag: '🇸🇳' }, { name: 'Irak', flag: '🇮🇶' }, { name: 'Noruega', flag: '🇳🇴' }],
-            'J': [{ name: 'Argentina', flag: '🇦🇷' }, { name: 'Argelia', flag: '🇩🇿' }, { name: 'Austria', flag: '🇦🇹' }, { name: 'Jordania', flag: '🇯🇴' }],
-            'K': [{ name: 'Portugal', flag: '🇵🇹' }, { name: 'RD Congo', flag: '🇨🇩' }, { name: 'Colombia', flag: '🇨🇴' }, { name: 'Uzbekistán', flag: '🇺🇿' }],
-            'L': [{ name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' }, { name: 'Croacia', flag: '🇭🇷' }, { name: 'Ghana', flag: '🇬🇭' }, { name: 'Panamá', flag: '🇵🇦' }]
-        };
+  <form class="form active" id="form-variable">
+    <div class="field">
+      <label>MES del resumen (MM/AAAA)</label>
+      <input type="text" name="MES" placeholder="04/2026" required pattern="\d{2}/\d{4}">
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Fecha</label><input type="date" name="Fecha" required></div>
+      <div class="field"><label>Monto</label><input type="number" name="Monto" step="0.01" required></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" required></select></div>
+      <div class="field"><label>Tarjeta / Medio</label><select name="Tarjeta" data-catalog="tarjetas" required></select></div>
+    </div>
+    <div class="field"><label>Descripción</label><input type="text" name="Descripción" required></div>
+    <div class="field-row">
+      <div class="field"><label>Categoría</label><select name="Categoría" data-catalog="categoriasVariables" required></select></div>
+      <div class="field"><label>Cuotas</label><input type="number" name="Cuotas" min="1" placeholder="1"></div>
+    </div>
+    <div class="field"><label>Notas</label><textarea name="Notas" rows="2"></textarea></div>
+    <button type="submit" class="btn">Guardar variable</button>
+  </form>
 
-        const getFlag = (teamName) => {
-            for (const group of Object.values(TOURNAMENT_GROUPS)) {
-                const team = group.find(t => t.name === teamName);
-                if (team) return team.flag;
-            }
-            return '❓';
-        };
+  <form class="form" id="form-fijo">
+    <div class="field"><label>MES (MM/AAAA)</label><input type="text" name="MES" placeholder="04/2026" required pattern="\d{2}/\d{4}"></div>
+    <div class="field-row">
+      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" required></select></div>
+      <div class="field"><label>Categoría</label><select name="Categoría" data-catalog="categoriasFijos" required></select></div>
+    </div>
+    <div class="field"><label>Descripción</label><input type="text" name="Descripción" required></div>
+    <div class="field-row">
+      <div class="field"><label>Día Venc.</label><input type="number" name="DíaVencim" min="1" max="31"></div>
+      <div class="field"><label>Monto</label><input type="number" name="Monto" step="0.01" required></div>
+    </div>
+    <div class="field"><label>Notas</label><textarea name="Notas" rows="2"></textarea></div>
+    <button type="submit" class="btn">Guardar fijo</button>
+  </form>
 
-        // --- LOS 104 PARTIDOS OFICIALES ---
-        const initialMatches = [
-            // --- GRUPOS (72 Partidos) ---
-            { id: 1, stage: 'grupos', home: 'México', homeFlag: getFlag('México'), away: 'Sudáfrica', awayFlag: getFlag('Sudáfrica'), date: '11 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 2, stage: 'grupos', home: 'Corea del Sur', homeFlag: getFlag('Corea del Sur'), away: 'Rep. Checa', awayFlag: getFlag('Rep. Checa'), date: '11 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 3, stage: 'grupos', home: 'Canadá', homeFlag: getFlag('Canadá'), away: 'Bosnia y Herz.', awayFlag: getFlag('Bosnia y Herz.'), date: '12 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 4, stage: 'grupos', home: 'EE.UU.', homeFlag: getFlag('EE.UU.'), away: 'Paraguay', awayFlag: getFlag('Paraguay'), date: '12 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 5, stage: 'grupos', home: 'Qatar', homeFlag: getFlag('Qatar'), away: 'Suiza', awayFlag: getFlag('Suiza'), date: '13 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 6, stage: 'grupos', home: 'Brasil', homeFlag: getFlag('Brasil'), away: 'Marruecos', awayFlag: getFlag('Marruecos'), date: '13 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 7, stage: 'grupos', home: 'Haití', homeFlag: getFlag('Haití'), away: 'Escocia', awayFlag: getFlag('Escocia'), date: '13 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 8, stage: 'grupos', home: 'Australia', homeFlag: getFlag('Australia'), away: 'Turquía', awayFlag: getFlag('Turquía'), date: '13 Jun 2026 - 00:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 9, stage: 'grupos', home: 'Alemania', homeFlag: getFlag('Alemania'), away: 'Curazao', awayFlag: getFlag('Curazao'), date: '14 Jun 2026 - 13:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 10, stage: 'grupos', home: 'Países Bajos', homeFlag: getFlag('Países Bajos'), away: 'Japón', awayFlag: getFlag('Japón'), date: '14 Jun 2026 - 16:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 11, stage: 'grupos', home: 'C. de Marfil', homeFlag: getFlag('C. de Marfil'), away: 'Ecuador', awayFlag: getFlag('Ecuador'), date: '14 Jun 2026 - 19:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 12, stage: 'grupos', home: 'Suecia', homeFlag: getFlag('Suecia'), away: 'Túnez', awayFlag: getFlag('Túnez'), date: '14 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 13, stage: 'grupos', home: 'España', homeFlag: getFlag('España'), away: 'Cabo Verde', awayFlag: getFlag('Cabo Verde'), date: '15 Jun 2026 - 12:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 14, stage: 'grupos', home: 'Bélgica', homeFlag: getFlag('Bélgica'), away: 'Egipto', awayFlag: getFlag('Egipto'), date: '15 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 15, stage: 'grupos', home: 'A. Saudita', homeFlag: getFlag('A. Saudita'), away: 'Uruguay', awayFlag: getFlag('Uruguay'), date: '15 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 16, stage: 'grupos', home: 'Irán', homeFlag: getFlag('Irán'), away: 'N. Zelanda', awayFlag: getFlag('N. Zelanda'), date: '15 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 17, stage: 'grupos', home: 'Francia', homeFlag: getFlag('Francia'), away: 'Senegal', awayFlag: getFlag('Senegal'), date: '16 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 18, stage: 'grupos', home: 'Irak', homeFlag: getFlag('Irak'), away: 'Noruega', awayFlag: getFlag('Noruega'), date: '16 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 19, stage: 'grupos', home: 'Argentina', homeFlag: getFlag('Argentina'), away: 'Argelia', awayFlag: getFlag('Argelia'), date: '16 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 20, stage: 'grupos', home: 'Austria', homeFlag: getFlag('Austria'), away: 'Jordania', awayFlag: getFlag('Jordania'), date: '16 Jun 2026 - 00:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 21, stage: 'grupos', home: 'Portugal', homeFlag: getFlag('Portugal'), away: 'RD Congo', awayFlag: getFlag('RD Congo'), date: '17 Jun 2026 - 13:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 22, stage: 'grupos', home: 'Inglaterra', homeFlag: getFlag('Inglaterra'), away: 'Croacia', awayFlag: getFlag('Croacia'), date: '17 Jun 2026 - 16:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 23, stage: 'grupos', home: 'Ghana', homeFlag: getFlag('Ghana'), away: 'Panamá', awayFlag: getFlag('Panamá'), date: '17 Jun 2026 - 19:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 24, stage: 'grupos', home: 'Uzbekistán', homeFlag: getFlag('Uzbekistán'), away: 'Colombia', awayFlag: getFlag('Colombia'), date: '17 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 25, stage: 'grupos', home: 'Rep. Checa', homeFlag: getFlag('Rep. Checa'), away: 'Sudáfrica', awayFlag: getFlag('Sudáfrica'), date: '18 Jun 2026 - 12:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 26, stage: 'grupos', home: 'Suiza', homeFlag: getFlag('Suiza'), away: 'Bosnia y Herz.', awayFlag: getFlag('Bosnia y Herz.'), date: '18 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 27, stage: 'grupos', home: 'Canadá', homeFlag: getFlag('Canadá'), away: 'Qatar', awayFlag: getFlag('Qatar'), date: '18 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 28, stage: 'grupos', home: 'México', homeFlag: getFlag('México'), away: 'Corea del Sur', awayFlag: getFlag('Corea del Sur'), date: '18 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 29, stage: 'grupos', home: 'EE.UU.', homeFlag: getFlag('EE.UU.'), away: 'Australia', awayFlag: getFlag('Australia'), date: '19 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 30, stage: 'grupos', home: 'Escocia', homeFlag: getFlag('Escocia'), away: 'Marruecos', awayFlag: getFlag('Marruecos'), date: '19 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 31, stage: 'grupos', home: 'Brasil', homeFlag: getFlag('Brasil'), away: 'Haití', awayFlag: getFlag('Haití'), date: '19 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 32, stage: 'grupos', home: 'Turquía', homeFlag: getFlag('Turquía'), away: 'Paraguay', awayFlag: getFlag('Paraguay'), date: '19 Jun 2026 - 00:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 33, stage: 'grupos', home: 'Países Bajos', homeFlag: getFlag('Países Bajos'), away: 'Suecia', awayFlag: getFlag('Suecia'), date: '20 Jun 2026 - 13:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 34, stage: 'grupos', home: 'Alemania', homeFlag: getFlag('Alemania'), away: 'C. de Marfil', awayFlag: getFlag('C. de Marfil'), date: '20 Jun 2026 - 16:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 35, stage: 'grupos', home: 'Ecuador', homeFlag: getFlag('Ecuador'), away: 'Curazao', awayFlag: getFlag('Curazao'), date: '20 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 36, stage: 'grupos', home: 'Túnez', homeFlag: getFlag('Túnez'), away: 'Japón', awayFlag: getFlag('Japón'), date: '20 Jun 2026 - 00:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 37, stage: 'grupos', home: 'España', homeFlag: getFlag('España'), away: 'A. Saudita', awayFlag: getFlag('A. Saudita'), date: '21 Jun 2026 - 12:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 38, stage: 'grupos', home: 'Bélgica', homeFlag: getFlag('Bélgica'), away: 'Irán', awayFlag: getFlag('Irán'), date: '21 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 39, stage: 'grupos', home: 'Uruguay', homeFlag: getFlag('Uruguay'), away: 'Cabo Verde', awayFlag: getFlag('Cabo Verde'), date: '21 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 40, stage: 'grupos', home: 'N. Zelanda', homeFlag: getFlag('N. Zelanda'), away: 'Egipto', awayFlag: getFlag('Egipto'), date: '21 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 41, stage: 'grupos', home: 'Argentina', homeFlag: getFlag('Argentina'), away: 'Austria', awayFlag: getFlag('Austria'), date: '22 Jun 2026 - 13:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 42, stage: 'grupos', home: 'Francia', homeFlag: getFlag('Francia'), away: 'Irak', awayFlag: getFlag('Irak'), date: '22 Jun 2026 - 17:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 43, stage: 'grupos', home: 'Noruega', homeFlag: getFlag('Noruega'), away: 'Senegal', awayFlag: getFlag('Senegal'), date: '22 Jun 2026 - 20:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 44, stage: 'grupos', home: 'Jordania', homeFlag: getFlag('Jordania'), away: 'Argelia', awayFlag: getFlag('Argelia'), date: '22 Jun 2026 - 23:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 45, stage: 'grupos', home: 'Portugal', homeFlag: getFlag('Portugal'), away: 'Uzbekistán', awayFlag: getFlag('Uzbekistán'), date: '23 Jun 2026 - 13:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 46, stage: 'grupos', home: 'Inglaterra', homeFlag: getFlag('Inglaterra'), away: 'Ghana', awayFlag: getFlag('Ghana'), date: '23 Jun 2026 - 16:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 47, stage: 'grupos', home: 'Panamá', homeFlag: getFlag('Panamá'), away: 'Croacia', awayFlag: getFlag('Croacia'), date: '23 Jun 2026 - 19:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 48, stage: 'grupos', home: 'Colombia', homeFlag: getFlag('Colombia'), away: 'RD Congo', awayFlag: getFlag('RD Congo'), date: '23 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 49, stage: 'grupos', home: 'Suiza', homeFlag: getFlag('Suiza'), away: 'Canadá', awayFlag: getFlag('Canadá'), date: '24 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 50, stage: 'grupos', home: 'Bosnia y Herz.', homeFlag: getFlag('Bosnia y Herz.'), away: 'Qatar', awayFlag: getFlag('Qatar'), date: '24 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 51, stage: 'grupos', home: 'Escocia', homeFlag: getFlag('Escocia'), away: 'Brasil', awayFlag: getFlag('Brasil'), date: '24 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 52, stage: 'grupos', home: 'Marruecos', homeFlag: getFlag('Marruecos'), away: 'Haití', awayFlag: getFlag('Haití'), date: '24 Jun 2026 - 18:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 53, stage: 'grupos', home: 'Rep. Checa', homeFlag: getFlag('Rep. Checa'), away: 'México', awayFlag: getFlag('México'), date: '24 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 54, stage: 'grupos', home: 'Sudáfrica', homeFlag: getFlag('Sudáfrica'), away: 'Corea del Sur', awayFlag: getFlag('Corea del Sur'), date: '24 Jun 2026 - 21:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 55, stage: 'grupos', home: 'Curazao', homeFlag: getFlag('Curazao'), away: 'C. de Marfil', awayFlag: getFlag('C. de Marfil'), date: '25 Jun 2026 - 16:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 56, stage: 'grupos', home: 'Ecuador', homeFlag: getFlag('Ecuador'), away: 'Alemania', awayFlag: getFlag('Alemania'), date: '25 Jun 2026 - 16:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 57, stage: 'grupos', home: 'Japón', homeFlag: getFlag('Japón'), away: 'Suecia', awayFlag: getFlag('Suecia'), date: '25 Jun 2026 - 19:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 58, stage: 'grupos', home: 'Túnez', homeFlag: getFlag('Túnez'), away: 'Países Bajos', awayFlag: getFlag('Países Bajos'), date: '25 Jun 2026 - 19:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 59, stage: 'grupos', home: 'Turquía', homeFlag: getFlag('Turquía'), away: 'EE.UU.', awayFlag: getFlag('EE.UU.'), date: '25 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 60, stage: 'grupos', home: 'Paraguay', homeFlag: getFlag('Paraguay'), away: 'Australia', awayFlag: getFlag('Australia'), date: '25 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 61, stage: 'grupos', home: 'Noruega', homeFlag: getFlag('Noruega'), away: 'Francia', awayFlag: getFlag('Francia'), date: '26 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 62, stage: 'grupos', home: 'Senegal', homeFlag: getFlag('Senegal'), away: 'Irak', awayFlag: getFlag('Irak'), date: '26 Jun 2026 - 15:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 63, stage: 'grupos', home: 'Cabo Verde', homeFlag: getFlag('Cabo Verde'), away: 'A. Saudita', awayFlag: getFlag('A. Saudita'), date: '26 Jun 2026 - 20:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 64, stage: 'grupos', home: 'Uruguay', homeFlag: getFlag('Uruguay'), away: 'España', awayFlag: getFlag('España'), date: '26 Jun 2026 - 20:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 65, stage: 'grupos', home: 'Egipto', homeFlag: getFlag('Egipto'), away: 'Irán', awayFlag: getFlag('Irán'), date: '26 Jun 2026 - 23:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 66, stage: 'grupos', home: 'N. Zelanda', homeFlag: getFlag('N. Zelanda'), away: 'Bélgica', awayFlag: getFlag('Bélgica'), date: '26 Jun 2026 - 23:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 67, stage: 'grupos', home: 'Panamá', homeFlag: getFlag('Panamá'), away: 'Inglaterra', awayFlag: getFlag('Inglaterra'), date: '27 Jun 2026 - 17:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 68, stage: 'grupos', home: 'Croacia', homeFlag: getFlag('Croacia'), away: 'Ghana', awayFlag: getFlag('Ghana'), date: '27 Jun 2026 - 17:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 69, stage: 'grupos', home: 'Colombia', homeFlag: getFlag('Colombia'), away: 'Portugal', awayFlag: getFlag('Portugal'), date: '27 Jun 2026 - 19:30', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 70, stage: 'grupos', home: 'RD Congo', homeFlag: getFlag('RD Congo'), away: 'Uzbekistán', awayFlag: getFlag('Uzbekistán'), date: '27 Jun 2026 - 19:30', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 71, stage: 'grupos', home: 'Argelia', homeFlag: getFlag('Argelia'), away: 'Austria', awayFlag: getFlag('Austria'), date: '27 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 72, stage: 'grupos', home: 'Jordania', homeFlag: getFlag('Jordania'), away: 'Argentina', awayFlag: getFlag('Argentina'), date: '27 Jun 2026 - 22:00', status: 'pending', realHomeScore: null, realAwayScore: null },
+  <form class="form" id="form-cuota">
+    <div class="field-row">
+      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" required></select></div>
+      <div class="field"><label>Tarjeta</label><select name="Tarjeta" data-catalog="tarjetas" required></select></div>
+    </div>
+    <div class="field"><label>Descripción</label><input type="text" name="Descripción" required></div>
+    <div class="field-row">
+      <div class="field"><label>Fecha compra</label><input type="date" name="FechaCompra"></div>
+      <div class="field"><label>Monto total</label><input type="number" name="MontoTotal" step="0.01" required></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Cuotas totales</label><input type="number" name="CuotasTotales" min="1" required></div>
+      <div class="field"><label>Cuotas pagadas</label><input type="number" name="CuotasPagadas" min="0" value="0"></div>
+    </div>
+    <div class="field"><label>Mes primer resumen (MM/AAAA)</label><input type="text" name="MesPrimerResumen" placeholder="04/2026" required pattern="\d{2}/\d{4}"></div>
+    <div class="field"><label>Notas</label><textarea name="Notas" rows="2"></textarea></div>
+    <button type="submit" class="btn">Guardar cuota</button>
+  </form>
 
-            // --- 16AVOS DE FINAL (16 Partidos) ---
-            { id: 73, stage: '16avos', home: '2º Grupo A', homeFlag: '❓', away: '2º Grupo B', awayFlag: '❓', date: '28 Jun 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 74, stage: '16avos', home: '1º Grupo E', homeFlag: '❓', away: '3º A/B/C/D/F', awayFlag: '❓', date: '29 Jun 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 75, stage: '16avos', home: '1º Grupo F', homeFlag: '❓', away: '2º Grupo C', awayFlag: '❓', date: '29 Jun 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 76, stage: '16avos', home: '1º Grupo C', homeFlag: '❓', away: '2º Grupo F', awayFlag: '❓', date: '29 Jun 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 77, stage: '16avos', home: '1º Grupo I', homeFlag: '❓', away: '3º C/D/F/G/H', awayFlag: '❓', date: '30 Jun 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 78, stage: '16avos', home: '2º Grupo E', homeFlag: '❓', away: '2º Grupo I', awayFlag: '❓', date: '30 Jun 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 79, stage: '16avos', home: '1º Grupo A', homeFlag: '❓', away: '3º C/E/F/H/I', awayFlag: '❓', date: '30 Jun 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 80, stage: '16avos', home: '1º Grupo L', homeFlag: '❓', away: '3º E/H/I/J/K', awayFlag: '❓', date: '1 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 81, stage: '16avos', home: '1º Grupo D', homeFlag: '❓', away: '3º B/E/F/I/J', awayFlag: '❓', date: '1 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 82, stage: '16avos', home: '1º Grupo G', homeFlag: '❓', away: '3º A/E/H/I/J', awayFlag: '❓', date: '1 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 83, stage: '16avos', home: '2º Grupo K', homeFlag: '❓', away: '2º Grupo L', awayFlag: '❓', date: '2 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 84, stage: '16avos', home: '1º Grupo H', homeFlag: '❓', away: '2º Grupo J', awayFlag: '❓', date: '2 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 85, stage: '16avos', home: '1º Grupo B', homeFlag: '❓', away: '3º E/F/G/I/J', awayFlag: '❓', date: '2 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 86, stage: '16avos', home: '1º Grupo J', homeFlag: '❓', away: '2º Grupo H', awayFlag: '❓', date: '3 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 87, stage: '16avos', home: '1º Grupo K', homeFlag: '❓', away: '3º D/E/I/J/L', awayFlag: '❓', date: '3 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 88, stage: '16avos', home: '2º Grupo D', homeFlag: '❓', away: '2º Grupo G', awayFlag: '❓', date: '3 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
+  <form class="form" id="form-prestamo">
+    <div class="field-row">
+      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" required></select></div>
+      <div class="field"><label>Tipo</label><select name="Tipo" data-catalog="tiposPrestamo" required></select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Nro/Ref.</label><input type="text" name="Nro/Referencia"></div>
+      <div class="field"><label>Fecha otorg.</label><input type="date" name="FechaOtorgamiento"></div>
+    </div>
+    <div class="field"><label>Descripción</label><input type="text" name="Descripción"></div>
+    <div class="field-row">
+      <div class="field"><label>Monto total</label><input type="number" name="MontoTotal" step="0.01"></div>
+      <div class="field"><label>Monto x cuota</label><input type="number" name="MontoXCuota" step="0.01" required></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Cuotas totales</label><input type="number" name="CuotasTotales" min="1" required></div>
+      <div class="field"><label>Cuotas pagadas</label><input type="number" name="CuotasPagadas" min="0" value="0"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Día venc.</label><input type="number" name="DíaVencim" min="1" max="31"></div>
+      <div class="field"><label>Primer mes (MM/AAAA)</label><input type="text" name="PrimerMesPago" placeholder="05/2026" required pattern="\d{2}/\d{4}"></div>
+    </div>
+    <button type="submit" class="btn">Guardar préstamo</button>
+  </form>
+</section>
 
-            // --- OCTAVOS DE FINAL (8 Partidos) ---
-            { id: 89, stage: 'octavos', home: 'Ganador 74', homeFlag: '❓', away: 'Ganador 77', awayFlag: '❓', date: '4 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 90, stage: 'octavos', home: 'Ganador 73', homeFlag: '❓', away: 'Ganador 75', awayFlag: '❓', date: '4 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 91, stage: 'octavos', home: 'Ganador 76', homeFlag: '❓', away: 'Ganador 78', awayFlag: '❓', date: '5 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 92, stage: 'octavos', home: 'Ganador 79', homeFlag: '❓', away: 'Ganador 80', awayFlag: '❓', date: '5 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 93, stage: 'octavos', home: 'Ganador 83', homeFlag: '❓', away: 'Ganador 84', awayFlag: '❓', date: '6 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 94, stage: 'octavos', home: 'Ganador 81', homeFlag: '❓', away: 'Ganador 82', awayFlag: '❓', date: '6 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 95, stage: 'octavos', home: 'Ganador 86', homeFlag: '❓', away: 'Ganador 88', awayFlag: '❓', date: '7 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 96, stage: 'octavos', home: 'Ganador 85', homeFlag: '❓', away: 'Ganador 87', awayFlag: '❓', date: '7 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
+<!-- LISTADOS -->
+<section class="view" id="view-fijos">
+  <div class="section-title">Gastos fijos del mes</div>
+  <div id="list-fijos"><div class="loading"><span class="spinner"></span>Cargando…</div></div>
+</section>
 
-            // --- CUARTOS DE FINAL (4 Partidos) ---
-            { id: 97, stage: 'cuartos', home: 'Ganador 89', homeFlag: '❓', away: 'Ganador 90', awayFlag: '❓', date: '9 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 98, stage: 'cuartos', home: 'Ganador 93', homeFlag: '❓', away: 'Ganador 94', awayFlag: '❓', date: '10 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 99, stage: 'cuartos', home: 'Ganador 91', homeFlag: '❓', away: 'Ganador 92', awayFlag: '❓', date: '11 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 100, stage: 'cuartos', home: 'Ganador 95', homeFlag: '❓', away: 'Ganador 96', awayFlag: '❓', date: '11 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
+<section class="view" id="view-variables">
+  <div class="section-title">Gastos variables del mes</div>
+  <div id="list-variables"><div class="loading"><span class="spinner"></span>Cargando…</div></div>
+</section>
 
-            // --- SEMIFINALES ---
-            { id: 101, stage: 'semis', home: 'Ganador 97', homeFlag: '❓', away: 'Ganador 98', awayFlag: '❓', date: '14 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
-            { id: 102, stage: 'semis', home: 'Ganador 99', homeFlag: '❓', away: 'Ganador 100', awayFlag: '❓', date: '15 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
+<section class="view" id="view-cuotas">
+  <div class="section-title">Cuotas activas</div>
+  <div class="list-filter">
+    <button class="active" data-cuotas-filter="mes">Del mes</button>
+    <button data-cuotas-filter="todas">Todas activas</button>
+  </div>
+  <div id="list-cuotas"><div class="loading"><span class="spinner"></span>Cargando…</div></div>
+</section>
 
-            // --- 3ER PUESTO ---
-            { id: 103, stage: '3er_puesto', home: 'Perdedor 101', homeFlag: '🥉', away: 'Perdedor 102', awayFlag: '🥉', date: '18 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null },
+<section class="view" id="view-prestamos">
+  <div class="section-title">Préstamos y adelantos</div>
+  <div id="list-prestamos"><div class="loading"><span class="spinner"></span>Cargando…</div></div>
+</section>
 
-            // --- FINAL ---
-            { id: 104, stage: 'final', home: 'Ganador 101', homeFlag: '🏆', away: 'Ganador 102', awayFlag: '🏆', date: '19 Jul 2026', status: 'pending', realHomeScore: null, realAwayScore: null }
-        ];
+<!-- CONFIG -->
+<section class="view" id="view-config">
+  <div class="section-title">Configuración</div>
+  <div class="pay-card">
+    <div class="label" style="margin-bottom:0.75rem;">Ingresos mensuales</div>
+    <div class="field"><label>Ingreso Soledad</label><input type="number" id="cfg-ingreso-sole" step="0.01"></div>
+    <div class="field"><label>Ingreso Gabriel</label><input type="number" id="cfg-ingreso-gabi" step="0.01"></div>
+    <button class="btn" onclick="guardarIngresos()">Guardar ingresos</button>
+  </div>
+  <div class="pay-card" style="margin-top:1rem;">
+    <div class="label" style="margin-bottom:0.75rem;">Conexión API</div>
+    <div class="field"><label>Endpoint</label><input type="text" id="cfg-endpoint" readonly></div>
+    <div class="field"><label>Token</label><input type="password" id="cfg-token" readonly></div>
+    <button class="btn secondary" onclick="editarSetup()">Editar conexión</button>
+  </div>
+</section>
 
-        const stagesList = [
-            { id: 'grupos', label: 'Grupos' },
-            { id: '16avos', label: '16avos' },
-            { id: 'octavos', label: 'Octavos' },
-            { id: 'cuartos', label: 'Cuartos' },
-            { id: 'semis', label: 'Semis' },
-            { id: '3er_puesto', label: '3er Puesto' },
-            { id: 'final', label: 'Final' }
-        ];
+</main>
 
-        // FUNCIÓN PARA VERIFICAR SI EL PARTIDO ESTÁ BLOQUEADO (30 MIN ANTES)
-        const isMatchLocked = (dateStr) => {
-            if (!dateStr) return false;
-            
-            let datePart = dateStr;
-            let timePart = "23:59"; // Por defecto, si el partido no tiene hora confirmada, cierra a la medianoche.
-            
-            if (dateStr.includes(' - ')) {
-                const parts = dateStr.split(' - ');
-                datePart = parts[0];
-                timePart = parts[1];
-            }
-            
-            // Usamos la zona horaria GMT-0400 porque los horarios oficiales (ET) en junio son UTC-4.
-            // Al crear este Date, JS lo convierte a la hora local exacta del usuario.
-            const matchTime = new Date(`${datePart} ${timePart}:00 GMT-0400`);
-            const now = new Date();
-            
-            // 30 minutos en milisegundos = 1800000 ms
-            return now.getTime() > (matchTime.getTime() - 1800000);
-        };
+<div class="sheet-backdrop" id="sheetBackdrop"></div>
+<div class="detail-sheet" id="detailSheet">
+  <div class="sheet-handle"></div>
+  <div id="sheetContent"></div>
+</div>
 
-        function App() {
-            const [user, setUser] = useState(null);
-            const [userName, setUserName] = useState('');
-            const [userEmail, setUserEmail] = useState(''); // Estado para el nuevo correo
-            const [isLogged, setIsLogged] = useState(false);
-            const [activeTab, setActiveTab] = useState('inicio');
-            const [activeStage, setActiveStage] = useState('grupos'); 
-            
-            const [matches, setMatches] = useState(initialMatches);
-            const [predictions, setPredictions] = useState({});
-            const [allPredictions, setAllPredictions] = useState([]);
-            const [leaderboard, setLeaderboard] = useState([]);
-            const [toast, setToast] = useState(null);
-            const [showLogoutModal, setShowLogoutModal] = useState(false);
+<div id="toast"></div>
 
-            const hasLoadedPreds = useRef(false);
+<div class="setup-modal" id="setupModal" style="display:none;">
+  <div class="setup-box">
+    <h2>Configuración inicial</h2>
+    <p>Ingresá el endpoint y token del API de tu Apps Script.</p>
+    <div class="field"><label>URL Endpoint</label><input type="text" id="setupEndpoint" placeholder="https://script.google.com/..."></div>
+    <div class="field"><label>Token</label><input type="text" id="setupToken" placeholder="uuid..."></div>
+    <button class="btn" onclick="saveSetup()">Guardar y conectar</button>
+  </div>
+</div>
 
-            // Llave Mágica: el correo en minúsculas
-            const userDocId = userEmail.trim().toLowerCase();
-            const isAdmin = userDocId === 'admin@prode.com';
+<script>
+const LS_ENDPOINT = 'gca5_endpoint';
+const LS_TOKEN = 'gca5_token';
+const LS_MES = 'gca5_mes';
 
-            // 1. Autenticación (Se mantiene anónima por detrás para dar acceso a la BD)
-            useEffect(() => {
-                const initAuth = () => {
-                    auth.signInAnonymously().catch(error => console.error("Error Auth:", error));
-                };
-                initAuth();
-                
-                const unsubscribe = auth.onAuthStateChanged((u) => {
-                    if (u) {
-                        setUser(u);
-                    } else {
-                        initAuth(); 
-                    }
-                });
-                return () => unsubscribe();
-            }, []);
+const state = {
+  endpoint: localStorage.getItem(LS_ENDPOINT) || '',
+  token: localStorage.getItem(LS_TOKEN) || '',
+  mes: localStorage.getItem(LS_MES) || defaultMes(),
+  catalogos: null
+};
 
-            // 2. Sincronización DB
-            useEffect(() => {
-                if (!user) return;
+function defaultMes() {
+  const d = new Date();
+  return String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+}
 
-                const predsRef = db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('predictions');
-                const unsubPreds = predsRef.onSnapshot(snap => {
-                    const all = [];
-                    snap.forEach(doc => all.push({ id: doc.id, ...doc.data() }));
-                    setAllPredictions(all);
-                });
+async function api(action, params = {}) {
+  if (!state.endpoint || !state.token) { showSetup(); throw new Error('Falta configuración'); }
+  const url = new URL(state.endpoint);
+  url.searchParams.set('action', action);
+  url.searchParams.set('token', state.token);
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null) url.searchParams.set(k, v);
+  }
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 20000);
+  try {
+    const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: ctrl.signal });
+    clearTimeout(timeout);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Error desconocido');
+    return json.data;
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') throw new Error('Timeout (20s)');
+    throw err;
+  }
+}
 
-                const globalRef = db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('state').doc('global');
-                const unsubGlobal = globalRef.onSnapshot(doc => {
-                    if (doc.exists && doc.data().matches) {
-                        setMatches(doc.data().matches);
-                    }
-                });
+async function apiPost(action, data) {
+  const url = new URL(state.endpoint);
+  url.searchParams.set('action', action);
+  url.searchParams.set('token', state.token);
+  url.searchParams.set('data', JSON.stringify(data));
+  const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Error desconocido');
+  return json.data;
+}
 
-                return () => { unsubPreds(); unsubGlobal(); };
-            }, [user]);
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = type, 2500);
+}
 
-            // 3. Cargar mis datos (Usando el correo como llave)
-            useEffect(() => {
-                if (isLogged && userDocId && allPredictions.length > 0 && !hasLoadedPreds.current) {
-                    const myData = allPredictions.find(p => p.id === userDocId);
-                    if (myData && myData.preds) setPredictions(myData.preds);
-                    if (myData && myData.userName) setUserName(myData.userName); // Actualiza el nombre al que ya estaba guardado
-                    hasLoadedPreds.current = true;
-                }
-            }, [isLogged, userDocId, allPredictions]);
+const ARS = n => '$' + (Number(n) || 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const PCT = n => n === null || n === undefined ? '—' : (n * 100).toFixed(0) + '%';
+const mesPillText = (mes) => {
+  const meses = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const p = mes.split('/');
+  if (p.length !== 2) return mes;
+  return meses[parseInt(p[0],10)-1] + ' ' + p[1].slice(2);
+};
+const titularBadge = (t) => {
+  const cls = t === 'Soledad' ? 'sole' : t === 'Gabriel' ? 'gabi' : 'comp';
+  return `<span class="badge ${cls}">${t}</span>`;
+};
 
-            // 4. Calcular el Ranking
-            useEffect(() => {
-                const newBoard = allPredictions
-                .filter(p => p.userName && p.id !== 'admin@prode.com') // Filtramos al admin de la tabla
-                .map(p => {
-                    let pts = 0; let perfs = 0;
-                    matches.forEach(m => {
-                        if (m.status === 'finished' && p.preds && p.preds[m.id]) {
-                            const res = calculatePoints(p.preds[m.id].home, p.preds[m.id].away, m.realHomeScore, m.realAwayScore);
-                            pts += res.pts;
-                            if (res.perfect) perfs += 1;
-                        }
-                    });
-                    return { id: p.id, name: p.userName, points: pts, perfects: perfs, isMe: p.id === userDocId };
-                })
-                .sort((a, b) => b.points - a.points || b.perfects - a.perfects);
-                setLeaderboard(newBoard);
-            }, [allPredictions, matches, userDocId]);
+// Navegación
+document.querySelectorAll('#tabs .tab').forEach(t => {
+  t.addEventListener('click', () => switchView(t.dataset.view));
+});
+function switchView(name) {
+  document.querySelectorAll('#tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+  if (name === 'tablero') renderTablero();
+  if (name === 'fijos') renderListFijos();
+  if (name === 'variables') renderListVariables();
+  if (name === 'cuotas') renderListCuotas('mes');
+  if (name === 'prestamos') renderListPrestamos();
+  if (name === 'config') renderConfig();
+}
 
-            const calculatePoints = (predHome, predAway, realHome, realAway) => {
-                if (predHome === undefined || predAway === undefined || predHome === '' || predAway === '') return { pts: 0, perfect: false };
-                const pH = parseInt(predHome), pA = parseInt(predAway), rH = parseInt(realHome), rA = parseInt(realAway);
-                if (pH === rH && pA === rA) return { pts: 3, perfect: true };
-                const pDiff = pH - pA, rDiff = rH - rA;
-                if ((pDiff > 0 && rDiff > 0) || (pDiff < 0 && rDiff < 0) || (pDiff === 0 && rDiff === 0)) return { pts: 1, perfect: false };
-                return { pts: 0, perfect: false };
-            };
+document.querySelectorAll('#formTabs .form-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#formTabs .form-tab').forEach(x => x.classList.toggle('active', x === t));
+    document.querySelectorAll('#view-cargar .form').forEach(f => f.classList.toggle('active', f.id === 'form-' + t.dataset.form));
+  });
+});
 
-            const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
+// Mes selector
+const mesInput = document.getElementById('mesInput');
+mesInput.value = state.mes;
+document.getElementById('mesPill').textContent = mesPillText(state.mes);
+mesInput.addEventListener('change', () => {
+  const v = mesInput.value.trim();
+  if (!/^\d{2}\/\d{4}$/.test(v)) {
+    toast('Formato MM/AAAA', 'error');
+    mesInput.value = state.mes;
+    return;
+  }
+  state.mes = v;
+  localStorage.setItem(LS_MES, v);
+  document.getElementById('mesPill').textContent = mesPillText(v);
+  const active = document.querySelector('#tabs .tab.active').dataset.view;
+  switchView(active);
+  // Actualizar prellenado en forms
+  document.querySelectorAll('input[name="MES"]').forEach(i => i.value = v);
+});
 
-            const handleLogin = (e) => {
-                e.preventDefault();
-                // Validamos nombre y correo
-                if (userName.trim().length > 2 && userEmail.trim().length > 5 && userEmail.includes('@')) {
-                    setIsLogged(true);
-                    if (user) {
-                        // Guardamos o actualizamos usando el correo como ID del documento
-                        db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('predictions').doc(userDocId).set({ userName, email: userDocId }, { merge: true });
-                    }
-                } else {
-                    showToast('⚠️ Ingresá un nombre y un correo válido.');
-                }
-            };
+async function cargarCatalogos() {
+  if (state.catalogos) return state.catalogos;
+  try {
+    state.catalogos = await api('getCatalogos');
+    document.querySelectorAll('select[data-catalog]').forEach(sel => {
+      const key = sel.dataset.catalog;
+      const items = state.catalogos[key] || [];
+      sel.innerHTML = '<option value="">—</option>' + items.map(i => `<option>${i}</option>`).join('');
+    });
+    return state.catalogos;
+  } catch (err) {
+    toast('Error catálogos: ' + err.message, 'error');
+  }
+}
 
-            const savePredictions = () => {
-                const total = Object.keys(predictions).filter(id => predictions[id]?.home !== '' && predictions[id]?.away !== '').length;
-                if (total === 0) { showToast('⚠️ No completaste ningún resultado.'); return; }
-                if (user) {
-                    db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('predictions').doc(userDocId).set({ userName, email: userDocId, preds: predictions, updatedAt: Date.now() }, { merge: true });
-                    showToast('✅ ¡Pronósticos guardados en la nube!');
-                }
-            };
+// TABLERO
+async function renderTablero() {
+  const cont = document.getElementById('tablero-content');
+  cont.innerHTML = '<div class="loading"><span class="spinner"></span>Cargando…</div>';
+  try {
+    const d = await api('getDashboard', { mes: state.mes });
+    cont.innerHTML = `
+      <div class="cards-grid">
+        <div class="card hero">
+          <div class="label">Total del hogar — ${mesPillText(state.mes)}</div>
+          <div class="value">${ARS(d.totalGeneral)}</div>
+          <div class="sub">${d.conteos.fijos} fijos · ${d.conteos.cuotas} cuotas · ${d.conteos.variables} variables · ${d.conteos.prestamos} préstamos</div>
+        </div>
+        ${cardTitular('Soledad', d.porTitular.Soledad, 'titular-sole')}
+        ${cardTitular('Gabriel', d.porTitular.Gabriel, 'titular-gabi')}
+        ${cardTitular('Compartido', d.porTitular.Compartido, 'titular-comp')}
+      </div>
 
-            // MODO ADMINISTRADOR SECRETO
-            const saveOfficialResults = () => {
-                if (user && isAdmin) {
-                    db.collection('artifacts').doc(PRODE_APP_ID).collection('public').doc('data').collection('state').doc('global').set({ matches: matches }, { merge: true });
-                    showToast('👑 ¡Resultados oficiales guardados! Todos los puntajes han sido recalculados.');
-                }
-            };
+      <div class="section-title">Estado de pagos</div>
+      ${payCardTotal(d.estadoPagos.total)}
+      ${payCard('Gastos Fijos', d.estadoPagos.fijos, 'Marcá en "Fijos" los que ya pagaste')}
+      ${payCard('Cuotas (auto-débito)', d.estadoPagos.cuotas, 'Se debitan solas cada mes')}
+      ${payCard('Gastos Variables', d.estadoPagos.variables, 'Gastos ya realizados')}
+      ${payCard('Préstamos (auto-débito)', d.estadoPagos.prestamos, 'Se debitan solos')}
 
-            const handleOfficialScoreChange = (matchId, team, value) => {
-                const val = value === '' ? null : parseInt(value);
-                setMatches(prev => prev.map(m => {
-                    if (m.id === matchId) {
-                        const updated = { ...m, [team === 'home' ? 'realHomeScore' : 'realAwayScore']: val };
-                        if (updated.realHomeScore !== null && updated.realAwayScore !== null) {
-                            updated.status = 'finished';
-                        } else {
-                            updated.status = 'pending';
-                        }
-                        return updated;
-                    }
-                    return m;
-                }));
-            };
+      ${d.proximosVencimientos && d.proximosVencimientos.length ? `
+        <div class="section-title">Próximos vencimientos</div>
+        <div class="table-wrap">
+          ${d.proximosVencimientos.map(v => `
+            <div class="proxi-item">
+              <div class="day">${v.dia || '?'}</div>
+              <div class="info">
+                <div class="d">${v.desc}</div>
+                <div class="m">${titularBadge(v.titular)} ${v.categoria || ''}</div>
+              </div>
+              <div class="amt">${ARS(v.monto)}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
 
-            const confirmLogout = () => {
-                // Simplemente reseteamos los estados sin tocar Firebase
-                setShowLogoutModal(false);
-                setIsLogged(false);
-                setUserName('');
-                setUserEmail('');
-                setPredictions({});
-                hasLoadedPreds.current = false;
-            };
+      <div class="section-title">Balance vs ingresos</div>
+      ${balanceRow('Soledad', d.balance.Soledad)}
+      ${balanceRow('Gabriel', d.balance.Gabriel)}
 
-            // Calcular posiciones reales del torneo agrupado
-            const tournamentStandings = useMemo(() => {
-                const standings = {};
-                Object.entries(TOURNAMENT_GROUPS).forEach(([groupName, teams]) => {
-                    teams.forEach(team => {
-                        standings[team.name] = { name: team.name, flag: team.flag, group: groupName, pts: 0, pj: 0, gf: 0, gc: 0 };
-                    });
-                });
+      <div class="section-title">Por tarjeta</div>
+      <div class="table-wrap">
+        ${d.porTarjeta.map(t => `
+          <div class="table-row">
+            <div>
+              <div class="desc">${t.tarjeta}</div>
+              <div class="meta">${ARS(t.cuotas)} cuotas · ${ARS(t.variables)} variables</div>
+            </div>
+            <div class="amt">${ARS(t.total)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    cont.innerHTML = `<div class="empty"><div class="empty-icon">⚠</div>${err.message}<br><button class="btn secondary" onclick="renderTablero()" style="margin-top:1rem;max-width:200px;">Reintentar</button></div>`;
+  }
+}
 
-                matches.forEach(m => {
-                    if (m.stage !== 'grupos' || !standings[m.home] || !standings[m.away]) return;
-                    
-                    if (m.status === 'finished') {
-                        const h = parseInt(m.realHomeScore), a = parseInt(m.realAwayScore);
-                        standings[m.home].pj++; standings[m.away].pj++;
-                        standings[m.home].gf += h; standings[m.home].gc += a;
-                        standings[m.away].gf += a; standings[m.away].gc += h;
-                        if (h > a) standings[m.home].pts += 3;
-                        else if (h < a) standings[m.away].pts += 3;
-                        else { standings[m.home].pts++; standings[m.away].pts++; }
-                    }
-                });
+function cardTitular(nombre, d, cls) {
+  return `
+    <div class="card ${cls}">
+      <div class="label">${nombre}</div>
+      <div class="value">${ARS(d.total)}</div>
+      <div class="sub">F ${ARS(d.fijos)} · C ${ARS(d.cuotas)} · V ${ARS(d.variables)}</div>
+    </div>`;
+}
 
-                const groupedStandings = {};
-                Object.keys(TOURNAMENT_GROUPS).forEach(g => {
-                    groupedStandings[g] = Object.values(standings)
-                        .filter(t => t.group === g)
-                        .sort((a, b) => {
-                            if (b.pts !== a.pts) return b.pts - a.pts;
-                            const diffA = a.gf - a.gc, diffB = b.gf - b.gc;
-                            if (diffB !== diffA) return diffB - diffA;
-                            return b.gf - a.gf;
-                        });
-                });
-                return groupedStandings;
-            }, [matches]);
+function payCard(label, data, hint) {
+  const pct = data.pct !== null ? data.pct * 100 : 0;
+  return `
+    <div class="pay-card">
+      <div class="top">
+        <div class="label">${label}</div>
+        <div class="amt-total">${ARS(data.total)}</div>
+      </div>
+      <div class="pay-bar"><div class="pay-bar-fill" style="width:${pct}%"></div></div>
+      <div class="pay-split">
+        <div class="item pagado"><span class="k">Pagado</span><span class="v">${ARS(data.pagado)}</span></div>
+        <div class="item pendiente"><span class="k">Pendiente</span><span class="v">${ARS(data.pendiente)}</span></div>
+        <div class="item pct"><span class="k">Avance</span><span class="v">${PCT(data.pct)}</span></div>
+      </div>
+    </div>`;
+}
 
-            const matchesToShow = matches.filter(m => m.stage === activeStage);
+function payCardTotal(data) {
+  const pct = data.pct !== null ? data.pct * 100 : 0;
+  return `
+    <div class="pay-card total">
+      <div class="top">
+        <div class="label">Total del mes</div>
+        <div class="amt-total">${ARS(data.total)}</div>
+      </div>
+      <div class="pay-bar"><div class="pay-bar-fill" style="width:${pct}%"></div></div>
+      <div class="pay-split">
+        <div class="item pagado"><span class="k">Ya pagado</span><span class="v">${ARS(data.pagado)}</span></div>
+        <div class="item pendiente"><span class="k">Pendiente</span><span class="v">${ARS(data.pendiente)}</span></div>
+        <div class="item pct"><span class="k">Avance</span><span class="v">${PCT(data.pct)}</span></div>
+      </div>
+    </div>`;
+}
 
-            // Pantalla de Login (Actualizada con Correo)
-            if (!isLogged) {
-                return (
-                    <div className="min-h-screen bg-sky-600 flex flex-col items-center justify-center p-4 font-sans relative">
-                        {toast && (
-                            <div className="absolute top-10 bg-red-600 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2 animate-bounce border border-red-800">
-                                <AlertCircle className="w-5 h-5 text-white" />
-                                <span className="font-bold text-sm whitespace-nowrap">{toast}</span>
-                            </div>
-                        )}
-                        <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-2xl text-center relative overflow-hidden border-4 border-sky-200">
-                            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-sky-300 via-white to-sky-300"></div>
-                            
-                            <div className="bg-sky-100 p-4 rounded-full inline-block mb-4 border border-sky-200 shadow-inner">
-                                <Sun className="w-12 h-12 text-sky-500" />
-                            </div>
-                            
-                            <h1 className="text-3xl font-extrabold text-sky-900 mb-2">Prode Oficina</h1>
-                            <p className="text-sky-600 font-medium mb-6">Mundial 2026 🇦🇷 Vamos Selección</p>
-                            
-                            <form onSubmit={handleLogin} className="space-y-3">
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Tu nombre (ej: Nacho)"
-                                        value={userName}
-                                        onChange={(e) => setUserName(e.target.value)}
-                                        className="w-full bg-sky-50 border-2 border-sky-200 rounded-xl px-4 py-4 text-sky-900 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200 text-center text-lg font-medium placeholder-sky-400 mb-3"
-                                        autoFocus
-                                    />
-                                    <input
-                                        type="email"
-                                        placeholder="Tu correo electrónico"
-                                        value={userEmail}
-                                        onChange={(e) => setUserEmail(e.target.value)}
-                                        className="w-full bg-sky-50 border-2 border-sky-200 rounded-xl px-4 py-4 text-sky-900 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200 text-center text-lg font-medium placeholder-sky-400"
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    disabled={userName.trim().length < 3 || userEmail.trim().length < 5 || !userEmail.includes('@') || !user}
-                                    className="w-full bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-bold text-lg py-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-2"
-                                >
-                                    {user ? <React.Fragment>Entrar a la Cancha <ChevronRight className="w-5 h-5" /></React.Fragment> : 'Conectando...'}
-                                </button>
-                                <p className="text-xs text-sky-600 font-medium mt-4 px-2">
-                                    Usaremos tu correo como "Llave Mágica" para que puedas recuperar tus pronósticos si entrás desde tu celular u otra PC.
-                                </p>
-                            </form>
-                        </div>
-                    </div>
-                );
-            }
+function balanceRow(nombre, b) {
+  const estado = b.estado || 'sin_ingreso';
+  const cls = estado === 'sin_ingreso' ? '' : estado;
+  const dotCls = estado === 'sin_ingreso' ? 'sin' : estado;
+  const pctText = b.pctConsumido !== null && b.pctConsumido !== undefined ? (b.pctConsumido * 100).toFixed(0) + '%' : '—';
+  return `
+    <div class="balance-row ${cls}">
+      <span class="dot ${dotCls}"></span>
+      <div class="name">${nombre} <span style="font-weight:400;color:var(--muted);font-size:0.78rem;">${ARS(b.gasto)} / ${ARS(b.ingreso)}</span></div>
+      <div class="pct">${pctText}</div>
+    </div>`;
+}
 
-            return (
-                <div className="pb-32 bg-sky-50 min-h-screen">
-                    {/* Header Principal */}
-                    <header className="bg-sky-600 shadow-md sticky top-0 z-20">
-                        <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <Sun className="w-7 h-7 text-yellow-300" />
-                                <h1 className="text-xl font-black text-white tracking-wide">Prode 2026</h1>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="flex items-center gap-1 text-[10px] text-sky-200 font-bold uppercase tracking-wider"><Cloud className="w-4 h-4" /></span>
-                                <div className="bg-white/10 px-3 py-1.5 rounded-full text-sm font-bold text-white border border-sky-400 shadow-sm">
-                                    {userName}
-                                </div>
-                                <button onClick={() => setShowLogoutModal(true)} className="ml-1 p-1.5 bg-sky-700/50 hover:bg-red-500 rounded-full text-white transition-colors" title="Abandonar Cancha">
-                                    <LogOutIcon className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </header>
+// LISTADOS
+async function renderListFijos() {
+  const cont = document.getElementById('list-fijos');
+  cont.innerHTML = '<div class="loading"><span class="spinner"></span>Cargando…</div>';
+  try {
+    const items = await api('listFijos', { mes: state.mes });
+    if (!items.length) { cont.innerHTML = empty('Sin fijos en este mes'); return; }
+    cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'fijo')).join('') + '</div>';
+  } catch (err) {
+    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
+  }
+}
+async function renderListVariables() {
+  const cont = document.getElementById('list-variables');
+  cont.innerHTML = '<div class="loading"><span class="spinner"></span>Cargando…</div>';
+  try {
+    const items = await api('listGastosMes', { mes: state.mes });
+    if (!items.length) { cont.innerHTML = empty('Sin variables en este mes'); return; }
+    cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'variable')).join('') + '</div>';
+  } catch (err) {
+    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
+  }
+}
+async function renderListCuotas(filtro = 'mes') {
+  const cont = document.getElementById('list-cuotas');
+  cont.innerHTML = '<div class="loading"><span class="spinner"></span>Cargando…</div>';
+  document.querySelectorAll('[data-cuotas-filter]').forEach(b => b.classList.toggle('active', b.dataset.cuotasFilter === filtro));
+  try {
+    const params = filtro === 'mes' ? { mes: state.mes, soloActivas: 'true' } : { soloActivas: 'true' };
+    const items = await api('listCuotas', params);
+    if (!items.length) { cont.innerHTML = empty('Sin cuotas'); return; }
+    cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'cuota')).join('') + '</div>';
+  } catch (err) {
+    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
+  }
+}
+document.querySelectorAll('[data-cuotas-filter]').forEach(b => {
+  b.addEventListener('click', () => renderListCuotas(b.dataset.cuotasFilter));
+});
+async function renderListPrestamos() {
+  const cont = document.getElementById('list-prestamos');
+  cont.innerHTML = '<div class="loading"><span class="spinner"></span>Cargando…</div>';
+  try {
+    const items = await api('listPrestamos');
+    if (!items.length) { cont.innerHTML = empty('Sin préstamos'); return; }
+    cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'prestamo')).join('') + '</div>';
+  } catch (err) {
+    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
+  }
+}
 
-                    <main className="max-w-2xl mx-auto px-4 py-6">
-                        {showLogoutModal && (
-                            <div className="fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4">
-                                <div className="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl border-4 border-sky-100">
-                                    <div className="bg-red-100 p-3 rounded-full inline-block mb-4">
-                                        <LogOutIcon className="w-8 h-8 text-red-500" />
-                                    </div>
-                                    <h3 className="text-xl font-black text-sky-900 mb-2">¿Abandonar la cancha?</h3>
-                                    <p className="text-slate-600 text-sm mb-6 font-medium">Volverás a la pantalla de inicio. Recordá usar el mismo correo (<b>{userEmail}</b>) cuando quieras volver a entrar a tu cuenta.</p>
-                                    <div className="flex gap-3">
-                                        <button onClick={() => setShowLogoutModal(false)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors">Me quedo</button>
-                                        <button onClick={confirmLogout} className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-md transition-colors">Sí, salir</button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+function empty(msg) { return `<div class="empty"><div class="empty-icon">🌸</div>${msg}</div>`; }
 
-                        {toast && (
-                            <div className="fixed top-24 left-1/2 -translate-x-1/2 bg-sky-800 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2 z-50 animate-bounce border border-sky-600">
-                                <CheckCircle2 className="w-5 h-5 text-sky-300" />
-                                <span className="font-bold text-sm whitespace-nowrap">{toast}</span>
-                            </div>
-                        )}
+function rowItem(item, tipo) {
+  let desc = item['Descripción'] || '(sin desc)';
+  let monto = 0;
+  let meta = [];
+  let badgePagado = '';
+  if (tipo === 'fijo') {
+    monto = item.Monto;
+    meta = [item['Categoría'], item.MES, 'Día ' + (item['DíaVencim'] || '?')];
+    badgePagado = item.Pagado === true ? '<span class="badge pagado">✓ Pagado</span>' : '<span class="badge pendiente">Pendiente</span>';
+  } else if (tipo === 'variable') {
+    monto = item.Monto;
+    meta = [item['Categoría'], item.Tarjeta, item.Fecha];
+  } else if (tipo === 'cuota') {
+    monto = item.MontoXCuota;
+    meta = [item.Tarjeta, `${item.CuotasPagadas}/${item.CuotasTotales} cuotas`, 'Desde ' + item.MesPrimerResumen];
+  } else if (tipo === 'prestamo') {
+    monto = item.MontoXCuota;
+    meta = [item.Tipo, `${item.CuotasPagadas}/${item.CuotasTotales}`, 'Día ' + (item['DíaVencim'] || '?'), item.Estado];
+  }
+  const idEscaped = JSON.stringify(item.ID);
+  return `
+    <div class="table-row clickable" onclick='openDetail(${idEscaped}, "${tipo}")'>
+      <div>
+        <div class="desc">${desc}</div>
+        <div class="meta">${titularBadge(item.Titular)} ${badgePagado} ${meta.filter(m => m !== '' && m !== undefined).map(m => `<span>${m}</span>`).join(' · ')}</div>
+      </div>
+      <div class="amt">${ARS(monto)}</div>
+    </div>`;
+}
 
-                        {/* Pestaña: Mundial (Posiciones Reales) */}
-                        {activeTab === 'inicio' && (
-                            <div className="space-y-6">
-                                <div>
-                                    <h2 className="text-2xl font-black text-sky-900 mb-1">Mundial 2026</h2>
-                                    <p className="text-sky-600 font-medium text-sm mb-6">Fase de Grupos (A a L) - Rendimiento Real.</p>
-                                </div>
-                                
-                                {Object.entries(tournamentStandings).map(([groupName, teams]) => (
-                                    <div key={groupName} className="bg-white rounded-2xl border border-sky-200 shadow-sm overflow-hidden mb-6">
-                                        <div className="bg-sky-600 text-white px-4 py-2 font-black text-sm uppercase tracking-wider flex items-center gap-2">
-                                            <Globe className="w-4 h-4 text-sky-200"/> Grupo {groupName}
-                                        </div>
-                                        <table className="w-full text-left border-collapse">
-                                            <thead>
-                                                <tr className="bg-sky-50 border-b border-sky-200 text-[10px] text-sky-700 uppercase font-bold">
-                                                    <th className="p-3 w-8 text-center">#</th>
-                                                    <th className="p-3">Equipo</th>
-                                                    <th className="p-3 text-center">PJ</th>
-                                                    <th className="p-3 text-center">DIF</th>
-                                                    <th className="p-3 text-right text-sky-900">PTS</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-sky-100">
-                                                {teams.map((team, i) => (
-                                                    <tr key={team.name} className={`transition-colors ${i < 2 ? 'bg-green-50/40 hover:bg-green-100/60' : 'hover:bg-sky-50'}`}>
-                                                        <td className={`p-3 text-center font-bold text-sm ${i < 2 ? 'text-green-600' : 'text-sky-500'}`}>{i + 1}</td>
-                                                        <td className="p-3 font-bold text-slate-700 flex items-center gap-2 text-sm"><span className="text-xl">{team.flag}</span> {team.name}</td>
-                                                        <td className="p-3 text-center text-slate-500 text-sm">{team.pj}</td>
-                                                        <td className="p-3 text-center text-slate-500 text-sm font-medium">{team.gf - team.gc > 0 ? `+${team.gf - team.gc}` : team.gf - team.gc}</td>
-                                                        <td className="p-3 text-right font-black text-sky-700 text-base">{team.pts}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+// DETALLE
+function openDetail(id, tipo) {
+  const mapList = { fijo: 'listFijos', variable: 'listGastosMes', cuota: 'listCuotas', prestamo: 'listPrestamos' };
+  const mapDelete = { fijo: 'deleteFijo', variable: 'deleteGastoMes', cuota: 'deleteCuota', prestamo: 'deletePrestamo' };
+  const params = tipo === 'cuota' ? { soloActivas: 'false' } : {};
+  if (tipo === 'fijo' || tipo === 'variable') params.mes = state.mes;
+  api(mapList[tipo], params).then(items => {
+    const item = items.find(x => x.ID === id);
+    if (!item) { toast('No encontrado', 'error'); return; }
+    showSheet(item, tipo, mapDelete[tipo]);
+  }).catch(err => toast(err.message, 'error'));
+}
 
-                        {/* Pestaña: Pronósticos */}
-                        {activeTab === 'pronosticos' && (
-                            <div className="space-y-6">
-                                <div className="flex justify-between items-end mb-2">
-                                    <div>
-                                        <h2 className="text-2xl font-black text-sky-900">Pronósticos</h2>
-                                        <p className="text-sky-600 font-medium text-sm">Cargá tus resultados por fase.</p>
-                                    </div>
-                                </div>
+function showSheet(item, tipo, deleteAction) {
+  const content = document.getElementById('sheetContent');
+  const rows = Object.entries(item).map(([k, v]) => {
+    if (k === 'AAAAMM' || k === '' || v === '' || v === null) return '';
+    let val = v;
+    if (typeof v === 'number' && /monto|deuda/i.test(k)) val = ARS(v);
+    if (typeof v === 'boolean') val = v ? '✓ Sí' : '✗ No';
+    return `<div class="detail-row"><span class="k">${k}</span><span class="v">${val}</span></div>`;
+  }).join('');
 
-                                {/* Submenú de Fases */}
-                                <div className="flex overflow-x-auto pb-2 gap-2 hide-scrollbar">
-                                    {stagesList.map(stage => (
-                                        <button 
-                                            key={stage.id} 
-                                            onClick={() => setActiveStage(stage.id)}
-                                            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${activeStage === stage.id ? 'bg-sky-600 text-white shadow-md' : 'bg-white text-sky-700 border border-sky-200 hover:bg-sky-50'}`}
-                                        >
-                                            {stage.label}
-                                        </button>
-                                    ))}
-                                </div>
+  let togglePagadoBtn = '';
+  if (tipo === 'fijo') {
+    const nuevoEstado = !item.Pagado;
+    togglePagadoBtn = `<button class="btn ${nuevoEstado ? 'success' : 'secondary'}" onclick="togglePagado('${item.ID}', ${nuevoEstado})">${nuevoEstado ? '✓ Marcar como pagado' : 'Desmarcar pagado'}</button>`;
+  }
 
-                                <div className="space-y-4">
-                                    {matchesToShow.map(match => {
-                                        const pred = predictions[match.id] || { home: '', away: '' };
-                                        const isFinished = match.status === 'finished';
-                                        const isLocked = isMatchLocked(match.date);
-                                        const disableInputs = isFinished || isLocked;
-                                        
-                                        let resultBadge = null;
-                                        if (isFinished && pred.home !== '' && pred.away !== '') {
-                                            const result = calculatePoints(pred.home, pred.away, match.realHomeScore, match.realAwayScore);
-                                            if (result.perfect) resultBadge = <span className="text-[10px] font-black text-white bg-green-500 px-2 py-0.5 rounded-md shadow-sm ml-2">PLENO +3</span>;
-                                            else if (result.pts === 1) resultBadge = <span className="text-[10px] font-black text-white bg-blue-500 px-2 py-0.5 rounded-md shadow-sm ml-2">ACIERTO +1</span>;
-                                            else resultBadge = <span className="text-[10px] font-black text-white bg-red-400 px-2 py-0.5 rounded-md shadow-sm ml-2">NADA 0</span>;
-                                        }
+  content.innerHTML = `
+    <div class="sheet-title">${item['Descripción'] || item['Nro/Referencia'] || 'Detalle'}</div>
+    ${rows}
+    ${togglePagadoBtn}
+    <div class="btn-row" style="margin-top:0.5rem;">
+      <button class="btn danger" onclick="deleteItem('${item.ID}', '${deleteAction}')">🗑 Eliminar</button>
+      <button class="btn secondary" onclick="closeSheet()">Cerrar</button>
+    </div>
+  `;
+  document.getElementById('sheetBackdrop').classList.add('show');
+  document.getElementById('detailSheet').classList.add('show');
+}
+function closeSheet() {
+  document.getElementById('sheetBackdrop').classList.remove('show');
+  document.getElementById('detailSheet').classList.remove('show');
+}
+document.getElementById('sheetBackdrop').addEventListener('click', closeSheet);
 
-                                        return (
-                                            <div key={match.id} className="bg-white rounded-2xl p-4 border border-sky-200 shadow-sm relative">
-                                                <div className="flex justify-between items-center text-xs font-bold text-sky-600 mb-4 uppercase tracking-wider">
-                                                    <span>{match.date}</span>
-                                                    {isFinished ? (
-                                                        <span className="text-slate-500 flex items-center">FINAL {resultBadge}</span>
-                                                    ) : isLocked ? (
-                                                        <span className="text-red-500 flex items-center gap-1" title="Apuestas cerradas 30 min antes"><Lock className="w-3 h-3" /> CERRADO</span>
-                                                    ) : (
-                                                        <span className="text-yellow-600">PENDIENTE</span>
-                                                    )}
-                                                </div>
-                                                
-                                                <div className="flex justify-between items-center gap-2">
-                                                    <div className="flex flex-col items-center flex-1 w-1/3 text-center">
-                                                        <span className="text-4xl mb-2 drop-shadow-sm">{match.homeFlag}</span>
-                                                        <span className="font-bold text-slate-700 text-sm">{match.home}</span>
-                                                    </div>
-                                                    
-                                                    {/* Envoltorio para detectar clicks en inputs bloqueados */}
-                                                    <div className="flex items-center gap-2" onClick={() => { if(isLocked && !isFinished) showToast('⏳ Partido bloqueado. Cierra 30 minutos antes del inicio.') }}>
-                                                        <input type="number" min="0" value={pred.home} onChange={(e) => setPredictions(p => ({...p, [match.id]: {...p[match.id], home: e.target.value}}))} disabled={disableInputs} className="w-12 h-14 bg-sky-50 border-2 border-sky-200 rounded-xl text-center text-xl font-black text-sky-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed shadow-inner" />
-                                                        <span className="text-sky-300 font-black">-</span>
-                                                        <input type="number" min="0" value={pred.away} onChange={(e) => setPredictions(p => ({...p, [match.id]: {...p[match.id], away: e.target.value}}))} disabled={disableInputs} className="w-12 h-14 bg-sky-50 border-2 border-sky-200 rounded-xl text-center text-xl font-black text-sky-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 disabled:opacity-50 disabled:bg-slate-100 disabled:cursor-not-allowed shadow-inner" />
-                                                    </div>
-                                                    
-                                                    <div className="flex flex-col items-center flex-1 w-1/3 text-center">
-                                                        <span className="text-4xl mb-2 drop-shadow-sm">{match.awayFlag}</span>
-                                                        <span className="font-bold text-slate-700 text-sm">{match.away}</span>
-                                                    </div>
-                                                </div>
-                                                
-                                                {isFinished && <div className="mt-4 pt-3 border-t border-sky-100 text-center text-sm font-medium text-slate-500">Resultado Oficial: <span className="font-black text-sky-700">{match.realHomeScore} - {match.realAwayScore}</span></div>}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                                <button onClick={savePredictions} className="w-full bg-sky-500 hover:bg-sky-600 text-white font-black py-4 rounded-xl flex justify-center items-center gap-2 shadow-md hover:shadow-lg transition-all sticky bottom-24"><Cloud className="w-5 h-5" /> Guardar Pronósticos</button>
-                            </div>
-                        )}
+async function togglePagado(id, pagado) {
+  try {
+    await api('togglePagado', { id: id, pagado: pagado });
+    toast(pagado ? '✓ Marcado como pagado' : 'Desmarcado', 'success');
+    closeSheet();
+    const active = document.querySelector('#tabs .tab.active').dataset.view;
+    switchView(active);
+  } catch (err) {
+    toast(err.message, 'error');
+  }
+}
 
-                        {/* Pestaña: Ranking */}
-                        {activeTab === 'ranking' && (
-                            <div className="space-y-4">
-                                <div><h2 className="text-2xl font-black text-sky-900 mb-1">Tabla de la Oficina</h2></div>
-                                <div className="bg-white rounded-2xl border border-sky-200 shadow-sm overflow-hidden">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="bg-sky-100/50 border-b border-sky-200 text-xs text-sky-700 uppercase font-bold">
-                                                <th className="p-4 text-center">#</th>
-                                                <th className="p-4">Jugador</th>
-                                                <th className="p-4 text-right text-sky-900">Pts</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-sky-100">
-                                            {leaderboard.length === 0 ? <tr><td colSpan="3" className="p-8 text-center text-slate-500 font-medium">Aún no hay participantes.<br/>¡Cargá los tuyos!</td></tr> :
-                                                leaderboard.map((u, i) => (
-                                                    <tr key={u.id} className={`hover:bg-sky-50 transition-colors ${u.isMe ? 'bg-sky-100/50 border-l-4 border-l-sky-500' : ''}`}>
-                                                        <td className="p-4 text-center font-bold text-slate-500">
-                                                            {i === 0 ? '🏆' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
-                                                        </td>
-                                                        <td className="p-4 font-bold text-slate-700">
-                                                            {u.name} {u.isMe && <span className="text-[10px] font-black bg-sky-500 text-white px-2 py-0.5 rounded-full ml-2 shadow-sm">VOS</span>}
-                                                        </td>
-                                                        <td className="p-4 text-right font-black text-sky-600 text-lg">{u.points}</td>
-                                                    </tr>
-                                                ))
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+async function deleteItem(id, action) {
+  if (!confirm('¿Eliminar este registro? No se puede deshacer.')) return;
+  try {
+    await api(action, { id: id });
+    toast('Eliminado', 'success');
+    closeSheet();
+    const active = document.querySelector('#tabs .tab.active').dataset.view;
+    switchView(active);
+  } catch (err) {
+    toast(err.message, 'error');
+  }
+}
 
-                        {/* Pestaña: Reglas */}
-                        {activeTab === 'reglas' && (
-                            <div className="space-y-4">
-                                <h2 className="text-2xl font-black text-sky-900 mb-4">Reglas del Prode</h2>
-                                <div className="bg-white border-2 border-green-200 p-5 rounded-2xl shadow-sm relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 bg-green-500 text-white font-black px-3 py-1 rounded-bl-lg text-xs">3 PUNTOS</div>
-                                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-green-500"/> El Pleno</h3>
-                                    <p className="text-slate-600 font-medium text-sm mt-2">Acertás el resultado exacto (ej: ponés 2-0 y sale 2-0).</p>
-                                </div>
-                                <div className="bg-white border-2 border-blue-200 p-5 rounded-2xl shadow-sm relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 bg-blue-500 text-white font-black px-3 py-1 rounded-bl-lg text-xs">1 PUNTO</div>
-                                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2"><AlertCircle className="w-5 h-5 text-blue-500"/> El Acierto</h3>
-                                    <p className="text-slate-600 font-medium text-sm mt-2">Acertás al ganador o si hay empate (ej: ponés 1-0 y sale 3-0).</p>
-                                </div>
-                                <div className="bg-sky-100 border border-sky-200 p-5 rounded-2xl shadow-sm">
-                                    <h3 className="font-bold text-sky-900 mb-2 text-sm uppercase">Detalles del Formato (48 equipos)</h3>
-                                    <ul className="text-sky-800 text-sm space-y-2 list-disc list-inside font-medium">
-                                        <li>Los puntos en eliminatorias (16avos en adelante) se cuentan por el resultado de los 90 minutos reglamentarios.</li>
-                                        <li>Las apuestas de cada partido se bloquean <b>30 minutos antes</b> de su inicio (hora oficial).</li>
-                                        <li>El botón de "Guardar" guarda los cambios de todas las fases juntas.</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
+// FORMS
+const formActions = {
+  'form-variable': 'addGastoMes',
+  'form-fijo': 'addFijo',
+  'form-cuota': 'addCuota',
+  'form-prestamo': 'addPrestamo'
+};
 
-                        {/* Pestaña Secreta: Panel Admin */}
-                        {activeTab === 'admin' && isAdmin && (
-                            <div className="space-y-6">
-                                <div>
-                                    <h2 className="text-2xl font-black text-red-600">Panel de Control</h2>
-                                    <p className="text-slate-600 font-medium text-sm mb-4">Cargá los resultados oficiales reales.</p>
-                                </div>
-                                <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-4">
-                                    <p className="text-xs text-red-800 font-bold">⚠️ ATENCIÓN ADMIN: Al ingresar un resultado y guardar, se calcularán los puntos de todos los usuarios automáticamente.</p>
-                                </div>
+Object.keys(formActions).forEach(formId => {
+  document.getElementById(formId).addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('.btn');
+    const origText = btn.textContent;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando…';
+    const data = {};
+    new FormData(form).forEach((v, k) => { if (v !== '') data[k] = v; });
+    try {
+      await apiPost(formActions[formId], data);
+      toast('Guardado ✓', 'success');
+      form.reset();
+      // Re-prellenar MES
+      document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = origText;
+    }
+  });
+});
 
-                                {/* Submenú de Fases ADMIN */}
-                                <div className="flex overflow-x-auto pb-2 gap-2 hide-scrollbar">
-                                    {stagesList.map(stage => (
-                                        <button 
-                                            key={stage.id} 
-                                            onClick={() => setActiveStage(stage.id)}
-                                            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${activeStage === stage.id ? 'bg-red-600 text-white shadow-md' : 'bg-white text-red-700 border border-red-200 hover:bg-red-50'}`}
-                                        >
-                                            {stage.label}
-                                        </button>
-                                    ))}
-                                </div>
+// CONFIG
+async function renderConfig() {
+  document.getElementById('cfg-endpoint').value = state.endpoint;
+  document.getElementById('cfg-token').value = state.token;
+  try {
+    const cfg = await api('getConfig');
+    document.getElementById('cfg-ingreso-sole').value = cfg.ingreso_sole || '';
+    document.getElementById('cfg-ingreso-gabi').value = cfg.ingreso_gabi || '';
+  } catch (err) {
+    toast(err.message, 'error');
+  }
+}
 
-                                <div className="space-y-4">
-                                    {matches.filter(m => m.stage === activeStage).map(match => (
-                                        <div key={match.id} className="bg-white rounded-2xl p-4 border-2 border-red-200 shadow-sm relative">
-                                            <div className="flex justify-between text-xs font-bold text-slate-500 mb-4">
-                                                <span>Partido {match.id} | {match.date}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center gap-2">
-                                                <div className="flex flex-col items-center flex-1 w-1/3 text-center">
-                                                    <span className="text-3xl mb-2">{match.homeFlag}</span>
-                                                    <span className="font-bold text-slate-700 text-xs">{match.home}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <input type="number" min="0" value={match.realHomeScore !== null ? match.realHomeScore : ''} onChange={(e) => handleOfficialScoreChange(match.id, 'home', e.target.value)} className="w-12 h-12 bg-red-50 border-2 border-red-300 rounded-xl text-center text-xl font-black text-red-900 focus:border-red-500" placeholder="-" />
-                                                    <span className="text-red-300 font-black">-</span>
-                                                    <input type="number" min="0" value={match.realAwayScore !== null ? match.realAwayScore : ''} onChange={(e) => handleOfficialScoreChange(match.id, 'away', e.target.value)} className="w-12 h-12 bg-red-50 border-2 border-red-300 rounded-xl text-center text-xl font-black text-red-900 focus:border-red-500" placeholder="-" />
-                                                </div>
-                                                <div className="flex flex-col items-center flex-1 w-1/3 text-center">
-                                                    <span className="text-3xl mb-2">{match.awayFlag}</span>
-                                                    <span className="font-bold text-slate-700 text-xs">{match.away}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <button onClick={saveOfficialResults} className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl flex justify-center items-center gap-2 shadow-lg sticky bottom-24 transition-all">
-                                    <AlertCircle className="w-5 h-5" /> Publicar Resultados Oficiales
-                                </button>
-                            </div>
-                        )}
-                    </main>
+async function guardarIngresos() {
+  const sole = document.getElementById('cfg-ingreso-sole').value;
+  const gabi = document.getElementById('cfg-ingreso-gabi').value;
+  try {
+    if (sole !== '') await api('setConfig', { clave: 'ingreso_sole', valor: sole });
+    if (gabi !== '') await api('setConfig', { clave: 'ingreso_gabi', valor: gabi });
+    toast('Ingresos guardados ✓', 'success');
+  } catch (err) {
+    toast(err.message, 'error');
+  }
+}
 
-                    {/* Navbar Inferior */}
-                    <nav className="fixed bottom-0 w-full bg-white border-t border-sky-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-safe">
-                        <div className="max-w-2xl mx-auto flex justify-around p-2">
-                            {[{id:'inicio', icon: Globe, label: 'Mundial'}, {id:'pronosticos', icon: Calendar, label: 'Partidos'}, {id:'ranking', icon: Trophy, label: 'Ranking'}, {id:'reglas', icon: Info, label: 'Reglas'}]
-                            // Agregamos el ícono del Panel Admin solo si sos administrador
-                            .concat(isAdmin ? [{id:'admin', icon: AlertCircle, label: 'Admin'}] : [])
-                            .map(tab => (
-                                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-colors ${isAdmin ? 'w-1/5' : 'w-1/4'} ${activeTab === tab.id ? (tab.id === 'admin' ? 'text-red-600 bg-red-50' : 'text-sky-600 bg-sky-50') : 'text-slate-400 hover:text-sky-500'}`}>
-                                    <tab.icon className="w-6 h-6" /><span className="text-[10px] font-black uppercase tracking-wider">{tab.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </nav>
-                </div>
-            );
-        }
+function editarSetup() { showSetup(); }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-    
-    <style>
-        /* Ocultar barra de scroll en el submenú horizontal */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+function showSetup() {
+  document.getElementById('setupModal').style.display = 'flex';
+  document.getElementById('setupEndpoint').value = state.endpoint || '';
+  document.getElementById('setupToken').value = state.token || '';
+}
+function saveSetup() {
+  const ep = document.getElementById('setupEndpoint').value.trim();
+  const tk = document.getElementById('setupToken').value.trim();
+  if (!ep || !tk) { toast('Completá los dos campos', 'error'); return; }
+  localStorage.setItem(LS_ENDPOINT, ep);
+  localStorage.setItem(LS_TOKEN, tk);
+  state.endpoint = ep; state.token = tk;
+  document.getElementById('setupModal').style.display = 'none';
+  init();
+}
+
+async function init() {
+  if (!state.endpoint || !state.token) {
+    showSetup();
+    return;
+  }
+  await cargarCatalogos();
+  renderTablero();
+  document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
+}
+
+init();
+</script>
 </body>
 </html>
