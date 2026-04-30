@@ -924,17 +924,136 @@ function showSheet(item, tipo, deleteAction) {
     togglePagadoBtn = `<button class="btn ${nuevoEstado ? 'success' : 'secondary'}" onclick="togglePagado('${item.ID}', ${nuevoEstado})">${nuevoEstado ? '✓ Marcar como pagado' : 'Desmarcar pagado'}</button>`;
   }
 
+  // Guardamos el item actual en variable global para edición
+  window.__currentEditItem = { item: item, tipo: tipo };
+
   content.innerHTML = `
     <div class="sheet-title">${item['Descripción'] || item['Nro/Referencia'] || 'Detalle'}</div>
     ${rows}
     ${togglePagadoBtn}
     <div class="btn-row" style="margin-top:0.5rem;">
+      <button class="btn" onclick="abrirEdicion()">✏️ Editar</button>
       <button class="btn danger" onclick="deleteItem('${item.ID}', '${deleteAction}')">🗑 Eliminar</button>
       <button class="btn secondary" onclick="closeSheet()">Cerrar</button>
     </div>
   `;
   document.getElementById('sheetBackdrop').classList.add('show');
   document.getElementById('detailSheet').classList.add('show');
+}
+
+// =================== EDICIÓN ===================
+function abrirEdicion() {
+  const ctx = window.__currentEditItem;
+  if (!ctx) return;
+  const { item, tipo } = ctx;
+  const content = document.getElementById('sheetContent');
+
+  // Definir campos editables por tipo
+  const camposPorTipo = {
+    variable: [
+      { name: 'MES', label: 'MES', type: 'text', placeholder: 'MM/AAAA', pattern: '\\d{2}/\\d{4}' },
+      { name: 'Fecha', label: 'Fecha', type: 'date' },
+      { name: 'Titular', label: 'Titular', type: 'select', catalog: 'titulares' },
+      { name: 'Tarjeta', label: 'Tarjeta', type: 'select', catalog: 'tarjetas' },
+      { name: 'Descripción', label: 'Descripción', type: 'text' },
+      { name: 'Categoría', label: 'Categoría', type: 'select', catalog: 'categoriasVariables' },
+      { name: 'Monto', label: 'Monto', type: 'number' },
+      { name: 'Cuotas', label: 'Cuotas', type: 'number' },
+      { name: 'Notas', label: 'Notas', type: 'textarea' }
+    ],
+    fijo: [
+      { name: 'MES', label: 'MES', type: 'text', placeholder: 'MM/AAAA', pattern: '\\d{2}/\\d{4}' },
+      { name: 'Titular', label: 'Titular', type: 'select', catalog: 'titulares' },
+      { name: 'Categoría', label: 'Categoría', type: 'select', catalog: 'categoriasFijos' },
+      { name: 'Descripción', label: 'Descripción', type: 'text' },
+      { name: 'DíaVencim', label: 'Día Venc.', type: 'number' },
+      { name: 'Monto', label: 'Monto', type: 'number' },
+      { name: 'Notas', label: 'Notas', type: 'textarea' }
+    ],
+    cuota: [
+      { name: 'Titular', label: 'Titular', type: 'select', catalog: 'titulares' },
+      { name: 'Tarjeta', label: 'Tarjeta', type: 'select', catalog: 'tarjetas' },
+      { name: 'Descripción', label: 'Descripción', type: 'text' },
+      { name: 'FechaCompra', label: 'Fecha compra', type: 'date' },
+      { name: 'MontoTotal', label: 'Monto total', type: 'number' },
+      { name: 'CuotasTotales', label: 'Cuotas totales', type: 'number' },
+      { name: 'CuotasPagadas', label: 'Cuotas pagadas', type: 'number' },
+      { name: 'MontoXCuota', label: 'Monto x cuota', type: 'number' },
+      { name: 'MesPrimerResumen', label: 'Mes primer resumen', type: 'text', placeholder: 'MM/AAAA', pattern: '\\d{2}/\\d{4}' },
+      { name: 'Estado', label: 'Estado', type: 'select', catalog: 'estadosCuota' },
+      { name: 'Notas', label: 'Notas', type: 'textarea' }
+    ],
+    prestamo: [
+      { name: 'Titular', label: 'Titular', type: 'select', catalog: 'titulares' },
+      { name: 'Tipo', label: 'Tipo', type: 'select', catalog: 'tiposPrestamo' },
+      { name: 'Nro/Referencia', label: 'Nro/Ref.', type: 'text' },
+      { name: 'Descripción', label: 'Descripción', type: 'text' },
+      { name: 'FechaOtorgamiento', label: 'Fecha otorg.', type: 'date' },
+      { name: 'MontoTotal', label: 'Monto total', type: 'number' },
+      { name: 'CuotasTotales', label: 'Cuotas totales', type: 'number' },
+      { name: 'CuotasPagadas', label: 'Cuotas pagadas', type: 'number' },
+      { name: 'MontoXCuota', label: 'Monto x cuota', type: 'number' },
+      { name: 'DíaVencim', label: 'Día venc.', type: 'number' },
+      { name: 'PrimerMesPago', label: 'Primer mes pago', type: 'text', placeholder: 'MM/AAAA', pattern: '\\d{2}/\\d{4}' },
+      { name: 'Estado', label: 'Estado', type: 'select', catalog: 'estadosPrestamo' },
+      { name: 'Notas', label: 'Notas', type: 'textarea' }
+    ]
+  };
+
+  const campos = camposPorTipo[tipo] || [];
+  const cat = state.catalogos || {};
+
+  const fieldsHTML = campos.map(f => {
+    const val = item[f.name] !== undefined && item[f.name] !== null ? item[f.name] : '';
+    if (f.type === 'select') {
+      const opciones = (cat[f.catalog] || []).map(o => `<option ${o === val ? 'selected' : ''}>${o}</option>`).join('');
+      return `<div class="field"><label>${f.label}</label><select name="${f.name}"><option value="">—</option>${opciones}</select></div>`;
+    }
+    if (f.type === 'textarea') {
+      return `<div class="field"><label>${f.label}</label><textarea name="${f.name}" rows="2">${val}</textarea></div>`;
+    }
+    const pattern = f.pattern ? `pattern="${f.pattern}"` : '';
+    const placeholder = f.placeholder ? `placeholder="${f.placeholder}"` : '';
+    const step = f.type === 'number' ? 'step="0.01"' : '';
+    return `<div class="field"><label>${f.label}</label><input type="${f.type}" name="${f.name}" value="${val}" ${pattern} ${placeholder} ${step}></div>`;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="sheet-title">✏️ Editar ${tipo}</div>
+    <form id="form-edit">
+      ${fieldsHTML}
+      <div class="btn-row" style="margin-top:0.75rem;">
+        <button type="submit" class="btn success">Guardar cambios</button>
+        <button type="button" class="btn secondary" onclick="closeSheet()">Cancelar</button>
+      </div>
+    </form>
+  `;
+
+  // Manejar submit
+  document.getElementById('form-edit').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando…';
+    const data = { ID: item.ID };
+    new FormData(e.target).forEach((v, k) => { data[k] = v; });
+    const updateAction = {
+      variable: 'updateGastoMes',
+      fijo: 'updateFijo',
+      cuota: 'updateCuota',
+      prestamo: 'updatePrestamo'
+    }[tipo];
+    try {
+      await apiPost(updateAction, data);
+      toast('Cambios guardados ✓', 'success');
+      closeSheet();
+      const active = document.querySelector('#tabs .tab.active').dataset.view;
+      switchView(active);
+    } catch (err) {
+      toast(err.message, 'error');
+      btn.disabled = false; btn.textContent = orig;
+    }
+  });
 }
 function closeSheet() {
   document.getElementById('sheetBackdrop').classList.remove('show');
