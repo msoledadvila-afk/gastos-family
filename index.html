@@ -372,6 +372,65 @@
   .proxi-item .info .m { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
   .proxi-item .amt { font-family: 'Fraunces', serif; font-weight: 700; }
 
+  /* Reparto compartido */
+  .reparto-card {
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 14px; padding: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+  .reparto-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+  .reparto-person {
+    padding: 0.85rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .reparto-person.sole { background: var(--sole); }
+  .reparto-person.gabi { background: var(--gabi); }
+  .reparto-person .who {
+    font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 0.25rem;
+  }
+  .reparto-person .pago {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 1.4rem; color: var(--ink);
+    line-height: 1.1;
+  }
+  .reparto-resume {
+    background: linear-gradient(135deg, var(--plum), var(--plum-light));
+    color: var(--cream);
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .reparto-resume .label {
+    font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; opacity: 0.8;
+  }
+  .reparto-resume .saldo {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 1.6rem; margin-top: 0.25rem; line-height: 1.1;
+  }
+  .reparto-resume .desc { font-size: 0.8rem; margin-top: 0.3rem; opacity: 0.85; }
+  .reparto-resume.equilibrado {
+    background: linear-gradient(135deg, var(--green), #6fa37e);
+  }
+  .alert-warning {
+    background: var(--yellow-bg); border: 1px solid var(--yellow);
+    border-radius: 10px; padding: 0.65rem 0.8rem;
+    margin-top: 0.6rem;
+    font-size: 0.82rem;
+    color: #8a6d2c;
+  }
+  .alert-warning strong { font-weight: 700; }
+
+  /* Campo PagadoPor (solo cuando Titular = Compartido) */
+  .field-pagadopor { display: none; }
+  .field-pagadopor.show { display: block; animation: fadeIn 0.2s; }
+
   @media (min-width: 600px) {
     main { padding: 1.5rem 2rem 6rem; }
     .cards-grid { grid-template-columns: repeat(3, 1fr); }
@@ -385,7 +444,7 @@
   <div class="brand">
     <span class="brand-heart">❤</span>
     <span class="brand-title">Gastos con Amor</span>
-    <span class="brand-sub">v5</span>
+    <span class="brand-sub">v5.1</span>
   </div>
   <div class="month-selector">
     <label>Mes</label>
@@ -431,8 +490,12 @@
       <div class="field"><label>Monto</label><input type="number" name="Monto" step="0.01" required></div>
     </div>
     <div class="field-row">
-      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" required></select></div>
+      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" data-toggle-pagadopor required></select></div>
       <div class="field"><label>Tarjeta / Medio</label><select name="Tarjeta" data-catalog="tarjetas" required></select></div>
+    </div>
+    <div class="field field-pagadopor">
+      <label>Pagado por</label>
+      <select name="PagadoPor"><option value="">—</option><option>Soledad</option><option>Gabriel</option></select>
     </div>
     <div class="field"><label>Descripción</label><input type="text" name="Descripción" required></div>
     <div class="field-row">
@@ -446,8 +509,12 @@
   <form class="form" id="form-fijo">
     <div class="field"><label>MES (MM/AAAA)</label><input type="text" name="MES" placeholder="04/2026" required pattern="\d{2}/\d{4}"></div>
     <div class="field-row">
-      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" required></select></div>
+      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" data-toggle-pagadopor required></select></div>
       <div class="field"><label>Categoría</label><select name="Categoría" data-catalog="categoriasFijos" required></select></div>
+    </div>
+    <div class="field field-pagadopor">
+      <label>Pagado por</label>
+      <select name="PagadoPor"><option value="">—</option><option>Soledad</option><option>Gabriel</option></select>
     </div>
     <div class="field"><label>Descripción</label><input type="text" name="Descripción" required></div>
     <div class="field-row">
@@ -460,8 +527,12 @@
 
   <form class="form" id="form-cuota">
     <div class="field-row">
-      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" required></select></div>
+      <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" data-toggle-pagadopor required></select></div>
       <div class="field"><label>Tarjeta</label><select name="Tarjeta" data-catalog="tarjetas" required></select></div>
+    </div>
+    <div class="field field-pagadopor">
+      <label>Pagado por</label>
+      <select name="PagadoPor"><option value="">—</option><option>Soledad</option><option>Gabriel</option></select>
     </div>
     <div class="field"><label>Descripción</label><input type="text" name="Descripción" required></div>
     <div class="field-row">
@@ -687,9 +758,28 @@ async function cargarCatalogos() {
       const items = state.catalogos[key] || [];
       sel.innerHTML = '<option value="">—</option>' + items.map(i => `<option>${i}</option>`).join('');
     });
+    // Conectar el toggle de PagadoPor
+    document.querySelectorAll('select[data-toggle-pagadopor]').forEach(sel => {
+      sel.addEventListener('change', (e) => togglePagadoPor(e.target));
+    });
     return state.catalogos;
   } catch (err) {
     toast('Error catálogos: ' + err.message, 'error');
+  }
+}
+
+// Muestra/oculta el campo PagadoPor según el titular elegido
+function togglePagadoPor(selectTitular) {
+  const form = selectTitular.closest('form');
+  if (!form) return;
+  const fieldPP = form.querySelector('.field-pagadopor');
+  if (!fieldPP) return;
+  const selPP = fieldPP.querySelector('select[name="PagadoPor"]');
+  if (selectTitular.value === 'Compartido') {
+    fieldPP.classList.add('show');
+  } else {
+    fieldPP.classList.remove('show');
+    if (selPP) selPP.value = '';
   }
 }
 
@@ -717,6 +807,8 @@ async function renderTablero() {
       ${payCard('Cuotas (auto-débito)', d.estadoPagos.cuotas, 'Se debitan solas cada mes')}
       ${payCard('Gastos Variables', d.estadoPagos.variables, 'Gastos ya realizados')}
       ${payCard('Préstamos (auto-débito)', d.estadoPagos.prestamos, 'Se debitan solos')}
+
+      ${repartoSection(d.repartoCompartido)}
 
       ${d.proximosVencimientos && d.proximosVencimientos.length ? `
         <div class="section-title">Próximos vencimientos</div>
@@ -763,6 +855,57 @@ function cardTitular(nombre, d, cls) {
       <div class="value">${ARS(d.total)}</div>
       <div class="sub">F ${ARS(d.fijos)} · C ${ARS(d.cuotas)} · V ${ARS(d.variables)}</div>
     </div>`;
+}
+
+function repartoSection(r) {
+  if (!r) return '';
+  // Si no hay nada compartido en el mes, no mostrar
+  if (r.totalAsignado === 0 && r.cantidadNoAsignados === 0) return '';
+
+  let resumeHTML = '';
+  if (r.totalAsignado > 0 && r.aSaldar) {
+    if (r.aSaldar.monto === 0) {
+      resumeHTML = `
+        <div class="reparto-resume equilibrado">
+          <div class="label">Equilibrio perfecto</div>
+          <div class="saldo">✓ Cuentas saldadas</div>
+          <div class="desc">Cada uno puso ${ARS(r.mitad)}</div>
+        </div>`;
+    } else {
+      resumeHTML = `
+        <div class="reparto-resume">
+          <div class="label">A saldar</div>
+          <div class="saldo">${r.aSaldar.de} → ${r.aSaldar.a}</div>
+          <div class="desc">${ARS(r.aSaldar.monto)} para igualar al 50/50</div>
+        </div>`;
+    }
+  }
+
+  let alertaHTML = '';
+  if (r.cantidadNoAsignados > 0) {
+    alertaHTML = `
+      <div class="alert-warning">
+        ⚠ Hay <strong>${r.cantidadNoAsignados} gasto${r.cantidadNoAsignados !== 1 ? 's' : ''} compartido${r.cantidadNoAsignados !== 1 ? 's' : ''}</strong> sin asignar quién lo pagó (${ARS(r.montoNoAsignado)}). Editalos para que entren en el reparto.
+      </div>`;
+  }
+
+  return `
+    <div class="section-title">Reparto de gastos compartidos</div>
+    <div class="reparto-card">
+      <div class="reparto-grid">
+        <div class="reparto-person sole">
+          <div class="who">Pagó Soledad</div>
+          <div class="pago">${ARS(r.pagadoSole)}</div>
+        </div>
+        <div class="reparto-person gabi">
+          <div class="who">Pagó Gabriel</div>
+          <div class="pago">${ARS(r.pagadoGabi)}</div>
+        </div>
+      </div>
+      ${resumeHTML}
+      ${alertaHTML}
+    </div>
+  `;
 }
 
 function payCard(label, data, hint) {
@@ -955,6 +1098,7 @@ function abrirEdicion() {
       { name: 'Fecha', label: 'Fecha', type: 'date' },
       { name: 'Titular', label: 'Titular', type: 'select', catalog: 'titulares' },
       { name: 'Tarjeta', label: 'Tarjeta', type: 'select', catalog: 'tarjetas' },
+      { name: 'PagadoPor', label: 'Pagado por (solo si Compartido)', type: 'select', options: ['', 'Soledad', 'Gabriel'] },
       { name: 'Descripción', label: 'Descripción', type: 'text' },
       { name: 'Categoría', label: 'Categoría', type: 'select', catalog: 'categoriasVariables' },
       { name: 'Monto', label: 'Monto', type: 'number' },
@@ -964,6 +1108,7 @@ function abrirEdicion() {
     fijo: [
       { name: 'MES', label: 'MES', type: 'text', placeholder: 'MM/AAAA', pattern: '\\d{2}/\\d{4}' },
       { name: 'Titular', label: 'Titular', type: 'select', catalog: 'titulares' },
+      { name: 'PagadoPor', label: 'Pagado por (solo si Compartido)', type: 'select', options: ['', 'Soledad', 'Gabriel'] },
       { name: 'Categoría', label: 'Categoría', type: 'select', catalog: 'categoriasFijos' },
       { name: 'Descripción', label: 'Descripción', type: 'text' },
       { name: 'DíaVencim', label: 'Día Venc.', type: 'number' },
@@ -973,6 +1118,7 @@ function abrirEdicion() {
     cuota: [
       { name: 'Titular', label: 'Titular', type: 'select', catalog: 'titulares' },
       { name: 'Tarjeta', label: 'Tarjeta', type: 'select', catalog: 'tarjetas' },
+      { name: 'PagadoPor', label: 'Pagado por (solo si Compartido)', type: 'select', options: ['', 'Soledad', 'Gabriel'] },
       { name: 'Descripción', label: 'Descripción', type: 'text' },
       { name: 'FechaCompra', label: 'Fecha compra', type: 'date' },
       { name: 'MontoTotal', label: 'Monto total', type: 'number' },
@@ -1006,8 +1152,15 @@ function abrirEdicion() {
   const fieldsHTML = campos.map(f => {
     const val = item[f.name] !== undefined && item[f.name] !== null ? item[f.name] : '';
     if (f.type === 'select') {
-      const opciones = (cat[f.catalog] || []).map(o => `<option ${o === val ? 'selected' : ''}>${o}</option>`).join('');
-      return `<div class="field"><label>${f.label}</label><select name="${f.name}"><option value="">—</option>${opciones}</select></div>`;
+      // Si tiene options directas, usar esas. Si no, ir al catálogo
+      const lista = f.options || (cat[f.catalog] || []);
+      const opciones = lista.map(o => {
+        if (o === '') return `<option value="" ${val === '' ? 'selected' : ''}>—</option>`;
+        return `<option ${o === val ? 'selected' : ''}>${o}</option>`;
+      }).join('');
+      // Si NO incluye '' en options, agregamos el "—" al inicio
+      const incluyeVacio = lista.includes('');
+      return `<div class="field"><label>${f.label}</label><select name="${f.name}">${incluyeVacio ? '' : '<option value="">—</option>'}${opciones}</select></div>`;
     }
     if (f.type === 'textarea') {
       return `<div class="field"><label>${f.label}</label><textarea name="${f.name}" rows="2">${val}</textarea></div>`;
