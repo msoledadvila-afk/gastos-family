@@ -4,7 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#3d2e4f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gastos con Amor">
 <title>Gastos con Amor</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"Gastos con Amor","short_name":"Gastos","description":"Sistema de finanzas familiares compartidas","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%23f5f0e8","theme_color":"%233d2e4f","icons":[{"src":"data:image/svg%2Bxml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22><rect width=%22192%22 height=%22192%22 rx=%2240%22 fill=%22%233d2e4f%22/><text x=%2296%22 y=%22130%22 font-size=%22120%22 text-anchor=%22middle%22 fill=%22%23d4859a%22>%E2%9D%A4</text></svg>","sizes":"192x192","type":"image/svg+xml"},{"src":"data:image/svg%2Bxml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><rect width=%22512%22 height=%22512%22 rx=%22106%22 fill=%22%233d2e4f%22/><text x=%22256%22 y=%22350%22 font-size=%22320%22 text-anchor=%22middle%22 fill=%22%23d4859a%22>%E2%9D%A4</text></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
+<link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" rx="38" fill="%233d2e4f"/><text x="90" y="125" font-size="115" text-anchor="middle" fill="%23d4859a">❤</text></svg>'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -431,6 +436,161 @@
   .field-pagadopor { display: none; }
   .field-pagadopor.show { display: block; animation: fadeIn 0.2s; }
 
+  /* ==================== LOGIN SCREEN ==================== */
+  .login-screen {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, var(--plum), var(--plum-light));
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 1.5rem;
+    z-index: 500;
+    overflow-y: auto;
+  }
+  .login-screen.hidden { display: none; }
+  .login-brand {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--cream);
+  }
+  .login-brand .heart {
+    font-size: 3.5rem;
+    color: var(--rose);
+    margin-bottom: 0.5rem;
+    line-height: 1;
+    display: block;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+  .login-brand h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+  .login-brand .sub {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .login-card {
+    background: var(--paper);
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .login-card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    color: var(--plum);
+    margin-bottom: 0.25rem;
+    text-align: center;
+  }
+  .login-card .greet {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .user-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .user-option {
+    padding: 1.25rem 0.5rem;
+    border-radius: 14px;
+    border: 2px solid var(--line);
+    background: var(--paper);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .user-option:hover { border-color: var(--rose); }
+  .user-option.selected {
+    border-color: var(--plum);
+    background: var(--rose-soft);
+  }
+  .user-option .avatar {
+    font-size: 2.2rem;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+  .user-option .name {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 0.95rem;
+  }
+  .login-pwd-field {
+    margin-bottom: 1rem;
+  }
+  .login-pwd-field input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.3em;
+    font-weight: 600;
+    color: var(--plum);
+  }
+  .login-pwd-field input:focus {
+    outline: none;
+    border-color: var(--plum);
+  }
+  .login-error {
+    color: var(--red);
+    font-size: 0.8rem;
+    text-align: center;
+    margin-bottom: 0.75rem;
+    min-height: 1rem;
+  }
+  .login-hint {
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-align: center;
+    margin-top: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Botón de salir */
+  .logout-btn {
+    margin-left: auto;
+    background: rgba(255,255,255,0.1);
+    color: var(--cream);
+    padding: 0.35rem 0.7rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: background 0.15s;
+  }
+  .logout-btn:active { background: rgba(255,255,255,0.2); }
+
+  /* Indicador de usuario activo */
+  .current-user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(255,255,255,0.12);
+    padding: 0.2rem 0.55rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+  }
+
   @media (min-width: 600px) {
     main { padding: 1.5rem 2rem 6rem; }
     .cards-grid { grid-template-columns: repeat(3, 1fr); }
@@ -440,11 +600,43 @@
 </head>
 <body>
 
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-brand">
+    <span class="heart">❤</span>
+    <h1>Gastos con Amor</h1>
+    <div class="sub">v5.2</div>
+  </div>
+  <div class="login-card">
+    <h2>¿Quién está usando la app?</h2>
+    <div class="greet">Elegí tu usuario y poné la clave</div>
+    <div class="user-picker">
+      <div class="user-option" data-user="Soledad">
+        <span class="avatar">🌸</span>
+        <div class="name">Soledad</div>
+      </div>
+      <div class="user-option" data-user="Gabriel">
+        <span class="avatar">🌊</span>
+        <div class="name">Gabriel</div>
+      </div>
+    </div>
+    <div class="login-pwd-field">
+      <input type="password" id="loginPwd" placeholder="Clave" inputmode="numeric" autocomplete="current-password">
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <button class="btn" id="loginBtn" onclick="hacerLogin()">Entrar</button>
+    <div class="login-hint">
+      💡 Tip: tocá el ícono de "Compartir" en Safari/Chrome y elegí "Agregar a inicio" para usar como app.
+    </div>
+  </div>
+</div>
+
 <header>
   <div class="brand">
     <span class="brand-heart">❤</span>
     <span class="brand-title">Gastos con Amor</span>
-    <span class="brand-sub">v5.1</span>
+    <span class="current-user-badge" id="currentUserBadge"></span>
+    <button class="logout-btn" onclick="hacerLogout()">Salir</button>
   </div>
   <div class="month-selector">
     <label>Mes</label>
@@ -640,13 +832,111 @@
 const LS_ENDPOINT = 'gca5_endpoint';
 const LS_TOKEN = 'gca5_token';
 const LS_MES = 'gca5_mes';
+const LS_USER = 'gca5_user';
+const LS_AUTH = 'gca5_auth';
+
+// Clave compartida (la podés cambiar acá si querés)
+const APP_PASSWORD = 'amor2026';
 
 const state = {
   endpoint: localStorage.getItem(LS_ENDPOINT) || '',
   token: localStorage.getItem(LS_TOKEN) || '',
   mes: localStorage.getItem(LS_MES) || defaultMes(),
+  user: localStorage.getItem(LS_USER) || '',
+  authenticated: localStorage.getItem(LS_AUTH) === 'yes',
   catalogos: null
 };
+
+// =================== LOGIN ===================
+let loginUserSelected = '';
+
+function showLogin() {
+  const screen = document.getElementById('loginScreen');
+  if (screen) screen.classList.remove('hidden');
+}
+
+function hideLogin() {
+  const screen = document.getElementById('loginScreen');
+  if (screen) screen.classList.add('hidden');
+}
+
+function setupLoginListeners() {
+  // Selección de usuario
+  document.querySelectorAll('.user-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.user-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      loginUserSelected = opt.dataset.user;
+      document.getElementById('loginPwd').focus();
+    });
+  });
+
+  // Enter para confirmar
+  const pwd = document.getElementById('loginPwd');
+  if (pwd) {
+    pwd.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') hacerLogin();
+    });
+  }
+}
+
+function hacerLogin() {
+  const pwd = document.getElementById('loginPwd').value;
+  const errorEl = document.getElementById('loginError');
+
+  if (!loginUserSelected) {
+    errorEl.textContent = 'Elegí un usuario primero';
+    return;
+  }
+  if (!pwd) {
+    errorEl.textContent = 'Falta la clave';
+    return;
+  }
+  if (pwd !== APP_PASSWORD) {
+    errorEl.textContent = '❌ Clave incorrecta';
+    document.getElementById('loginPwd').value = '';
+    return;
+  }
+
+  // OK
+  errorEl.textContent = '';
+  state.user = loginUserSelected;
+  state.authenticated = true;
+  localStorage.setItem(LS_USER, state.user);
+  localStorage.setItem(LS_AUTH, 'yes');
+  document.getElementById('loginPwd').value = '';
+  hideLogin();
+  actualizarBadgeUsuario();
+
+  // Si no hay endpoint configurado, mostrar setup
+  if (!state.endpoint || !state.token) {
+    showSetup();
+  } else {
+    init();
+  }
+}
+
+function hacerLogout() {
+  if (!confirm('¿Cerrar sesión?')) return;
+  state.authenticated = false;
+  state.user = '';
+  localStorage.removeItem(LS_AUTH);
+  localStorage.removeItem(LS_USER);
+  loginUserSelected = '';
+  document.querySelectorAll('.user-option').forEach(o => o.classList.remove('selected'));
+  showLogin();
+}
+
+function actualizarBadgeUsuario() {
+  const badge = document.getElementById('currentUserBadge');
+  if (!badge) return;
+  if (state.user) {
+    const emoji = state.user === 'Soledad' ? '🌸' : '🌊';
+    badge.textContent = `${emoji} ${state.user}`;
+  } else {
+    badge.textContent = '';
+  }
+}
 
 function defaultMes() {
   const d = new Date();
@@ -1321,9 +1611,22 @@ async function init() {
   await cargarCatalogos();
   renderTablero();
   document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
+  actualizarBadgeUsuario();
 }
 
-init();
+// Inicialización general (login → setup → app)
+function bootstrap() {
+  setupLoginListeners();
+  if (state.authenticated && state.user) {
+    hideLogin();
+    actualizarBadgeUsuario();
+    init();
+  } else {
+    showLogin();
+  }
+}
+
+bootstrap();
 </script>
 </body>
 </html>
