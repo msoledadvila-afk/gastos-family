@@ -834,8 +834,8 @@
   <div class="pay-card">
     <div class="label" style="margin-bottom:0.75rem;">Registrar ingresos del mes</div>
     <div class="field">
-      <label>Mes (MM/AAAA)</label>
-      <input type="text" id="cfg-ingreso-mes" placeholder="06/2026" maxlength="7" pattern="\d{2}/\d{4}">
+      <label>Mes</label>
+      <select id="cfg-ingreso-mes" onchange="cargarIngresosDelMes(this.value)"></select>
     </div>
     <div class="field-row">
       <div class="field"><label>Ingreso Soledad</label><input type="number" id="cfg-ingreso-sole" step="0.01" placeholder="0"></div>
@@ -1532,33 +1532,77 @@ Object.keys(formActions).forEach(formId => {
 });
 
 // =================== CONFIG ===================
+// Convierte MM/AAAA a AAAAMM numérico (igual que el backend)
+function mesAAAAMMfront(mes) {
+  if (!mes) return 0;
+  const p = mes.split('/');
+  if (p.length !== 2) return 0;
+  return parseInt(p[1] + p[0].padStart(2, '0'), 10);
+}
+
+// Genera lista de los últimos N meses + próximo mes, desde el mes activo hacia atrás
+function generarOpcionesMeses(n = 13) {
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const opciones = [];
+  const [mm, aaaa] = state.mes.split('/').map(Number);
+  // Empezar un mes adelante para poder cargar el próximo
+  for (let i = -1; i < n; i++) {
+    let m = mm - i;
+    let a = aaaa;
+    while (m <= 0) { m += 12; a--; }
+    while (m > 12) { m -= 12; a++; }
+    const mesStr = String(m).padStart(2, '0') + '/' + a;
+    const label  = meses[m - 1] + ' ' + a + (i === 0 ? ' (mes activo)' : i === -1 ? ' (próximo)' : '');
+    opciones.push({ value: mesStr, label });
+  }
+  return opciones;
+}
+
+function poblarSelectMeses(mesSeleccionado) {
+  const sel = document.getElementById('cfg-ingreso-mes');
+  if (!sel) return;
+  const opciones = generarOpcionesMeses(13);
+  sel.innerHTML = opciones.map(o =>
+    `<option value="${o.value}" ${o.value === mesSeleccionado ? 'selected' : ''}>${o.label}</option>`
+  ).join('');
+}
+
 async function renderConfig() {
   document.getElementById('cfg-endpoint').value = state.endpoint;
   document.getElementById('cfg-token').value = state.token;
 
-  // Pre-rellenar el campo de mes con el mes activo
-  const mesField = document.getElementById('cfg-ingreso-mes');
-  if (mesField && !mesField.value) mesField.value = state.mes;
+  // Poblar el select con el mes activo pre-seleccionado
+  poblarSelectMeses(state.mes);
 
-  // Cargar valores actuales del mes activo en los inputs
+  // Cargar los valores del mes activo en los inputs
+  await cargarIngresosDelMes(state.mes);
+
+  // Cargar historial
+  renderHistorialIngresos();
+}
+
+// Carga los ingresos de un mes específico en los inputs al cambiar el select
+async function cargarIngresosDelMes(mes) {
+  document.getElementById('cfg-ingreso-sole').value = '';
+  document.getElementById('cfg-ingreso-gabi').value = '';
+  if (!mes) return;
   try {
-    const registros = await api('getIngresos', { mes: state.mes });
+    const registros = await api('getIngresos', { mes });
     if (registros && registros.length > 0) {
       const r = registros[0];
       document.getElementById('cfg-ingreso-sole').value = r.Ingreso_Sole || '';
       document.getElementById('cfg-ingreso-gabi').value = r.Ingreso_Gabi || '';
     }
   } catch (err) {
-    // Si getIngresos no existe todavía, fallback a getConfig (compatibilidad)
-    try {
-      const cfg = await api('getConfig');
-      document.getElementById('cfg-ingreso-sole').value = cfg.ingreso_sole || '';
-      document.getElementById('cfg-ingreso-gabi').value = cfg.ingreso_gabi || '';
-    } catch (e) { /* silencio */ }
+    // Fallback a CONFIG solo si es el mes activo
+    if (mes === state.mes) {
+      try {
+        const cfg = await api('getConfig');
+        document.getElementById('cfg-ingreso-sole').value = cfg.ingreso_sole || '';
+        document.getElementById('cfg-ingreso-gabi').value = cfg.ingreso_gabi || '';
+      } catch (e) { /* silencio */ }
+    }
   }
-
-  // Cargar historial
-  renderHistorialIngresos();
 }
 
 async function renderHistorialIngresos() {
@@ -1570,12 +1614,11 @@ async function renderHistorialIngresos() {
       cont.innerHTML = '<div class="ingreso-historial-empty">Sin registros todavía. Guardá los ingresos del mes para comenzar el historial.</div>';
       return;
     }
-    // Ordenar por AAAAMM descendente (más reciente primero)
     const ordenados = [...registros].sort((a, b) => Number(b.AAAAMM) - Number(a.AAAAMM));
     const mesActualAaaamm = mesAAAAMMfront(state.mes);
 
     const filas = ordenados.map(r => {
-      const esActivo = Number(r.AAAAMM) === mesActualAaaamm;
+      const esActivo  = Number(r.AAAAMM) === mesActualAaaamm;
       const pillClass = esActivo ? 'mes-pill activo' : 'mes-pill';
       return `<div class="ingreso-row">
         <span class="${pillClass}">${mesPillText(r.MES)}</span>
@@ -1594,22 +1637,13 @@ async function renderHistorialIngresos() {
   }
 }
 
-// Convierte MM/AAAA a AAAAMM numérico (igual que el backend)
-function mesAAAAMMfront(mes) {
-  if (!mes) return 0;
-  const p = mes.split('/');
-  if (p.length !== 2) return 0;
-  return parseInt(p[1] + p[0].padStart(2, '0'), 10);
-}
-
 async function guardarIngresos() {
-  const mes  = document.getElementById('cfg-ingreso-mes').value.trim();
+  const mes  = document.getElementById('cfg-ingreso-mes').value;
   const sole = document.getElementById('cfg-ingreso-sole').value;
   const gabi = document.getElementById('cfg-ingreso-gabi').value;
 
-  if (!mes || !/^\d{2}\/\d{4}$/.test(mes)) {
-    toast('Ingresá el mes en formato MM/AAAA', 'error');
-    document.getElementById('cfg-ingreso-mes').focus();
+  if (!mes) {
+    toast('Seleccioná un mes', 'error');
     return;
   }
   if (!sole && !gabi) {
@@ -1623,15 +1657,13 @@ async function guardarIngresos() {
 
   try {
     await apiPost('setIngresos', {
-      mes:           mes,
-      ingreso_sole:  Number(sole) || 0,
-      ingreso_gabi:  Number(gabi) || 0
+      mes,
+      ingreso_sole: Number(sole) || 0,
+      ingreso_gabi: Number(gabi) || 0
     });
     toast(`Ingresos de ${mesPillText(mes)} guardados ✓`, 'success');
-    // Refrescar historial
     renderHistorialIngresos();
   } catch (err) {
-    // Fallback: si el nuevo endpoint no existe, usar el viejo
     if (err.message && err.message.includes('no reconocida')) {
       try {
         if (sole) await api('setConfig', { clave: 'ingreso_sole', valor: sole });
