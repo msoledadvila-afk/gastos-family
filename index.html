@@ -605,7 +605,7 @@
   <div class="login-brand">
     <span class="heart">❤</span>
     <h1>Gastos con Amor</h1>
-    <div class="sub">v5.3</div>
+    <div class="sub">v5.3.2</div>
   </div>
   <div class="login-card">
     <h2>¿Quién está usando la app?</h2>
@@ -970,13 +970,29 @@ async function apiPost(action, data) {
   const url = new URL(state.endpoint);
   url.searchParams.set('action', action);
   url.searchParams.set('token', state.token);
-  url.searchParams.set('data', JSON.stringify(data));
+  // Los datos van en el body como text/plain (evita preflight CORS)
   const ctrl = new AbortController();
   const timeout = setTimeout(() => ctrl.abort(), 45000);
   try {
-    const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: ctrl.signal });
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      redirect: 'follow',
+      signal: ctrl.signal,
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(data)
+    });
     clearTimeout(timeout);
-    const json = await res.json();
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (parseErr) {
+      if (res.ok) {
+        console.warn('Respuesta no-JSON pero status OK:', text.substring(0, 200));
+        return { id: 'unknown', warning: 'no-json' };
+      }
+      throw new Error('Respuesta no válida del servidor');
+    }
     if (!json.ok) throw new Error(json.error || 'Error desconocido');
     return json.data;
   } catch (err) {
@@ -1556,18 +1572,23 @@ Object.keys(formActions).forEach(formId => {
     const data = {};
     new FormData(form).forEach((v, k) => { if (v !== '') data[k] = v; });
     try {
-      await apiPost(formActions[formId], data);
-      toast('Guardado ✓', 'success');
+      const result = await apiPost(formActions[formId], data);
+      if (result && result.warning === 'no-json') {
+        toast('Guardado (verificá refrescando)', 'success');
+      } else {
+        toast('Guardado ✓', 'success');
+      }
       form.reset();
       document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
     } catch (err) {
-      // Si fue timeout, probablemente se guardó igual. Avisamos sin alarmar.
-      if (err.message && err.message.includes('Timeout')) {
-        toast('Se guardó pero tardó en responder. Refrescá para ver.', 'success');
+      // Si fue timeout o "failed to fetch", probablemente se guardó igual
+      const errMsg = err.message || String(err);
+      if (errMsg.includes('Timeout') || errMsg.includes('Failed to fetch') || errMsg.includes('fetch')) {
+        toast('Se guardó pero hubo demora. Refrescá para ver.', 'success');
         form.reset();
         document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
       } else {
-        toast(err.message, 'error');
+        toast(errMsg, 'error');
       }
     } finally {
       btn.disabled = false; btn.textContent = origText;
