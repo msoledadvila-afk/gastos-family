@@ -132,7 +132,6 @@
   .card.titular-gabi { background: var(--gabi); border-color: #b8c8e0; }
   .card.titular-comp { background: var(--comp); border-color: #c8b8d8; }
 
-  /* Progress bar para pagado/pendiente */
   .pay-card {
     background: var(--paper); border: 1px solid var(--line);
     border-radius: 14px; padding: 1.1rem;
@@ -225,7 +224,6 @@
   .badge.pagado { background: var(--green-bg); color: var(--green); }
   .badge.pendiente { background: var(--red-bg); color: var(--red); }
 
-  /* Formularios */
   .form-tabs {
     display: flex; gap: 0.4rem; margin-bottom: 1rem;
     overflow-x: auto; scrollbar-width: none; padding-bottom: 0.25rem;
@@ -377,7 +375,6 @@
   .proxi-item .info .m { font-size: 0.7rem; color: var(--muted); margin-top: 0.1rem; }
   .proxi-item .amt { font-family: 'Fraunces', serif; font-weight: 700; }
 
-  /* Reparto compartido */
   .reparto-card {
     background: var(--paper); border: 1px solid var(--line);
     border-radius: 14px; padding: 1.1rem;
@@ -432,7 +429,6 @@
   }
   .alert-warning strong { font-weight: 700; }
 
-  /* Campo PagadoPor (solo cuando Titular = Compartido) */
   .field-pagadopor { display: none; }
   .field-pagadopor.show { display: block; animation: fadeIn 0.2s; }
 
@@ -563,7 +559,6 @@
     line-height: 1.5;
   }
 
-  /* Botón de salir */
   .logout-btn {
     margin-left: auto;
     background: rgba(255,255,255,0.1);
@@ -578,7 +573,6 @@
   }
   .logout-btn:active { background: rgba(255,255,255,0.2); }
 
-  /* Indicador de usuario activo */
   .current-user-badge {
     display: inline-flex;
     align-items: center;
@@ -589,6 +583,47 @@
     font-size: 0.7rem;
     font-weight: 600;
     margin-left: 0.5rem;
+  }
+
+  /* ==================== HISTORIAL INGRESOS ==================== */
+  .ingresos-historial {
+    margin-top: 1rem;
+  }
+  .ingreso-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .ingreso-row:last-child { border-bottom: none; }
+  .ingreso-row.header {
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted);
+    padding-top: 0.4rem; padding-bottom: 0.4rem;
+    background: var(--cream);
+  }
+  .ingreso-row .mes-pill {
+    background: var(--plum); color: var(--cream);
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 0.75rem; padding: 0.25rem 0.5rem;
+    border-radius: 6px; text-align: center;
+    white-space: nowrap;
+  }
+  .ingreso-row .mes-pill.activo {
+    background: var(--gold); color: var(--plum);
+  }
+  .ingreso-row .ing-val {
+    font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 0.92rem;
+  }
+  .ingreso-row .ing-val.sole { color: #b85a6e; }
+  .ingreso-row .ing-val.gabi { color: #3a6a9c; }
+  .ingreso-historial-empty {
+    text-align: center; padding: 1rem;
+    color: var(--muted); font-size: 0.82rem; font-style: italic;
   }
 
   @media (min-width: 600px) {
@@ -791,16 +826,32 @@
   <div id="list-prestamos"><div class="loading"><span class="spinner"></span>Cargando…</div></div>
 </section>
 
-<!-- CONFIG -->
+<!-- ==================== CONFIG ==================== -->
 <section class="view" id="view-config">
   <div class="section-title">Configuración</div>
+
+  <!-- Formulario de ingresos -->
   <div class="pay-card">
-    <div class="label" style="margin-bottom:0.75rem;">Ingresos mensuales</div>
-    <div class="field"><label>Ingreso Soledad</label><input type="number" id="cfg-ingreso-sole" step="0.01"></div>
-    <div class="field"><label>Ingreso Gabriel</label><input type="number" id="cfg-ingreso-gabi" step="0.01"></div>
-    <button class="btn" onclick="guardarIngresos()">Guardar ingresos</button>
+    <div class="label" style="margin-bottom:0.75rem;">Registrar ingresos del mes</div>
+    <div class="field">
+      <label>Mes (MM/AAAA)</label>
+      <input type="text" id="cfg-ingreso-mes" placeholder="06/2026" maxlength="7" pattern="\d{2}/\d{4}">
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Ingreso Soledad</label><input type="number" id="cfg-ingreso-sole" step="0.01" placeholder="0"></div>
+      <div class="field"><label>Ingreso Gabriel</label><input type="number" id="cfg-ingreso-gabi" step="0.01" placeholder="0"></div>
+    </div>
+    <button class="btn" onclick="guardarIngresos()">Guardar ingresos del mes</button>
   </div>
-  <div class="pay-card" style="margin-top:1rem;">
+
+  <!-- Historial de ingresos -->
+  <div class="section-title" style="margin-top:1.25rem;">Historial de ingresos</div>
+  <div class="table-wrap ingresos-historial" id="cfg-historial-ingresos">
+    <div class="loading"><span class="spinner"></span>Cargando historial…</div>
+  </div>
+
+  <!-- Conexión API -->
+  <div class="pay-card" style="margin-top:1.25rem;">
     <div class="label" style="margin-bottom:0.75rem;">Conexión API</div>
     <div class="field"><label>Endpoint</label><input type="text" id="cfg-endpoint" readonly></div>
     <div class="field"><label>Token</label><input type="password" id="cfg-token" readonly></div>
@@ -830,19 +881,18 @@
 
 <script>
 const LS_ENDPOINT = 'gca5_endpoint';
-const LS_TOKEN = 'gca5_token';
-const LS_MES = 'gca5_mes';
-const LS_USER = 'gca5_user';
-const LS_AUTH = 'gca5_auth';
+const LS_TOKEN    = 'gca5_token';
+const LS_MES      = 'gca5_mes';
+const LS_USER     = 'gca5_user';
+const LS_AUTH     = 'gca5_auth';
 
-// Clave compartida (la podés cambiar acá si querés)
 const APP_PASSWORD = 'amor2026';
 
 const state = {
   endpoint: localStorage.getItem(LS_ENDPOINT) || '',
-  token: localStorage.getItem(LS_TOKEN) || '',
-  mes: localStorage.getItem(LS_MES) || defaultMes(),
-  user: localStorage.getItem(LS_USER) || '',
+  token:    localStorage.getItem(LS_TOKEN) || '',
+  mes:      localStorage.getItem(LS_MES) || defaultMes(),
+  user:     localStorage.getItem(LS_USER) || '',
   authenticated: localStorage.getItem(LS_AUTH) === 'yes',
   catalogos: null
 };
@@ -854,14 +904,11 @@ function showLogin() {
   const screen = document.getElementById('loginScreen');
   if (screen) screen.classList.remove('hidden');
 }
-
 function hideLogin() {
   const screen = document.getElementById('loginScreen');
   if (screen) screen.classList.add('hidden');
 }
-
 function setupLoginListeners() {
-  // Selección de usuario
   document.querySelectorAll('.user-option').forEach(opt => {
     opt.addEventListener('click', () => {
       document.querySelectorAll('.user-option').forEach(o => o.classList.remove('selected'));
@@ -870,35 +917,19 @@ function setupLoginListeners() {
       document.getElementById('loginPwd').focus();
     });
   });
-
-  // Enter para confirmar
   const pwd = document.getElementById('loginPwd');
-  if (pwd) {
-    pwd.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') hacerLogin();
-    });
-  }
+  if (pwd) pwd.addEventListener('keypress', (e) => { if (e.key === 'Enter') hacerLogin(); });
 }
-
 function hacerLogin() {
   const pwd = document.getElementById('loginPwd').value;
   const errorEl = document.getElementById('loginError');
-
-  if (!loginUserSelected) {
-    errorEl.textContent = 'Elegí un usuario primero';
-    return;
-  }
-  if (!pwd) {
-    errorEl.textContent = 'Falta la clave';
-    return;
-  }
+  if (!loginUserSelected) { errorEl.textContent = 'Elegí un usuario primero'; return; }
+  if (!pwd) { errorEl.textContent = 'Falta la clave'; return; }
   if (pwd !== APP_PASSWORD) {
     errorEl.textContent = '❌ Clave incorrecta';
     document.getElementById('loginPwd').value = '';
     return;
   }
-
-  // OK
   errorEl.textContent = '';
   state.user = loginUserSelected;
   state.authenticated = true;
@@ -907,35 +938,23 @@ function hacerLogin() {
   document.getElementById('loginPwd').value = '';
   hideLogin();
   actualizarBadgeUsuario();
-
-  // Si no hay endpoint configurado, mostrar setup
-  if (!state.endpoint || !state.token) {
-    showSetup();
-  } else {
-    init();
-  }
+  if (!state.endpoint || !state.token) { showSetup(); } else { init(); }
 }
-
 function hacerLogout() {
   if (!confirm('¿Cerrar sesión?')) return;
-  state.authenticated = false;
-  state.user = '';
-  localStorage.removeItem(LS_AUTH);
-  localStorage.removeItem(LS_USER);
+  state.authenticated = false; state.user = '';
+  localStorage.removeItem(LS_AUTH); localStorage.removeItem(LS_USER);
   loginUserSelected = '';
   document.querySelectorAll('.user-option').forEach(o => o.classList.remove('selected'));
   showLogin();
 }
-
 function actualizarBadgeUsuario() {
   const badge = document.getElementById('currentUserBadge');
   if (!badge) return;
   if (state.user) {
     const emoji = state.user === 'Soledad' ? '🌸' : '🌊';
     badge.textContent = `${emoji} ${state.user}`;
-  } else {
-    badge.textContent = '';
-  }
+  } else { badge.textContent = ''; }
 }
 
 function defaultMes() {
@@ -970,27 +989,20 @@ async function apiPost(action, data) {
   const url = new URL(state.endpoint);
   url.searchParams.set('action', action);
   url.searchParams.set('token', state.token);
-  // Los datos van en el body como text/plain (evita preflight CORS)
   const ctrl = new AbortController();
   const timeout = setTimeout(() => ctrl.abort(), 45000);
   try {
     const res = await fetch(url.toString(), {
-      method: 'POST',
-      redirect: 'follow',
-      signal: ctrl.signal,
+      method: 'POST', redirect: 'follow', signal: ctrl.signal,
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(data)
     });
     clearTimeout(timeout);
     const text = await res.text();
     let json;
-    try {
-      json = JSON.parse(text);
-    } catch (parseErr) {
-      if (res.ok) {
-        console.warn('Respuesta no-JSON pero status OK:', text.substring(0, 200));
-        return { id: 'unknown', warning: 'no-json' };
-      }
+    try { json = JSON.parse(text); }
+    catch (parseErr) {
+      if (res.ok) { return { id: 'unknown', warning: 'no-json' }; }
       throw new Error('Respuesta no válida del servidor');
     }
     if (!json.ok) throw new Error(json.error || 'Error desconocido');
@@ -1004,8 +1016,7 @@ async function apiPost(action, data) {
 
 function toast(msg, type = '') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show ' + type;
+  t.textContent = msg; t.className = 'show ' + type;
   setTimeout(() => t.className = type, 2500);
 }
 
@@ -1029,12 +1040,12 @@ document.querySelectorAll('#tabs .tab').forEach(t => {
 function switchView(name) {
   document.querySelectorAll('#tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
-  if (name === 'tablero') renderTablero();
-  if (name === 'fijos') renderListFijos();
+  if (name === 'tablero')   renderTablero();
+  if (name === 'fijos')     renderListFijos();
   if (name === 'variables') renderListVariables();
-  if (name === 'cuotas') renderListCuotas('mes');
+  if (name === 'cuotas')    renderListCuotas('mes');
   if (name === 'prestamos') renderListPrestamos();
-  if (name === 'config') renderConfig();
+  if (name === 'config')    renderConfig();
 }
 
 document.querySelectorAll('#formTabs .form-tab').forEach(t => {
@@ -1050,17 +1061,12 @@ mesInput.value = state.mes;
 document.getElementById('mesPill').textContent = mesPillText(state.mes);
 mesInput.addEventListener('change', () => {
   const v = mesInput.value.trim();
-  if (!/^\d{2}\/\d{4}$/.test(v)) {
-    toast('Formato MM/AAAA', 'error');
-    mesInput.value = state.mes;
-    return;
-  }
+  if (!/^\d{2}\/\d{4}$/.test(v)) { toast('Formato MM/AAAA', 'error'); mesInput.value = state.mes; return; }
   state.mes = v;
   localStorage.setItem(LS_MES, v);
   document.getElementById('mesPill').textContent = mesPillText(v);
   const active = document.querySelector('#tabs .tab.active').dataset.view;
   switchView(active);
-  // Actualizar prellenado en forms
   document.querySelectorAll('input[name="MES"]').forEach(i => i.value = v);
 });
 
@@ -1073,17 +1079,13 @@ async function cargarCatalogos() {
       const items = state.catalogos[key] || [];
       sel.innerHTML = '<option value="">—</option>' + items.map(i => `<option>${i}</option>`).join('');
     });
-    // Conectar el toggle de PagadoPor
     document.querySelectorAll('select[data-toggle-pagadopor]').forEach(sel => {
       sel.addEventListener('change', (e) => togglePagadoPor(e.target));
     });
     return state.catalogos;
-  } catch (err) {
-    toast('Error catálogos: ' + err.message, 'error');
-  }
+  } catch (err) { toast('Error catálogos: ' + err.message, 'error'); }
 }
 
-// Muestra/oculta el campo PagadoPor según el titular elegido
 function togglePagadoPor(selectTitular) {
   const form = selectTitular.closest('form');
   if (!form) return;
@@ -1115,16 +1117,13 @@ async function renderTablero() {
         ${cardTitular('Gabriel', d.porTitular.Gabriel, 'titular-gabi')}
         ${cardTitular('Compartido', d.porTitular.Compartido, 'titular-comp')}
       </div>
-
       <div class="section-title">Estado de pagos</div>
       ${payCardTotal(d.estadoPagos.total)}
       ${payCard('Gastos Fijos', d.estadoPagos.fijos, 'Marcá en "Fijos" los que ya pagaste')}
       ${payCard('Cuotas (auto-débito)', d.estadoPagos.cuotas, 'Se debitan solas cada mes')}
       ${payCard('Gastos Variables', d.estadoPagos.variables, 'Gastos ya realizados')}
       ${payCard('Préstamos (auto-débito)', d.estadoPagos.prestamos, 'Se debitan solos')}
-
       ${repartoSection(d.repartoCompartido)}
-
       ${d.proximosVencimientos && d.proximosVencimientos.length ? `
         <div class="section-title">Próximos vencimientos</div>
         <div class="table-wrap">
@@ -1140,11 +1139,9 @@ async function renderTablero() {
           `).join('')}
         </div>
       ` : ''}
-
       <div class="section-title">Balance vs ingresos</div>
       ${balanceRow('Soledad', d.balance.Soledad)}
       ${balanceRow('Gabriel', d.balance.Gabriel)}
-
       <div class="section-title">Por tarjeta</div>
       <div class="table-wrap">
         ${d.porTarjeta.map(t => `
@@ -1164,97 +1161,73 @@ async function renderTablero() {
 }
 
 function cardTitular(nombre, d, cls) {
-  return `
-    <div class="card ${cls}">
-      <div class="label">${nombre}</div>
-      <div class="value">${ARS(d.total)}</div>
-      <div class="sub">F ${ARS(d.fijos)} · C ${ARS(d.cuotas)} · V ${ARS(d.variables)}</div>
-    </div>`;
+  return `<div class="card ${cls}">
+    <div class="label">${nombre}</div>
+    <div class="value">${ARS(d.total)}</div>
+    <div class="sub">F ${ARS(d.fijos)} · C ${ARS(d.cuotas)} · V ${ARS(d.variables)}</div>
+  </div>`;
 }
 
 function repartoSection(r) {
   if (!r) return '';
-  // Si no hay nada compartido en el mes, no mostrar
   if (r.totalAsignado === 0 && r.cantidadNoAsignados === 0) return '';
-
   let resumeHTML = '';
   if (r.totalAsignado > 0 && r.aSaldar) {
     if (r.aSaldar.monto === 0) {
-      resumeHTML = `
-        <div class="reparto-resume equilibrado">
-          <div class="label">Equilibrio perfecto</div>
-          <div class="saldo">✓ Cuentas saldadas</div>
-          <div class="desc">Cada uno puso ${ARS(r.mitad)}</div>
-        </div>`;
+      resumeHTML = `<div class="reparto-resume equilibrado">
+        <div class="label">Equilibrio perfecto</div>
+        <div class="saldo">✓ Cuentas saldadas</div>
+        <div class="desc">Cada uno puso ${ARS(r.mitad)}</div>
+      </div>`;
     } else {
-      resumeHTML = `
-        <div class="reparto-resume">
-          <div class="label">A saldar</div>
-          <div class="saldo">${r.aSaldar.de} → ${r.aSaldar.a}</div>
-          <div class="desc">${ARS(r.aSaldar.monto)} para igualar al 50/50</div>
-        </div>`;
+      resumeHTML = `<div class="reparto-resume">
+        <div class="label">A saldar</div>
+        <div class="saldo">${r.aSaldar.de} → ${r.aSaldar.a}</div>
+        <div class="desc">${ARS(r.aSaldar.monto)} para igualar al 50/50</div>
+      </div>`;
     }
   }
-
   let alertaHTML = '';
   if (r.cantidadNoAsignados > 0) {
-    alertaHTML = `
-      <div class="alert-warning">
-        ⚠ Hay <strong>${r.cantidadNoAsignados} gasto${r.cantidadNoAsignados !== 1 ? 's' : ''} compartido${r.cantidadNoAsignados !== 1 ? 's' : ''}</strong> sin asignar quién lo pagó (${ARS(r.montoNoAsignado)}). Editalos para que entren en el reparto.
-      </div>`;
+    alertaHTML = `<div class="alert-warning">
+      ⚠ Hay <strong>${r.cantidadNoAsignados} gasto${r.cantidadNoAsignados !== 1 ? 's' : ''} compartido${r.cantidadNoAsignados !== 1 ? 's' : ''}</strong> sin asignar quién lo pagó (${ARS(r.montoNoAsignado)}). Editalos para que entren en el reparto.
+    </div>`;
   }
-
   return `
     <div class="section-title">Reparto de gastos compartidos</div>
     <div class="reparto-card">
       <div class="reparto-grid">
-        <div class="reparto-person sole">
-          <div class="who">Pagó Soledad</div>
-          <div class="pago">${ARS(r.pagadoSole)}</div>
-        </div>
-        <div class="reparto-person gabi">
-          <div class="who">Pagó Gabriel</div>
-          <div class="pago">${ARS(r.pagadoGabi)}</div>
-        </div>
+        <div class="reparto-person sole"><div class="who">Pagó Soledad</div><div class="pago">${ARS(r.pagadoSole)}</div></div>
+        <div class="reparto-person gabi"><div class="who">Pagó Gabriel</div><div class="pago">${ARS(r.pagadoGabi)}</div></div>
       </div>
-      ${resumeHTML}
-      ${alertaHTML}
-    </div>
-  `;
+      ${resumeHTML}${alertaHTML}
+    </div>`;
 }
 
 function payCard(label, data, hint) {
   const pct = data.pct !== null ? data.pct * 100 : 0;
-  return `
-    <div class="pay-card">
-      <div class="top">
-        <div class="label">${label}</div>
-        <div class="amt-total">${ARS(data.total)}</div>
-      </div>
-      <div class="pay-bar"><div class="pay-bar-fill" style="width:${pct}%"></div></div>
-      <div class="pay-split">
-        <div class="item pagado"><span class="k">Pagado</span><span class="v">${ARS(data.pagado)}</span></div>
-        <div class="item pendiente"><span class="k">Pendiente</span><span class="v">${ARS(data.pendiente)}</span></div>
-        <div class="item pct"><span class="k">Avance</span><span class="v">${PCT(data.pct)}</span></div>
-      </div>
-    </div>`;
+  return `<div class="pay-card">
+    <div class="top"><div class="label">${label}</div><div class="amt-total">${ARS(data.total)}</div></div>
+    <div class="pay-bar"><div class="pay-bar-fill" style="width:${pct}%"></div></div>
+    <div class="pay-split">
+      <div class="item pagado"><span class="k">Pagado</span><span class="v">${ARS(data.pagado)}</span></div>
+      <div class="item pendiente"><span class="k">Pendiente</span><span class="v">${ARS(data.pendiente)}</span></div>
+      <div class="item pct"><span class="k">Avance</span><span class="v">${PCT(data.pct)}</span></div>
+    </div>
+  </div>`;
 }
 
 function payCardTotal(data) {
   const pct = data.pct !== null ? data.pct * 100 : 0;
-  return `
-    <div class="pay-card total">
-      <div class="top">
-        <div class="label">Total del mes</div>
-        <div class="amt-total">${ARS(data.total)}</div>
-      </div>
-      <div class="pay-bar"><div class="pay-bar-fill" style="width:${pct}%"></div></div>
-      <div class="pay-split">
-        <div class="item pagado"><span class="k">Ya pagado</span><span class="v">${ARS(data.pagado)}</span></div>
-        <div class="item pendiente"><span class="k">Pendiente</span><span class="v">${ARS(data.pendiente)}</span></div>
-        <div class="item pct"><span class="k">Avance</span><span class="v">${PCT(data.pct)}</span></div>
-      </div>
-    </div>`;
+  return `<div class="pay-card total">
+    <div class="top"><div class="label">Total del mes</div><div class="amt-total">${ARS(data.total)}</div></div>
+    <div class="pay-bar"><div class="pay-bar-fill" style="width:${pct}%"></div></div>
+    <div class="pay-split">
+      <div class="item pagado"><span class="k">Ya pagado</span><span class="v">${ARS(data.pagado)}</span></div>
+      <div class="item pendiente"><span class="k">Pendiente</span><span class="v">${ARS(data.pendiente)}</span></div>
+      <div class="item pct"><span class="k">Avance</span><span class="v">${PCT(data.pct)}</span></div>
+    </div>
+  </div>`;
 }
 
 function balanceRow(nombre, b) {
@@ -1262,12 +1235,11 @@ function balanceRow(nombre, b) {
   const cls = estado === 'sin_ingreso' ? '' : estado;
   const dotCls = estado === 'sin_ingreso' ? 'sin' : estado;
   const pctText = b.pctConsumido !== null && b.pctConsumido !== undefined ? (b.pctConsumido * 100).toFixed(0) + '%' : '—';
-  return `
-    <div class="balance-row ${cls}">
-      <span class="dot ${dotCls}"></span>
-      <div class="name">${nombre} <span style="font-weight:400;color:var(--muted);font-size:0.78rem;">${ARS(b.gasto)} / ${ARS(b.ingreso)}</span></div>
-      <div class="pct">${pctText}</div>
-    </div>`;
+  return `<div class="balance-row ${cls}">
+    <span class="dot ${dotCls}"></span>
+    <div class="name">${nombre} <span style="font-weight:400;color:var(--muted);font-size:0.78rem;">${ARS(b.gasto)} / ${ARS(b.ingreso)}</span></div>
+    <div class="pct">${pctText}</div>
+  </div>`;
 }
 
 // LISTADOS
@@ -1278,9 +1250,7 @@ async function renderListFijos() {
     const items = await api('listFijos', { mes: state.mes });
     if (!items.length) { cont.innerHTML = empty('Sin fijos en este mes'); return; }
     cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'fijo')).join('') + '</div>';
-  } catch (err) {
-    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
-  }
+  } catch (err) { cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`; }
 }
 async function renderListVariables() {
   const cont = document.getElementById('list-variables');
@@ -1289,9 +1259,7 @@ async function renderListVariables() {
     const items = await api('listGastosMes', { mes: state.mes });
     if (!items.length) { cont.innerHTML = empty('Sin variables en este mes'); return; }
     cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'variable')).join('') + '</div>';
-  } catch (err) {
-    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
-  }
+  } catch (err) { cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`; }
 }
 async function renderListCuotas(filtro = 'mes') {
   const cont = document.getElementById('list-cuotas');
@@ -1302,9 +1270,7 @@ async function renderListCuotas(filtro = 'mes') {
     const items = await api('listCuotas', params);
     if (!items.length) { cont.innerHTML = empty('Sin cuotas'); return; }
     cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'cuota')).join('') + '</div>';
-  } catch (err) {
-    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
-  }
+  } catch (err) { cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`; }
 }
 document.querySelectorAll('[data-cuotas-filter]').forEach(b => {
   b.addEventListener('click', () => renderListCuotas(b.dataset.cuotasFilter));
@@ -1316,46 +1282,37 @@ async function renderListPrestamos() {
     const items = await api('listPrestamos');
     if (!items.length) { cont.innerHTML = empty('Sin préstamos'); return; }
     cont.innerHTML = '<div class="table-wrap">' + items.map(i => rowItem(i, 'prestamo')).join('') + '</div>';
-  } catch (err) {
-    cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`;
-  }
+  } catch (err) { cont.innerHTML = `<div class="empty">⚠ ${err.message}</div>`; }
 }
 
 function empty(msg) { return `<div class="empty"><div class="empty-icon">🌸</div>${msg}</div>`; }
 
 function rowItem(item, tipo) {
   let desc = item['Descripción'] || '(sin desc)';
-  let monto = 0;
-  let meta = [];
-  let badgePagado = '';
+  let monto = 0; let meta = []; let badgePagado = '';
   if (tipo === 'fijo') {
-    monto = item.Monto;
-    meta = [item['Categoría'], item.MES, 'Día ' + (item['DíaVencim'] || '?')];
+    monto = item.Monto; meta = [item['Categoría'], item.MES, 'Día ' + (item['DíaVencim'] || '?')];
     badgePagado = item.Pagado === true ? '<span class="badge pagado">✓ Pagado</span>' : '<span class="badge pendiente">Pendiente</span>';
   } else if (tipo === 'variable') {
-    monto = item.Monto;
-    meta = [item['Categoría'], item.Tarjeta, item.Fecha];
+    monto = item.Monto; meta = [item['Categoría'], item.Tarjeta, item.Fecha];
   } else if (tipo === 'cuota') {
-    monto = item.MontoXCuota;
-    meta = [item.Tarjeta, `${item.CuotasPagadas}/${item.CuotasTotales} cuotas`, 'Desde ' + item.MesPrimerResumen];
+    monto = item.MontoXCuota; meta = [item.Tarjeta, `${item.CuotasPagadas}/${item.CuotasTotales} cuotas`, 'Desde ' + item.MesPrimerResumen];
   } else if (tipo === 'prestamo') {
-    monto = item.MontoXCuota;
-    meta = [item.Tipo, `${item.CuotasPagadas}/${item.CuotasTotales}`, 'Día ' + (item['DíaVencim'] || '?'), item.Estado];
+    monto = item.MontoXCuota; meta = [item.Tipo, `${item.CuotasPagadas}/${item.CuotasTotales}`, 'Día ' + (item['DíaVencim'] || '?'), item.Estado];
   }
   const idEscaped = JSON.stringify(item.ID);
-  return `
-    <div class="table-row clickable" onclick='openDetail(${idEscaped}, "${tipo}")'>
-      <div>
-        <div class="desc">${desc}</div>
-        <div class="meta">${titularBadge(item.Titular)} ${badgePagado} ${meta.filter(m => m !== '' && m !== undefined).map(m => `<span>${m}</span>`).join(' · ')}</div>
-      </div>
-      <div class="amt">${ARS(monto)}</div>
-    </div>`;
+  return `<div class="table-row clickable" onclick='openDetail(${idEscaped}, "${tipo}")'>
+    <div>
+      <div class="desc">${desc}</div>
+      <div class="meta">${titularBadge(item.Titular)} ${badgePagado} ${meta.filter(m => m !== '' && m !== undefined).map(m => `<span>${m}</span>`).join(' · ')}</div>
+    </div>
+    <div class="amt">${ARS(monto)}</div>
+  </div>`;
 }
 
 // DETALLE
 function openDetail(id, tipo) {
-  const mapList = { fijo: 'listFijos', variable: 'listGastosMes', cuota: 'listCuotas', prestamo: 'listPrestamos' };
+  const mapList   = { fijo: 'listFijos', variable: 'listGastosMes', cuota: 'listCuotas', prestamo: 'listPrestamos' };
   const mapDelete = { fijo: 'deleteFijo', variable: 'deleteGastoMes', cuota: 'deleteCuota', prestamo: 'deletePrestamo' };
   const params = tipo === 'cuota' ? { soloActivas: 'false' } : {};
   if (tipo === 'fijo' || tipo === 'variable') params.mes = state.mes;
@@ -1381,10 +1338,7 @@ function showSheet(item, tipo, deleteAction) {
     const nuevoEstado = !item.Pagado;
     togglePagadoBtn = `<button class="btn ${nuevoEstado ? 'success' : 'secondary'}" onclick="togglePagado('${item.ID}', ${nuevoEstado})">${nuevoEstado ? '✓ Marcar como pagado' : 'Desmarcar pagado'}</button>`;
   }
-
-  // Guardamos el item actual en variable global para edición
   window.__currentEditItem = { item: item, tipo: tipo };
-
   content.innerHTML = `
     <div class="sheet-title">${item['Descripción'] || item['Nro/Referencia'] || 'Detalle'}</div>
     ${rows}
@@ -1393,20 +1347,17 @@ function showSheet(item, tipo, deleteAction) {
       <button class="btn" onclick="abrirEdicion()">✏️ Editar</button>
       <button class="btn danger" onclick="deleteItem('${item.ID}', '${deleteAction}')">🗑 Eliminar</button>
       <button class="btn secondary" onclick="closeSheet()">Cerrar</button>
-    </div>
-  `;
+    </div>`;
   document.getElementById('sheetBackdrop').classList.add('show');
   document.getElementById('detailSheet').classList.add('show');
 }
 
-// =================== EDICIÓN ===================
+// EDICIÓN
 function abrirEdicion() {
   const ctx = window.__currentEditItem;
   if (!ctx) return;
   const { item, tipo } = ctx;
   const content = document.getElementById('sheetContent');
-
-  // Definir campos editables por tipo
   const camposPorTipo = {
     variable: [
       { name: 'MES', label: 'MES', type: 'text', placeholder: 'MM/AAAA', pattern: '\\d{2}/\\d{4}' },
@@ -1463,23 +1414,18 @@ function abrirEdicion() {
 
   const campos = camposPorTipo[tipo] || [];
   const cat = state.catalogos || {};
-
   const fieldsHTML = campos.map(f => {
     const val = item[f.name] !== undefined && item[f.name] !== null ? item[f.name] : '';
     if (f.type === 'select') {
-      // Si tiene options directas, usar esas. Si no, ir al catálogo
       const lista = f.options || (cat[f.catalog] || []);
+      const incluyeVacio = lista.includes('');
       const opciones = lista.map(o => {
         if (o === '') return `<option value="" ${val === '' ? 'selected' : ''}>—</option>`;
         return `<option ${o === val ? 'selected' : ''}>${o}</option>`;
       }).join('');
-      // Si NO incluye '' en options, agregamos el "—" al inicio
-      const incluyeVacio = lista.includes('');
       return `<div class="field"><label>${f.label}</label><select name="${f.name}">${incluyeVacio ? '' : '<option value="">—</option>'}${opciones}</select></div>`;
     }
-    if (f.type === 'textarea') {
-      return `<div class="field"><label>${f.label}</label><textarea name="${f.name}" rows="2">${val}</textarea></div>`;
-    }
+    if (f.type === 'textarea') return `<div class="field"><label>${f.label}</label><textarea name="${f.name}" rows="2">${val}</textarea></div>`;
     const pattern = f.pattern ? `pattern="${f.pattern}"` : '';
     const placeholder = f.placeholder ? `placeholder="${f.placeholder}"` : '';
     const step = f.type === 'number' ? 'step="0.01"' : '';
@@ -1494,10 +1440,8 @@ function abrirEdicion() {
         <button type="submit" class="btn success">Guardar cambios</button>
         <button type="button" class="btn secondary" onclick="closeSheet()">Cancelar</button>
       </div>
-    </form>
-  `;
+    </form>`;
 
-  // Manejar submit
   document.getElementById('form-edit').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.target.querySelector('button[type="submit"]');
@@ -1505,12 +1449,7 @@ function abrirEdicion() {
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando…';
     const data = { ID: item.ID };
     new FormData(e.target).forEach((v, k) => { data[k] = v; });
-    const updateAction = {
-      variable: 'updateGastoMes',
-      fijo: 'updateFijo',
-      cuota: 'updateCuota',
-      prestamo: 'updatePrestamo'
-    }[tipo];
+    const updateAction = { variable: 'updateGastoMes', fijo: 'updateFijo', cuota: 'updateCuota', prestamo: 'updatePrestamo' }[tipo];
     try {
       await apiPost(updateAction, data);
       toast('Cambios guardados ✓', 'success');
@@ -1523,6 +1462,7 @@ function abrirEdicion() {
     }
   });
 }
+
 function closeSheet() {
   document.getElementById('sheetBackdrop').classList.remove('show');
   document.getElementById('detailSheet').classList.remove('show');
@@ -1536,9 +1476,7 @@ async function togglePagado(id, pagado) {
     closeSheet();
     const active = document.querySelector('#tabs .tab.active').dataset.view;
     switchView(active);
-  } catch (err) {
-    toast(err.message, 'error');
-  }
+  } catch (err) { toast(err.message, 'error'); }
 }
 
 async function deleteItem(id, action) {
@@ -1549,16 +1487,14 @@ async function deleteItem(id, action) {
     closeSheet();
     const active = document.querySelector('#tabs .tab.active').dataset.view;
     switchView(active);
-  } catch (err) {
-    toast(err.message, 'error');
-  }
+  } catch (err) { toast(err.message, 'error'); }
 }
 
 // FORMS
 const formActions = {
   'form-variable': 'addGastoMes',
-  'form-fijo': 'addFijo',
-  'form-cuota': 'addCuota',
+  'form-fijo':     'addFijo',
+  'form-cuota':    'addCuota',
   'form-prestamo': 'addPrestamo'
 };
 
@@ -1581,7 +1517,6 @@ Object.keys(formActions).forEach(formId => {
       form.reset();
       document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
     } catch (err) {
-      // Si fue timeout o "failed to fetch", probablemente se guardó igual
       const errMsg = err.message || String(err);
       if (errMsg.includes('Timeout') || errMsg.includes('Failed to fetch') || errMsg.includes('fetch')) {
         toast('Se guardó pero hubo demora. Refrescá para ver.', 'success');
@@ -1596,33 +1531,122 @@ Object.keys(formActions).forEach(formId => {
   });
 });
 
-// CONFIG
+// =================== CONFIG ===================
 async function renderConfig() {
   document.getElementById('cfg-endpoint').value = state.endpoint;
   document.getElementById('cfg-token').value = state.token;
+
+  // Pre-rellenar el campo de mes con el mes activo
+  const mesField = document.getElementById('cfg-ingreso-mes');
+  if (mesField && !mesField.value) mesField.value = state.mes;
+
+  // Cargar valores actuales del mes activo en los inputs
   try {
-    const cfg = await api('getConfig');
-    document.getElementById('cfg-ingreso-sole').value = cfg.ingreso_sole || '';
-    document.getElementById('cfg-ingreso-gabi').value = cfg.ingreso_gabi || '';
+    const registros = await api('getIngresos', { mes: state.mes });
+    if (registros && registros.length > 0) {
+      const r = registros[0];
+      document.getElementById('cfg-ingreso-sole').value = r.Ingreso_Sole || '';
+      document.getElementById('cfg-ingreso-gabi').value = r.Ingreso_Gabi || '';
+    }
   } catch (err) {
-    toast(err.message, 'error');
+    // Si getIngresos no existe todavía, fallback a getConfig (compatibilidad)
+    try {
+      const cfg = await api('getConfig');
+      document.getElementById('cfg-ingreso-sole').value = cfg.ingreso_sole || '';
+      document.getElementById('cfg-ingreso-gabi').value = cfg.ingreso_gabi || '';
+    } catch (e) { /* silencio */ }
+  }
+
+  // Cargar historial
+  renderHistorialIngresos();
+}
+
+async function renderHistorialIngresos() {
+  const cont = document.getElementById('cfg-historial-ingresos');
+  cont.innerHTML = '<div class="loading"><span class="spinner"></span>Cargando historial…</div>';
+  try {
+    const registros = await api('getIngresos');
+    if (!registros || registros.length === 0) {
+      cont.innerHTML = '<div class="ingreso-historial-empty">Sin registros todavía. Guardá los ingresos del mes para comenzar el historial.</div>';
+      return;
+    }
+    // Ordenar por AAAAMM descendente (más reciente primero)
+    const ordenados = [...registros].sort((a, b) => Number(b.AAAAMM) - Number(a.AAAAMM));
+    const mesActualAaaamm = mesAAAAMMfront(state.mes);
+
+    const filas = ordenados.map(r => {
+      const esActivo = Number(r.AAAAMM) === mesActualAaaamm;
+      const pillClass = esActivo ? 'mes-pill activo' : 'mes-pill';
+      return `<div class="ingreso-row">
+        <span class="${pillClass}">${mesPillText(r.MES)}</span>
+        <span class="ing-val sole">${ARS(r.Ingreso_Sole)}</span>
+        <span class="ing-val gabi">${ARS(r.Ingreso_Gabi)}</span>
+      </div>`;
+    }).join('');
+
+    cont.innerHTML = `
+      <div class="ingreso-row header">
+        <span>Mes</span><span>🌸 Soledad</span><span>🌊 Gabriel</span>
+      </div>
+      ${filas}`;
+  } catch (err) {
+    cont.innerHTML = '<div class="ingreso-historial-empty">Instalá el patch del backend para ver el historial.</div>';
   }
 }
 
+// Convierte MM/AAAA a AAAAMM numérico (igual que el backend)
+function mesAAAAMMfront(mes) {
+  if (!mes) return 0;
+  const p = mes.split('/');
+  if (p.length !== 2) return 0;
+  return parseInt(p[1] + p[0].padStart(2, '0'), 10);
+}
+
 async function guardarIngresos() {
+  const mes  = document.getElementById('cfg-ingreso-mes').value.trim();
   const sole = document.getElementById('cfg-ingreso-sole').value;
   const gabi = document.getElementById('cfg-ingreso-gabi').value;
+
+  if (!mes || !/^\d{2}\/\d{4}$/.test(mes)) {
+    toast('Ingresá el mes en formato MM/AAAA', 'error');
+    document.getElementById('cfg-ingreso-mes').focus();
+    return;
+  }
+  if (!sole && !gabi) {
+    toast('Ingresá al menos un valor de ingreso', 'error');
+    return;
+  }
+
+  const btn = document.querySelector('#view-config .pay-card .btn');
+  const orig = btn.textContent;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Guardando…';
+
   try {
-    if (sole !== '') await api('setConfig', { clave: 'ingreso_sole', valor: sole });
-    if (gabi !== '') await api('setConfig', { clave: 'ingreso_gabi', valor: gabi });
-    toast('Ingresos guardados ✓', 'success');
+    await apiPost('setIngresos', {
+      mes:           mes,
+      ingreso_sole:  Number(sole) || 0,
+      ingreso_gabi:  Number(gabi) || 0
+    });
+    toast(`Ingresos de ${mesPillText(mes)} guardados ✓`, 'success');
+    // Refrescar historial
+    renderHistorialIngresos();
   } catch (err) {
-    toast(err.message, 'error');
+    // Fallback: si el nuevo endpoint no existe, usar el viejo
+    if (err.message && err.message.includes('no reconocida')) {
+      try {
+        if (sole) await api('setConfig', { clave: 'ingreso_sole', valor: sole });
+        if (gabi) await api('setConfig', { clave: 'ingreso_gabi', valor: gabi });
+        toast('Ingresos guardados (modo legacy)', 'success');
+      } catch (e2) { toast(e2.message, 'error'); }
+    } else {
+      toast(err.message, 'error');
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
   }
 }
 
 function editarSetup() { showSetup(); }
-
 function showSetup() {
   document.getElementById('setupModal').style.display = 'flex';
   document.getElementById('setupEndpoint').value = state.endpoint || '';
@@ -1632,31 +1656,24 @@ function saveSetup() {
   const ep = document.getElementById('setupEndpoint').value.trim();
   const tk = document.getElementById('setupToken').value.trim();
   if (!ep || !tk) { toast('Completá los dos campos', 'error'); return; }
-  localStorage.setItem(LS_ENDPOINT, ep);
-  localStorage.setItem(LS_TOKEN, tk);
+  localStorage.setItem(LS_ENDPOINT, ep); localStorage.setItem(LS_TOKEN, tk);
   state.endpoint = ep; state.token = tk;
   document.getElementById('setupModal').style.display = 'none';
   init();
 }
 
 async function init() {
-  if (!state.endpoint || !state.token) {
-    showSetup();
-    return;
-  }
+  if (!state.endpoint || !state.token) { showSetup(); return; }
   await cargarCatalogos();
   renderTablero();
   document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
   actualizarBadgeUsuario();
 }
 
-// Inicialización general (login → setup → app)
 function bootstrap() {
   setupLoginListeners();
   if (state.authenticated && state.user) {
-    hideLogin();
-    actualizarBadgeUsuario();
-    init();
+    hideLogin(); actualizarBadgeUsuario(); init();
   } else {
     showLogin();
   }
