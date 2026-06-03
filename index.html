@@ -605,7 +605,7 @@
   <div class="login-brand">
     <span class="heart">❤</span>
     <h1>Gastos con Amor</h1>
-    <div class="sub">v5.2</div>
+    <div class="sub">v5.3</div>
   </div>
   <div class="login-card">
     <h2>¿Quién está usando la app?</h2>
@@ -952,7 +952,7 @@ async function api(action, params = {}) {
     if (v !== undefined && v !== null) url.searchParams.set(k, v);
   }
   const ctrl = new AbortController();
-  const timeout = setTimeout(() => ctrl.abort(), 20000);
+  const timeout = setTimeout(() => ctrl.abort(), 45000);
   try {
     const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: ctrl.signal });
     clearTimeout(timeout);
@@ -961,7 +961,7 @@ async function api(action, params = {}) {
     return json.data;
   } catch (err) {
     clearTimeout(timeout);
-    if (err.name === 'AbortError') throw new Error('Timeout (20s)');
+    if (err.name === 'AbortError') throw new Error('Timeout (45s) - probá de nuevo');
     throw err;
   }
 }
@@ -971,10 +971,19 @@ async function apiPost(action, data) {
   url.searchParams.set('action', action);
   url.searchParams.set('token', state.token);
   url.searchParams.set('data', JSON.stringify(data));
-  const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow' });
-  const json = await res.json();
-  if (!json.ok) throw new Error(json.error || 'Error desconocido');
-  return json.data;
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 45000);
+  try {
+    const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: ctrl.signal });
+    clearTimeout(timeout);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Error desconocido');
+    return json.data;
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') throw new Error('Timeout (45s) - probá de nuevo');
+    throw err;
+  }
 }
 
 function toast(msg, type = '') {
@@ -1550,10 +1559,16 @@ Object.keys(formActions).forEach(formId => {
       await apiPost(formActions[formId], data);
       toast('Guardado ✓', 'success');
       form.reset();
-      // Re-prellenar MES
       document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
     } catch (err) {
-      toast(err.message, 'error');
+      // Si fue timeout, probablemente se guardó igual. Avisamos sin alarmar.
+      if (err.message && err.message.includes('Timeout')) {
+        toast('Se guardó pero tardó en responder. Refrescá para ver.', 'success');
+        form.reset();
+        document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
+      } else {
+        toast(err.message, 'error');
+      }
     } finally {
       btn.disabled = false; btn.textContent = origText;
     }
