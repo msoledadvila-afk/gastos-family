@@ -76,6 +76,17 @@
     border-radius: 100px; font-size: 0.68rem; font-weight: 700;
     letter-spacing: 0.05em;
   }
+  /* Selector mes/año en el header */
+  .month-selector .mes-picker { display: flex; gap: 0.4rem; flex: 1; }
+  .month-selector select {
+    background: rgba(255,255,255,0.12); border: none; color: var(--cream);
+    font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 600;
+    padding: 0.25rem 0.4rem; border-radius: 6px; outline: none; cursor: pointer;
+  }
+  .month-selector select option { color: #1a1a1a; }
+  /* Selector mes/año en formularios */
+  .mes-picker { display: flex; gap: 0.5rem; }
+  .mes-picker select { flex: 1; cursor: pointer; }
 
   nav.tabs {
     display: flex; background: var(--paper);
@@ -640,7 +651,7 @@
   <div class="login-brand">
     <span class="heart">❤</span>
     <h1>Gastos con Amor</h1>
-    <div class="sub">v5.3.2</div>
+    <div class="sub">v6.0 · Firebase</div>
   </div>
   <div class="login-card">
     <h2>¿Quién está usando la app?</h2>
@@ -675,8 +686,11 @@
   </div>
   <div class="month-selector">
     <label>Mes</label>
-    <input type="text" id="mesInput" placeholder="MM/AAAA" maxlength="7">
-    <span class="pill" id="mesPill">ABR 26</span>
+    <div class="mes-picker">
+      <select id="mesPickerMonth" class="mp-month"></select>
+      <select id="mesPickerYear" class="mp-year"></select>
+    </div>
+    <span class="pill" id="mesPill">JUL 26</span>
   </div>
 </header>
 
@@ -709,8 +723,12 @@
 
   <form class="form active" id="form-variable">
     <div class="field">
-      <label>MES del resumen (MM/AAAA)</label>
-      <input type="text" name="MES" placeholder="04/2026" required pattern="\d{2}/\d{4}">
+      <label>MES del resumen</label>
+      <div class="mes-picker" data-mes-name="MES">
+        <select class="mp-month"></select>
+        <select class="mp-year"></select>
+      </div>
+      <input type="hidden" name="MES">
     </div>
     <div class="field-row">
       <div class="field"><label>Fecha</label><input type="date" name="Fecha" required></div>
@@ -734,7 +752,7 @@
   </form>
 
   <form class="form" id="form-fijo">
-    <div class="field"><label>MES (MM/AAAA)</label><input type="text" name="MES" placeholder="04/2026" required pattern="\d{2}/\d{4}"></div>
+    <div class="field"><label>MES</label><div class="mes-picker" data-mes-name="MES"><select class="mp-month"></select><select class="mp-year"></select></div><input type="hidden" name="MES"></div>
     <div class="field-row">
       <div class="field"><label>Titular</label><select name="Titular" data-catalog="titulares" data-toggle-pagadopor required></select></div>
       <div class="field"><label>Categoría</label><select name="Categoría" data-catalog="categoriasFijos" required></select></div>
@@ -770,7 +788,7 @@
       <div class="field"><label>Cuotas totales</label><input type="number" name="CuotasTotales" min="1" required></div>
       <div class="field"><label>Cuotas pagadas</label><input type="number" name="CuotasPagadas" min="0" value="0"></div>
     </div>
-    <div class="field"><label>Mes primer resumen (MM/AAAA)</label><input type="text" name="MesPrimerResumen" placeholder="04/2026" required pattern="\d{2}/\d{4}"></div>
+    <div class="field"><label>Mes primer resumen</label><div class="mes-picker" data-mes-name="MesPrimerResumen"><select class="mp-month"></select><select class="mp-year"></select></div><input type="hidden" name="MesPrimerResumen"></div>
     <div class="field"><label>Notas</label><textarea name="Notas" rows="2"></textarea></div>
     <button type="submit" class="btn">Guardar cuota</button>
   </form>
@@ -795,7 +813,7 @@
     </div>
     <div class="field-row">
       <div class="field"><label>Día venc.</label><input type="number" name="DíaVencim" min="1" max="31"></div>
-      <div class="field"><label>Primer mes (MM/AAAA)</label><input type="text" name="PrimerMesPago" placeholder="05/2026" required pattern="\d{2}/\d{4}"></div>
+      <div class="field"><label>Primer mes</label><div class="mes-picker" data-mes-name="PrimerMesPago"><select class="mp-month"></select><select class="mp-year"></select></div><input type="hidden" name="PrimerMesPago"></div>
     </div>
     <button type="submit" class="btn">Guardar préstamo</button>
   </form>
@@ -850,12 +868,11 @@
     <div class="loading"><span class="spinner"></span>Cargando historial…</div>
   </div>
 
-  <!-- Conexión API -->
+  <!-- Conexión -->
   <div class="pay-card" style="margin-top:1.25rem;">
-    <div class="label" style="margin-bottom:0.75rem;">Conexión API</div>
-    <div class="field"><label>Endpoint</label><input type="text" id="cfg-endpoint" readonly></div>
-    <div class="field"><label>Token</label><input type="password" id="cfg-token" readonly></div>
-    <button class="btn secondary" onclick="editarSetup()">Editar conexión</button>
+    <div class="label" style="margin-bottom:0.75rem;">Conexión</div>
+    <div class="field"><label>Backend</label><input type="text" id="cfg-backend" value="Firebase (Cloud Functions)" readonly></div>
+    <div class="field"><label>Sesión</label><input type="text" id="cfg-sesion" readonly></div>
   </div>
 </section>
 
@@ -869,31 +886,44 @@
 
 <div id="toast"></div>
 
-<div class="setup-modal" id="setupModal" style="display:none;">
-  <div class="setup-box">
-    <h2>Configuración inicial</h2>
-    <p>Ingresá el endpoint y token del API de tu Apps Script.</p>
-    <div class="field"><label>URL Endpoint</label><input type="text" id="setupEndpoint" placeholder="https://script.google.com/..."></div>
-    <div class="field"><label>Token</label><input type="text" id="setupToken" placeholder="uuid..."></div>
-    <button class="btn" onclick="saveSetup()">Guardar y conectar</button>
-  </div>
-</div>
+<!-- (Configuración de conexión removida: ahora la autenticación es Firebase) -->
+
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
 <script>
-const LS_ENDPOINT = 'gca5_endpoint';
-const LS_TOKEN    = 'gca5_token';
-const LS_MES      = 'gca5_mes';
-const LS_USER     = 'gca5_user';
-const LS_AUTH     = 'gca5_auth';
+// ===== Firebase init =====
+firebase.initializeApp({
+  apiKey: "AIzaSyBREkns_zadYLDS_Hs_WNQeNMz0yG-x5q8",
+  authDomain: "gastos-con-amor.firebaseapp.com",
+  projectId: "gastos-con-amor",
+  storageBucket: "gastos-con-amor.firebasestorage.app",
+  messagingSenderId: "573737199244",
+  appId: "1:573737199244:web:ce44addfcdb870ac32fda9"
+});
 
-const APP_PASSWORD = 'amor2026';
+// URL del backend nuevo (Firebase Cloud Functions)
+const API_URL = 'https://api-t6n3kxdhna-rj.a.run.app';
+
+// Usuario visible -> email interno de Firebase Auth
+const EMAIL_BY_USER = {
+  Soledad: 'soledad@gastosconamor.local',
+  Gabriel: 'gabriel@gastosconamor.local'
+};
+function userFromEmail(email) {
+  if (!email) return '';
+  if (email.toLowerCase().startsWith('soledad')) return 'Soledad';
+  if (email.toLowerCase().startsWith('gabriel')) return 'Gabriel';
+  return '';
+}
+
+const LS_MES  = 'gca5_mes';
+const LS_USER = 'gca5_user';
 
 const state = {
-  endpoint: localStorage.getItem(LS_ENDPOINT) || '',
-  token:    localStorage.getItem(LS_TOKEN) || '',
-  mes:      localStorage.getItem(LS_MES) || defaultMes(),
-  user:     localStorage.getItem(LS_USER) || '',
-  authenticated: localStorage.getItem(LS_AUTH) === 'yes',
+  mes:       localStorage.getItem(LS_MES) || defaultMes(),
+  user:      localStorage.getItem(LS_USER) || '',
   catalogos: null
 };
 
@@ -920,33 +950,50 @@ function setupLoginListeners() {
   const pwd = document.getElementById('loginPwd');
   if (pwd) pwd.addEventListener('keypress', (e) => { if (e.key === 'Enter') hacerLogin(); });
 }
-function hacerLogin() {
+async function hacerLogin() {
   const pwd = document.getElementById('loginPwd').value;
   const errorEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
   if (!loginUserSelected) { errorEl.textContent = 'Elegí un usuario primero'; return; }
   if (!pwd) { errorEl.textContent = 'Falta la clave'; return; }
-  if (pwd !== APP_PASSWORD) {
-    errorEl.textContent = '❌ Clave incorrecta';
-    document.getElementById('loginPwd').value = '';
-    return;
-  }
+  const email = EMAIL_BY_USER[loginUserSelected];
+  if (!email) { errorEl.textContent = 'Usuario no válido'; return; }
+
   errorEl.textContent = '';
-  state.user = loginUserSelected;
-  state.authenticated = true;
-  localStorage.setItem(LS_USER, state.user);
-  localStorage.setItem(LS_AUTH, 'yes');
-  document.getElementById('loginPwd').value = '';
-  hideLogin();
-  actualizarBadgeUsuario();
-  if (!state.endpoint || !state.token) { showSetup(); } else { init(); }
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Entrando…';
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, pwd);
+    // El resto lo maneja onAuthStateChanged (en bootstrap)
+    document.getElementById('loginPwd').value = '';
+  } catch (e) {
+    errorEl.textContent = mensajeAuthError(e);
+    document.getElementById('loginPwd').value = '';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = origText;
+  }
 }
-function hacerLogout() {
+
+function mensajeAuthError(e) {
+  const code = (e && e.code) ? e.code : '';
+  if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') return '❌ Clave incorrecta';
+  if (code === 'auth/user-not-found') return '❌ Usuario no encontrado';
+  if (code === 'auth/invalid-email') return '❌ Usuario no válido';
+  if (code === 'auth/too-many-requests') return 'Demasiados intentos, esperá un rato';
+  if (code === 'auth/network-request-failed') return 'Sin conexión a internet';
+  return 'No se pudo entrar: ' + (code || (e && e.message) || 'error');
+}
+
+async function hacerLogout() {
   if (!confirm('¿Cerrar sesión?')) return;
-  state.authenticated = false; state.user = '';
-  localStorage.removeItem(LS_AUTH); localStorage.removeItem(LS_USER);
+  try { await firebase.auth().signOut(); } catch (e) { /* ignore */ }
+  state.user = '';
+  localStorage.removeItem(LS_USER);
   loginUserSelected = '';
   document.querySelectorAll('.user-option').forEach(o => o.classList.remove('selected'));
-  showLogin();
+  // onAuthStateChanged se encarga de mostrar el login
 }
 function actualizarBadgeUsuario() {
   const badge = document.getElementById('currentUserBadge');
@@ -962,18 +1009,24 @@ function defaultMes() {
   return String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
 }
 
+async function getIdToken() {
+  const u = firebase.auth().currentUser;
+  if (!u) throw new Error('No autenticado');
+  return await u.getIdToken();
+}
+
 async function api(action, params = {}) {
-  if (!state.endpoint || !state.token) { showSetup(); throw new Error('Falta configuración'); }
-  const url = new URL(state.endpoint);
+  const token = await getIdToken();
+  const url = new URL(API_URL);
   url.searchParams.set('action', action);
-  url.searchParams.set('token', state.token);
+  url.searchParams.set('token', token);
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null) url.searchParams.set(k, v);
   }
   const ctrl = new AbortController();
   const timeout = setTimeout(() => ctrl.abort(), 45000);
   try {
-    const res = await fetch(url.toString(), { method: 'GET', redirect: 'follow', signal: ctrl.signal });
+    const res = await fetch(url.toString(), { method: 'GET', signal: ctrl.signal });
     clearTimeout(timeout);
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'Error desconocido');
@@ -986,14 +1039,15 @@ async function api(action, params = {}) {
 }
 
 async function apiPost(action, data) {
-  const url = new URL(state.endpoint);
+  const token = await getIdToken();
+  const url = new URL(API_URL);
   url.searchParams.set('action', action);
-  url.searchParams.set('token', state.token);
+  url.searchParams.set('token', token);
   const ctrl = new AbortController();
   const timeout = setTimeout(() => ctrl.abort(), 45000);
   try {
     const res = await fetch(url.toString(), {
-      method: 'POST', redirect: 'follow', signal: ctrl.signal,
+      method: 'POST', signal: ctrl.signal,
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(data)
     });
@@ -1055,19 +1109,80 @@ document.querySelectorAll('#formTabs .form-tab').forEach(t => {
   });
 });
 
-// Mes selector
-const mesInput = document.getElementById('mesInput');
-mesInput.value = state.mes;
+// ===== Selector de mes/año (dropdowns) =====
+const MESES_LARGO = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function aniosDisponibles() {
+  const y = new Date().getFullYear();
+  const arr = [];
+  for (let i = y - 2; i <= y + 2; i++) arr.push(i);
+  return arr;
+}
+
+function poblarMesPicker(selMes, selAnio, mes) {
+  selMes.innerHTML = MESES_LARGO
+    .map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}">${m}</option>`)
+    .join('');
+  selAnio.innerHTML = aniosDisponibles()
+    .map(y => `<option value="${y}">${y}</option>`)
+    .join('');
+  if (mes && /^\d{2}\/\d{4}$/.test(mes)) {
+    const [mm, yyyy] = mes.split('/');
+    selMes.value = mm;
+    if (![...selAnio.options].some(o => o.value === yyyy)) {
+      const opt = document.createElement('option');
+      opt.value = yyyy; opt.textContent = yyyy;
+      selAnio.appendChild(opt);
+    }
+    selAnio.value = yyyy;
+  }
+}
+
+function leerMesPicker(selMes, selAnio) {
+  return selMes.value + '/' + selAnio.value;
+}
+
+// Pone un mes (MM/AAAA) en todos los pickers de los formularios de carga
+function setMesEnFormularios(mes) {
+  document.querySelectorAll('.mes-picker[data-mes-name]').forEach(picker => {
+    const m = picker.querySelector('.mp-month');
+    const y = picker.querySelector('.mp-year');
+    const name = picker.dataset.mesName;
+    const hidden = picker.parentElement.querySelector(`input[name="${name}"]`);
+    poblarMesPicker(m, y, mes);
+    if (hidden) hidden.value = mes;
+  });
+}
+
+// Selector del header
+const mesPickerMonth = document.getElementById('mesPickerMonth');
+const mesPickerYear  = document.getElementById('mesPickerYear');
+poblarMesPicker(mesPickerMonth, mesPickerYear, state.mes);
 document.getElementById('mesPill').textContent = mesPillText(state.mes);
-mesInput.addEventListener('change', () => {
-  const v = mesInput.value.trim();
-  if (!/^\d{2}\/\d{4}$/.test(v)) { toast('Formato MM/AAAA', 'error'); mesInput.value = state.mes; return; }
+
+function onCambioMesHeader() {
+  const v = leerMesPicker(mesPickerMonth, mesPickerYear);
   state.mes = v;
   localStorage.setItem(LS_MES, v);
   document.getElementById('mesPill').textContent = mesPillText(v);
   const active = document.querySelector('#tabs .tab.active').dataset.view;
   switchView(active);
-  document.querySelectorAll('input[name="MES"]').forEach(i => i.value = v);
+  setMesEnFormularios(v);
+}
+mesPickerMonth.addEventListener('change', onCambioMesHeader);
+mesPickerYear.addEventListener('change', onCambioMesHeader);
+
+// Inicializar los pickers de los formularios de carga
+document.querySelectorAll('.mes-picker[data-mes-name]').forEach(picker => {
+  const m = picker.querySelector('.mp-month');
+  const y = picker.querySelector('.mp-year');
+  const name = picker.dataset.mesName;
+  const hidden = picker.parentElement.querySelector(`input[name="${name}"]`);
+  poblarMesPicker(m, y, state.mes);
+  if (hidden) hidden.value = state.mes;
+  const sync = () => { if (hidden) hidden.value = leerMesPicker(m, y); };
+  m.addEventListener('change', sync);
+  y.addEventListener('change', sync);
 });
 
 async function cargarCatalogos() {
@@ -1515,13 +1630,13 @@ Object.keys(formActions).forEach(formId => {
         toast('Guardado ✓', 'success');
       }
       form.reset();
-      document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
+      setMesEnFormularios(state.mes);
     } catch (err) {
       const errMsg = err.message || String(err);
       if (errMsg.includes('Timeout') || errMsg.includes('Failed to fetch') || errMsg.includes('fetch')) {
         toast('Se guardó pero hubo demora. Refrescá para ver.', 'success');
         form.reset();
-        document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
+        setMesEnFormularios(state.mes);
       } else {
         toast(errMsg, 'error');
       }
@@ -1568,8 +1683,8 @@ function poblarSelectMeses(mesSeleccionado) {
 }
 
 async function renderConfig() {
-  document.getElementById('cfg-endpoint').value = state.endpoint;
-  document.getElementById('cfg-token').value = state.token;
+  const sesionEl = document.getElementById('cfg-sesion');
+  if (sesionEl) sesionEl.value = state.user ? (state.user + ' · sesión activa') : 'sin sesión';
 
   // Poblar el select con el mes activo pre-seleccionado
   poblarSelectMeses(state.mes);
@@ -1678,37 +1793,31 @@ async function guardarIngresos() {
   }
 }
 
-function editarSetup() { showSetup(); }
-function showSetup() {
-  document.getElementById('setupModal').style.display = 'flex';
-  document.getElementById('setupEndpoint').value = state.endpoint || '';
-  document.getElementById('setupToken').value = state.token || '';
-}
-function saveSetup() {
-  const ep = document.getElementById('setupEndpoint').value.trim();
-  const tk = document.getElementById('setupToken').value.trim();
-  if (!ep || !tk) { toast('Completá los dos campos', 'error'); return; }
-  localStorage.setItem(LS_ENDPOINT, ep); localStorage.setItem(LS_TOKEN, tk);
-  state.endpoint = ep; state.token = tk;
-  document.getElementById('setupModal').style.display = 'none';
-  init();
-}
-
 async function init() {
-  if (!state.endpoint || !state.token) { showSetup(); return; }
   await cargarCatalogos();
   renderTablero();
-  document.querySelectorAll('input[name="MES"]').forEach(i => i.value = state.mes);
+  setMesEnFormularios(state.mes);
   actualizarBadgeUsuario();
 }
 
 function bootstrap() {
   setupLoginListeners();
-  if (state.authenticated && state.user) {
-    hideLogin(); actualizarBadgeUsuario(); init();
-  } else {
-    showLogin();
-  }
+  // Firebase recuerda la sesión: si ya estabas logueada, entra sola.
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      const u = userFromEmail(user.email);
+      if (u) { state.user = u; localStorage.setItem(LS_USER, u); }
+      hideLogin();
+      actualizarBadgeUsuario();
+      try {
+        await init();
+      } catch (e) {
+        toast('Error cargando datos: ' + (e.message || e), 'error');
+      }
+    } else {
+      showLogin();
+    }
+  });
 }
 
 bootstrap();
