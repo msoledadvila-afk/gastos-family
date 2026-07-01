@@ -1530,7 +1530,10 @@ function abrirEdicion() {
   const campos = camposPorTipo[tipo] || [];
   const cat = state.catalogos || {};
   const fieldsHTML = campos.map(f => {
-    const val = item[f.name] !== undefined && item[f.name] !== null ? item[f.name] : '';
+    let val = item[f.name] !== undefined && item[f.name] !== null ? item[f.name] : '';
+    if (f.type === 'date' && typeof val === 'string' && val.length >= 10) {
+      val = val.slice(0, 10); // yyyy-MM-dd: recorta hora/zona ISO que manda el backend
+    }
     if (f.type === 'select') {
       const lista = f.options || (cat[f.catalog] || []);
       const incluyeVacio = lista.includes('');
