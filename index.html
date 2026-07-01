@@ -1430,7 +1430,7 @@ function openDetail(id, tipo) {
   const mapList   = { fijo: 'listFijos', variable: 'listGastosMes', cuota: 'listCuotas', prestamo: 'listPrestamos' };
   const mapDelete = { fijo: 'deleteFijo', variable: 'deleteGastoMes', cuota: 'deleteCuota', prestamo: 'deletePrestamo' };
   const params = tipo === 'cuota' ? { soloActivas: 'false' } : {};
-  if (tipo === 'fijo' || tipo === 'variable') params.mes = state.mes;
+  if (tipo === 'fijo' || tipo === 'variable' || tipo === 'cuota' || tipo === 'prestamo') params.mes = state.mes;
   api(mapList[tipo], params).then(items => {
     const item = items.find(x => x.ID === id);
     if (!item) { toast('No encontrado', 'error'); return; }
